@@ -9,11 +9,13 @@ window.STORE = {
   whatsapp: '201029516690',
   whatsappDisplay: '01029516690',
 
-  // رابط /exec بتاع Google Apps Script (الشيت). لو فاضي، الطلب بيروح واتساب بس.
-  sheetUrl: '',
-
-  // رابط لوحة التحكم (نشرة «اللوحة» في Apps Script). admin.html بيحوّل عليه.
-  adminUrl: '',
+  // قاعدة الطلبات ولوحة التحكم (Firebase، ببلاش)
+  firebase: {
+    apiKey: 'AIzaSyCYSkZoNkCvrcHaxUHaj4Rb-WnCyLRF0Ss',
+    authDomain: 'rawnaq-store-8e40c.firebaseapp.com',
+    projectId: 'rawnaq-store-8e40c',
+    appId: '1:37288630145:web:6d763018244c8ee81eba80'
+  },
 
   // البكسلات: حط الـ ID بس، وسيبها فاضية لو مش عندك
   facebookPixel: '',

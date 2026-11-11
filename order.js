@@ -159,21 +159,40 @@
       location.href = 'thanks.html';
     }
 
-    if (!S.sheetUrl) { done('offline'); return; }
+    if (hp) { done('ok'); return; }                       // روبوت: مانسجلش حاجة
+    var F = S.firebase;
+    if (!F || !F.projectId) { done('offline'); return; }
+
+    // رقم المستند = الموبايل + تاريخ النهارده (بتوقيت القاهرة) → نفس الرقم مايطلبش مرتين في نفس اليوم
+    var docId = d.phone + '_' + cairoDay().replace(/-/g, '');
+    var base = 'projects/' + F.projectId + '/databases/(default)/documents';
+    var sv = function (v) { return { stringValue: String(v) }; };
+    var body = { writes: [{
+      update: { name: base + '/orders/' + docId, fields: {
+        id: sv(id), qty: { integerValue: String(sel.qty) }, total: { integerValue: String(sel.price) },
+        name: sv(d.name.slice(0, 80)), phone: sv(d.phone), gov: sv(d.gov), address: sv(d.address.slice(0, 250)),
+        sku: sv(P.sku), src: sv(String(src).slice(0, 60)), status: sv('جديد'), notes: sv(''), taagerNo: sv('')
+      } },
+      currentDocument: { exists: false },
+      updateTransforms: [{ fieldPath: 'createdAt', setToServerValue: 'REQUEST_TIME' }]
+    }] };
+
     var ctl = 'AbortController' in window ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
-    fetch(S.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(order), signal: ctl ? ctl.signal : undefined })
-      .then(function (r) { return r.json(); })
+    fetch('https://firestore.googleapis.com/v1/' + base + ':commit?key=' + F.apiKey, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined
+    })
       .then(function (r) {
         clearTimeout(timer);
         if (r.ok) return done('ok');
-        if (r.dup) {
+        if (r.status === 409) {                            // نفس الرقم طلب النهارده
           store.set('rq_last', { phone: d.phone, day: cairoDay() });
           msg.textContent = 'طلبك من الرقم ده وصلنا النهارده خلاص، وهنتصل بيك نأكده.';
-        } else if (r.err === 'phone') { setBad('phone', true); msg.textContent = 'راجع رقم الموبايل.'; }
-        else return done('offline');
-        msg.style.display = 'block';
-        busy = false; btn.disabled = false; btn.textContent = 'تأكيد الطلب';
+          msg.style.display = 'block';
+          busy = false; btn.disabled = false; btn.textContent = 'تأكيد الطلب';
+          return;
+        }
+        done('offline');                                   // أي مشكلة تانية: الطلب يروح واتساب
       })
       .catch(function () { clearTimeout(timer); done('offline'); });
   });
