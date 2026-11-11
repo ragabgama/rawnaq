@@ -53,6 +53,18 @@
     thumbs.appendChild(b);
   });
 
+  /* ---------- فيديو المنتج: يشتغل لما العميل يوصله ---------- */
+  var vid = $('demoVid');
+  if (vid) {
+    var startVid = function () { vid.preload = 'auto'; var p = vid.play(); if (p && p.catch) p.catch(function () {}); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) startVid(); else vid.pause(); });
+      }, { threshold: 0.3 }).observe(vid);
+    } else { startVid(); }
+    vid.addEventListener('click', function () { vid.paused ? startVid() : vid.pause(); });
+  }
+
   /* ---------- العروض ---------- */
   var base = P.offers[0].price;
   var sel = P.offers.filter(function (o) { return o.default; })[0] || P.offers[0];

@@ -99,6 +99,9 @@ summary{cursor:pointer;padding:14px 16px;font-weight:700;list-style:none;display
 summary::after{content:"+";font-size:20px;color:var(--pet)}
 details[open] summary::after{content:"−"}
 details p{padding:0 16px 14px;color:var(--muted)}
+.vid{position:relative;margin-top:12px;border-radius:16px;overflow:hidden;background:#000;max-width:420px;margin-left:auto;margin-right:auto}
+.vid video{display:block;width:100%;height:auto}
+.vid-tag{position:absolute;top:10px;right:10px;background:#0E4A52cc;color:#fff;font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
 .safety{background:#FFF8EA;border-radius:14px;padding:12px 14px;font-size:14.5px}
 footer{background:var(--pet);color:#D7ECE7;padding:24px 0;font-size:14px;text-align:center}
 footer nav{display:flex;gap:18px;justify-content:center;margin-bottom:8px}
@@ -177,7 +180,7 @@ footer nav{display:flex;gap:18px;justify-content:center;margin-bottom:8px}
     <div class="step">اربط الدش الجديد على نفس الخرطوم.</div>
     <div class="step">افتح المية واختار الوضع اللي يريحك.</div>
   </div>
-  <img src="img/p4.jpg" loading="lazy" width="600" height="600" alt="الثلاث أوضاع" style="border-radius:16px;margin-top:12px">
+  <div class="vid"><video id="demoVid" src="img/demo.mp4" poster="img/p4.jpg" muted loop playsinline preload="none" width="720" height="960" aria-label="فيديو الدش وهو شغّال"></video><span class="vid-tag">شوفه وهو شغّال ▶</span></div>
 </div></section>
 
 <section id="order"><div class="wrap">
