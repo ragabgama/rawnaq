@@ -12,6 +12,9 @@ window.STORE = {
   // رابط /exec بتاع Google Apps Script (الشيت). لو فاضي، الطلب بيروح واتساب بس.
   sheetUrl: '',
 
+  // رابط لوحة التحكم (نشرة «اللوحة» في Apps Script). admin.html بيحوّل عليه.
+  adminUrl: '',
+
   // البكسلات: حط الـ ID بس، وسيبها فاضية لو مش عندك
   facebookPixel: '',
   tiktokPixel: '',

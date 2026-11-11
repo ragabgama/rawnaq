@@ -8,232 +8,27 @@
 <title>لوحة التحكم | رونق</title>
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
 <style>
-:root{--pet:#0E4A52;--mint:#7FD6C2;--gold:#FFB547;--ink:#10252A;--bg:#F5F8F7;--card:#E3ECEA;--muted:#4D6468;--red:#C2410C;--green:#0B7A5C}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;font-size:15px}
-button,input,select,textarea{font:inherit;color:inherit}
-.top{background:var(--pet);color:#fff;position:sticky;top:0;z-index:5}
-.top .in{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;justify-content:space-between}
-.top b{font-size:18px}
-.top button{background:#ffffff22;border:0;color:#fff;border-radius:10px;padding:7px 12px;cursor:pointer}
-.wrap{max-width:1100px;margin:0 auto;padding:14px 16px 60px}
-.login{max-width:380px;margin:60px auto;background:#fff;border-radius:16px;padding:20px}
-.login h1{font-size:20px;color:var(--pet);margin-bottom:10px}
-input[type=text],input[type=password],input[type=number],input[type=search],select,textarea{width:100%;border:1.5px solid #C9D7D4;border-radius:10px;padding:9px 11px;background:#fff}
-.btn{border:0;border-radius:10px;background:var(--gold);font-weight:800;padding:10px 14px;cursor:pointer}
-.btn.s{background:var(--card);font-weight:700;padding:7px 11px;font-size:14px}
-.btn.g{background:#25D366;color:#fff}
-.btn.p{background:var(--pet);color:#fff}
-.periods{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.periods button{border:1.5px solid var(--card);background:#fff;border-radius:999px;padding:5px 14px;cursor:pointer}
-.periods button.on{background:var(--pet);color:#fff;border-color:var(--pet)}
-.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.stat{background:#fff;border-radius:14px;padding:12px}
-.stat small{color:var(--muted);display:block;font-size:13px}
-.stat b{font-size:22px}
-.stat.hl{background:var(--pet);color:#fff}
-.stat.hl small{color:#CDE7E1}
-.ads{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border-radius:14px;padding:12px;margin-bottom:14px}
-.ads input{max-width:150px}
-.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:4px}
-.tabs button{flex:0 0 auto;border:0;background:#fff;border-radius:10px;padding:7px 12px;cursor:pointer;font-weight:700}
-.tabs button.on{background:var(--gold)}
-.tabs i{font-style:normal;background:#0001;border-radius:999px;padding:0 7px;margin-inline-start:4px;font-size:13px}
-.list{display:grid;gap:10px}
-@media(min-width:800px){.list{grid-template-columns:1fr 1fr}}
-.o{background:#fff;border-radius:14px;padding:14px;border-inline-start:5px solid var(--card)}
-.o[data-s="جديد"]{border-color:var(--gold)}
-.o[data-s="اتأكد"],.o[data-s="اتسجل في تاجر"],.o[data-s="اتشحن"]{border-color:var(--mint)}
-.o[data-s="اتسلم"]{border-color:var(--green)}
-.o[data-s="رفض الاستلام"],.o[data-s="ملغي"]{border-color:var(--red);opacity:.75}
-.o .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-.o .nm{font-weight:800;font-size:17px}
-.o .meta{color:var(--muted);font-size:13px}
-.o .ad{margin:6px 0}
-.o .money{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
-.chip{background:var(--bg);border-radius:8px;padding:3px 9px;font-size:13.5px}
-.chip b{font-weight:800}
-.chip.pr{background:#E6F7F2;color:var(--green)}
-.o .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.o .ed{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.o .ed textarea{grid-column:1/-1;min-height:40px}
-.empty{text-align:center;color:var(--muted);padding:30px;background:#fff;border-radius:14px}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;display:none;z-index:9}
-.help{background:#FFF8EA;border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:14px}
-.help summary{cursor:pointer;font-weight:800}
-.help ol{padding-inline-start:20px;margin-top:6px}
-.warn{color:var(--red);font-weight:700}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:#F5F8F7;color:#10252A;display:grid;place-items:center;min-height:100vh;text-align:center;padding:16px;box-sizing:border-box}
+.c{background:#fff;border-radius:16px;padding:24px;max-width:380px}
+h1{color:#0E4A52;font-size:21px;margin:0 0 8px}
+a{display:block;margin-top:14px;background:#FFB547;color:#10252A;border-radius:12px;padding:12px;font-weight:800;text-decoration:none}
 </style>
 <script src="config.js"></script>
 </head>
 <body>
-<div class="top"><div class="in"><b>لوحة تحكم رونق</b><span><button id="refresh">تحديث</button> <button id="logout">خروج</button></span></div></div>
-
-<div id="loginBox" class="login" hidden>
-  <h1>دخول لوحة التحكم</h1>
-  <p style="color:var(--muted);margin-bottom:10px">اكتب كلمة السر اللي في كود الشيت (ADMIN_KEY).</p>
-  <input type="password" id="key" placeholder="كلمة السر" autocomplete="current-password">
-  <button class="btn" id="loginBtn" style="width:100%;margin-top:10px">دخول</button>
-  <p id="loginErr" class="warn" style="margin-top:8px"></p>
+<div class="c">
+  <h1>لوحة تحكم رونق</h1>
+  <p id="msg">بنفتح اللوحة… هتدخل بحساب جوجل بتاعك.</p>
+  <a id="go" href="#" hidden>فتح لوحة التحكم</a>
 </div>
-
-<div class="wrap" id="app" hidden>
-  <details class="help"><summary>إزاي أشتغل على الطلبات؟</summary>
-    <ol>
-      <li>كلّم العميل (زرار «اتصال» أو «واتساب») وأكّد الاسم والعنوان والعرض.</li>
-      <li>لو أكّد: غيّر الحالة لـ «اتأكد»، ودوس «نسخ لتاجر».</li>
-      <li>افتح تاجر («فتح المنتج في تاجر») ← اطلب الآن، والصق البيانات. في خانة <b>سعر بيع القطعة</b> اكتب الرقم اللي في الكارت. وفي «كود الطلب على متجرك» اكتب رقم الطلب.</li>
-      <li>اكتب رقم طلب تاجر في الخانة، وغيّر الحالة لـ «اتسجل في تاجر».</li>
-      <li>تابع من لوحة تاجر، ولما يتسلّم أو يترفض غيّر الحالة هنا عشان الحسابات تبقى مظبوطة.</li>
-    </ol>
-  </details>
-
-  <div class="periods" id="periods"></div>
-  <div class="stats" id="stats"></div>
-  <div class="ads">
-    <label for="spend"><b>صرفت على الإعلانات في الفترة دي:</b></label>
-    <input type="number" id="spend" min="0" placeholder="بالجنيه"> <span>ج</span>
-    <span id="adOut" style="color:var(--muted)"></span>
-  </div>
-
-  <input type="search" id="q" placeholder="دوّر بالاسم أو الرقم أو رقم الطلب" style="margin-bottom:10px">
-  <div class="tabs" id="tabs"></div>
-  <div class="list" id="list"></div>
-</div>
-<div class="toast" id="toast"></div>
-
 <script>
-(function(){
-  var S=window.STORE, $=function(i){return document.getElementById(i);};
-  var LS={get:function(k){try{return localStorage.getItem(k);}catch(e){return null;}},set:function(k,v){try{localStorage.setItem(k,v);}catch(e){}},del:function(k){try{localStorage.removeItem(k);}catch(e){}}};
-  var key=LS.get('rq_admin_key')||'', orders=[], statuses=[], product=null, period='7', tab='الكل';
-  var DONE=['اتأكد','اتسجل في تاجر','اتشحن','اتسلم','رفض الاستلام'];
-  var fmt=function(n){return Math.round(Number(n)||0).toLocaleString('en-US');};
-  var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
-  function toast(t){var x=$('toast');x.textContent=t;x.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){x.style.display='none';},2200);}
-  function api(body){
-    body.key=key;
-    return fetch(S.sheetUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)}).then(function(r){return r.json();});
-  }
-  function showLogin(msg){$('app').hidden=true;$('loginBox').hidden=false;$('loginErr').textContent=msg||'';}
-  function load(){
-    if(!S.sheetUrl){showLogin('لسه رابط الشيت مش متحط في config.js');return;}
-    if(!key){showLogin();return;}
-    $('refresh').textContent='بيحمّل…';
-    api({action:'list'}).then(function(r){
-      $('refresh').textContent='تحديث';
-      if(!r.ok){LS.del('rq_admin_key');key='';showLogin(r.err==='key'?'كلمة السر غلط':'حصلت مشكلة: '+r.err);return;}
-      LS.set('rq_admin_key',key);
-      orders=r.orders.reverse(); statuses=r.statuses; product=r.product;
-      $('loginBox').hidden=true;$('app').hidden=false; render();
-    }).catch(function(){$('refresh').textContent='تحديث';toast('مفيش نت أو الشيت مش شغال');});
-  }
-  $('loginBtn').onclick=function(){key=$('key').value.trim();load();};
-  $('key').onkeydown=function(e){if(e.key==='Enter')$('loginBtn').click();};
-  $('logout').onclick=function(){LS.del('rq_admin_key');key='';showLogin();};
-  $('refresh').onclick=load;
-
-  var P=[['1','النهارده'],['7','آخر 7 أيام'],['30','آخر 30 يوم'],['all','الكل']];
-  P.forEach(function(p){var b=document.createElement('button');b.textContent=p[1];b.onclick=function(){period=p[0];render();};b.dataset.p=p[0];$('periods').appendChild(b);});
-  function inPeriod(o){
-    if(period==='all')return true;
-    var today=new Date().toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
-    var d=new Date(today+'T00:00:00'); d.setDate(d.getDate()-(Number(period)-1));
-    return o.time.slice(0,10)>=d.toISOString().slice(0,10);
-  }
-  $('spend').oninput=function(){LS.set('rq_spend_'+period,this.value);renderStats(cur());};
-  $('q').oninput=function(){renderList(cur());};
-  function cur(){return orders.filter(inPeriod);}
-
-  function renderStats(list){
-    var n=list.length, by={}; statuses.forEach(function(s){by[s]=0;}); list.forEach(function(o){by[o.status]=(by[o.status]||0)+1;});
-    var conf=list.filter(function(o){return DONE.indexOf(o.status)>=0;}).length;
-    var decided=list.filter(function(o){return o.status!=='جديد'&&o.status!=='مابيردش';}).length;
-    var deliv=by['اتسلم']||0, ref=by['رفض الاستلام']||0;
-    var profit=list.filter(function(o){return o.status==='اتسلم';}).reduce(function(a,o){return a+o.profit;},0)-ref*5;
-    var pipe=list.filter(function(o){return['اتأكد','اتسجل في تاجر','اتشحن'].indexOf(o.status)>=0;}).reduce(function(a,o){return a+o.profit;},0);
-    var spend=Number($('spend').value)||0;
-    var cards=[
-      ['كل الطلبات',fmt(n)],
-      ['جديد (لسه ماتكلمش)',fmt(by['جديد']||0)],
-      ['نسبة التأكيد',decided?Math.round(conf/decided*100)+'%':'—'],
-      ['اتسلم',fmt(deliv)],
-      ['نسبة الاستلام',(deliv+ref)?Math.round(deliv/(deliv+ref)*100)+'%':'—'],
-      ['ربح المتسلّم',fmt(profit)+' ج','hl'],
-      ['ربح لسه في الطريق',fmt(pipe)+' ج']
-    ];
-    $('stats').innerHTML=cards.map(function(c){return '<div class="stat '+(c[2]||'')+'"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>';}).join('');
-    var out='';
-    if(spend>0){
-      var net=profit-spend;
-      out='تكلفة الأوردر: <b>'+(n?fmt(spend/n):'—')+' ج</b> · تكلفة الأوردر المتسلّم: <b>'+(deliv?fmt(spend/deliv):'—')+' ج</b> · الصافي: <b style="color:'+(net>=0?'var(--green)':'var(--red)')+'">'+fmt(net)+' ج</b>';
-    }
-    $('adOut').innerHTML=out;
-  }
-  function renderTabs(list){
-    var all=['الكل'].concat(statuses);
-    $('tabs').innerHTML='';
-    all.forEach(function(s){
-      var c=s==='الكل'?list.length:list.filter(function(o){return o.status===s;}).length;
-      var b=document.createElement('button');b.className=s===tab?'on':'';b.innerHTML=esc(s)+'<i>'+c+'</i>';
-      b.onclick=function(){tab=s;render();};$('tabs').appendChild(b);
-    });
-  }
-  function waConfirm(o){
-    var t='أهلًا يا '+o.name.split(' ')[0]+' 👋 معاك رونق.\nبنأكد طلبك: '+(product?product.name:'')+' ('+o.qty+(o.qty>1?' قطع':' قطعة')+')\nالإجمالي '+o.total+' ج شامل التوصيل، والدفع عند الاستلام.\nالعنوان: '+o.gov+'، '+o.address+'\nنأكد الطلب؟';
-    return 'https://wa.me/2'+o.phone+'?text='+encodeURIComponent(t);
-  }
-  function taagerText(o){
-    return ['الاسم: '+o.name,'الموبايل: '+o.phone.slice(1),'المحافظة: '+o.gov,'العنوان: '+o.address,'الكمية: '+o.qty,'سعر بيع القطعة: '+o.perPiece,'كود الطلب على متجرك: '+o.id].join('\n');
-  }
-  function renderList(list){
-    var q=$('q').value.trim();
-    var v=list.filter(function(o){return(tab==='الكل'||o.status===tab)&&(!q||(o.name+o.phone+o.id+o.taagerNo).indexOf(q)>=0);});
-    if(!v.length){$('list').innerHTML='<div class="empty">مفيش طلبات هنا</div>';return;}
-    $('list').innerHTML=v.map(function(o,i){
-      return '<div class="o" data-s="'+esc(o.status)+'" data-i="'+orders.indexOf(o)+'">'+
-        '<div class="h"><div><div class="nm">'+esc(o.name)+'</div><div class="meta">'+esc(o.id)+' · '+esc(o.time.replace('T',' '))+' · '+esc(o.src)+'</div></div>'+
-        '<select data-f="status">'+statuses.map(function(s){return '<option'+(s===o.status?' selected':'')+'>'+esc(s)+'</option>';}).join('')+'</select></div>'+
-        '<div class="ad"><b dir="ltr">'+esc(o.phone)+'</b> · '+esc(o.gov)+'<br>'+esc(o.address)+'</div>'+
-        '<div class="money"><span class="chip">'+o.qty+(o.qty>1?' قطع':' قطعة')+' · <b>'+fmt(o.total)+' ج</b></span>'+
-        '<span class="chip">سعر القطعة في تاجر: <b>'+o.perPiece+'</b></span><span class="chip">شحن '+o.ship+'</span>'+
-        '<span class="chip pr">ربحك: <b>'+fmt(o.profit)+' ج</b></span></div>'+
-        '<div class="acts"><a class="btn s" href="tel:'+esc(o.phone)+'">📞 اتصال</a><a class="btn s g" target="_blank" rel="noopener" href="'+waConfirm(o)+'">واتساب تأكيد</a>'+
-        '<button class="btn s p" data-a="copy">نسخ لتاجر</button><a class="btn s" target="_blank" rel="noopener" href="https://taager.com/eg/products/'+(S.product.taagerId||'')+'">فتح المنتج في تاجر</a></div>'+
-        '<div class="ed"><input type="text" data-f="taagerNo" placeholder="رقم طلب تاجر" value="'+esc(o.taagerNo)+'"><button class="btn s" data-a="save">حفظ</button>'+
-        '<textarea data-f="notes" placeholder="ملاحظات (مثلًا: كلّمته ومردش، يتصل بعد 5)">'+esc(o.notes)+'</textarea></div></div>';
-    }).join('');
-  }
-  $('list').addEventListener('click',function(e){
-    var a=e.target.closest('[data-a]'); if(!a)return;
-    var card=a.closest('.o'), o=orders[card.dataset.i];
-    if(a.dataset.a==='copy'){
-      var t=taagerText(o);
-      (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('اتنسخ، الصقه في تاجر');},function(){prompt('انسخ من هنا:',t);});
-    }
-    if(a.dataset.a==='save'){save(o,card,{taagerNo:card.querySelector('[data-f=taagerNo]').value,notes:card.querySelector('[data-f=notes]').value});}
-  });
-  $('list').addEventListener('change',function(e){
-    if(e.target.dataset.f!=='status')return;
-    var card=e.target.closest('.o'), o=orders[card.dataset.i];
-    save(o,card,{status:e.target.value});
-  });
-  function save(o,card,ch){
-    var body={action:'update',row:o.row,id:o.id};Object.keys(ch).forEach(function(k){body[k]=ch[k];});
-    toast('بيحفظ…');
-    api(body).then(function(r){
-      if(r.ok){Object.keys(ch).forEach(function(k){o[k]=ch[k];});toast('اتحفظ ✓');render();}
-      else if(r.err==='moved'){toast('الشيت اتغيّر، بحدّث…');load();}
-      else toast('ماتحفظش: '+r.err);
-    }).catch(function(){toast('ماتحفظش، جرّب تاني');});
-  }
-  function render(){
-    [].forEach.call($('periods').children,function(b){b.className=b.dataset.p===period?'on':'';});
-    $('spend').value=LS.get('rq_spend_'+period)||'';
-    var list=cur(); renderStats(list); renderTabs(list); renderList(list);
-  }
-  load();
-})();
+if (STORE.adminUrl) {
+  document.getElementById('go').href = STORE.adminUrl;
+  document.getElementById('go').hidden = false;
+  location.replace(STORE.adminUrl);
+} else {
+  document.getElementById('msg').textContent = 'اللوحة لسه بتتجهز، وهتشتغل أول ما شيت الطلبات يتعمل.';
+}
 </script>
 </body>
 </html>
