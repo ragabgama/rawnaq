@@ -1,0 +1,53 @@
+<!doctype html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0E4A52">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="pages.css">
+<script src="config.js"></script>
+<meta name="robots" content="noindex">
+<title>شكرًا لطلبك | رونق</title>
+</head><body>
+<header><div class="wrap"><a class="logo" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FFB547" d="M12 0c.9 6.4 5.6 11.1 12 12-6.4.9-11.1 5.6-12 12-.9-6.4-5.6-11.1-12-12C6.4 11.1 11.1 6.4 12 0z"/></svg>رونق</a><a href="./" class="muted" style="font-size:14px">الرئيسية</a></div></header>
+<main><div class="wrap">
+<div id="offline" class="alert" hidden>
+  <b style="font-size:18px;display:block;margin-bottom:6px">آخر خطوة: ابعتلنا الرسالة على واتساب</b>
+  <span>حصلت مشكلة صغيرة في تسجيل الطلب. دوس على الزرار وابعت الرسالة زي ما هي، عشان طلبك مايضيعش.</span>
+  <a class="btn wa" id="waOffline" href="#" target="_blank" rel="noopener" style="margin-top:12px">ابعت الطلب على واتساب</a>
+</div>
+<h1 id="hi">شكرًا، طلبك وصلنا</h1>
+<div class="ok">هنتصل بيك لتأكيد الطلب خلال 24 ساعة</div>
+<div class="card" id="sum"></div>
+<div class="card"><b>📱 خلّي موبايلك مفتوح</b><p class="muted">المندوب أو خدمة العملاء هيكلموك من رقم ممكن ماتعرفوش.</p></div>
+<a class="btn wa" id="waSend" href="#" target="_blank" rel="noopener">ابعت تفاصيل الطلب على واتساب</a>
+<p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
+</div></main>
+<footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
+<script src="order.js"></script>
+<script>
+(function(){
+  var o; try{o=JSON.parse(localStorage.getItem('rq_order'));}catch(e){}
+  if(!o){document.getElementById('sum').innerHTML='<span class="muted">مفيش طلب جديد.</span>';return;}
+  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  document.getElementById('hi').textContent='شكرًا يا '+o.name.split(' ')[0]+'، طلبك وصلنا';
+  document.getElementById('sum').innerHTML=
+    '<div class="row"><span>رقم الطلب</span><b dir="ltr">'+esc(o.id)+'</b></div>'+
+    '<div class="row"><span>المنتج</span><b>'+esc(o.product)+'</b></div>'+
+    '<div class="row"><span>العرض</span><b>'+esc(o.label)+'</b></div>'+
+    '<div class="row"><span>الإجمالي عند الاستلام</span><b>'+o.price+' ج (شامل التوصيل)</b></div>'+
+    '<div class="row"><span>الموبايل</span><b dir="ltr">'+esc(o.phone)+'</b></div>'+
+    '<div class="row"><span>العنوان</span><b>'+esc(o.gov+'، '+o.address)+'</b></div>';
+  var txt='طلب جديد '+o.id+'\n'+o.product+' ('+o.label+')\nالإجمالي: '+o.price+' ج شامل التوصيل\nالاسم: '+o.name+'\nالموبايل: '+o.phone+'\nالمحافظة: '+o.gov+'\nالعنوان: '+o.address;
+  document.getElementById('waSend').href=waLink(txt);
+  if(o.state!=='ok'){document.getElementById('offline').hidden=false;document.getElementById('waOffline').href=waLink(txt);}
+  var fired=[];try{fired=JSON.parse(localStorage.getItem('rq_fired'))||[];}catch(e){}
+  if(fired.indexOf(o.id)<0){
+    track('Purchase',{value:o.price,currency:'EGP',num_items:o.qty,content_ids:[o.sku],content_type:'product'},o.id);
+    fired.push(o.id);try{localStorage.setItem('rq_fired',JSON.stringify(fired.slice(-20)));}catch(e){}
+  }
+})();
+</script>
+</body></html>
