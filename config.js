@@ -18,7 +18,7 @@ window.STORE = {
   },
 
   // البكسلات: حط الـ ID بس، وسيبها فاضية لو مش عندك
-  facebookPixel: '',
+  facebookPixel: '1662127815292074',
   tiktokPixel: '',
 
   product: {
