@@ -8,16 +8,17 @@
 <meta name="theme-color" content="#0E4A52">
 <meta property="og:title" content="دش التربو والتدليك 3 أوضاع | رونق">
 <meta property="og:description" content="3 أوضاع للمية وزرار وقف. الدفع عند الاستلام.">
-<meta property="og:image" content="img/p1.webp">
+<meta property="og:image" content="img/p1.jpg">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
-<link rel="preload" as="image" href="img/p1.webp">
+<link rel="preload" as="image" href="img/p1.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
 <style>
 :root{--pet:#0E4A52;--mint:#7FD6C2;--gold:#FFB547;--ink:#10252A;--bg:#F5F8F7;--card:#E3ECEA;--muted:#4D6468;--red:#C2410C;--r:16px}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+a,button,label{-webkit-tap-highlight-color:transparent}
 body{font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px;padding-bottom:84px}
 h1,h2,h3,.h{font-family:Alexandria,system-ui,sans-serif;line-height:1.35}
 img{max-width:100%;height:auto;display:block}
@@ -67,9 +68,9 @@ section h2{font-size:21px;margin-bottom:12px;color:var(--pet)}
 .offer{position:relative;display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--card);border-radius:var(--r);padding:14px;cursor:pointer}
 .offer input{position:absolute;opacity:0}
 .offer .dot{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid #9DB3B0}
-.offer:has(input:checked){border-color:var(--pet);background:#F0FAF7}
-.offer:has(input:checked) .dot{border:7px solid var(--pet)}
-.offer:has(input:focus-visible){outline:3px solid var(--mint)}
+.offer.on{border-color:var(--pet);background:#F0FAF7}
+.offer.on .dot{border:7px solid var(--pet)}
+.offer.focus{outline:3px solid var(--mint)}
 .offer .t{flex:1}
 .offer .t b{font-family:Alexandria,sans-serif;font-size:17px}
 .offer .t small{display:block;color:var(--muted);font-size:13px}
@@ -79,13 +80,15 @@ section h2{font-size:21px;margin-bottom:12px;color:var(--pet)}
 .badge{position:absolute;top:-11px;left:14px;background:var(--gold);color:var(--ink);font-size:12px;font-weight:800;border-radius:999px;padding:1px 10px}
 form .f{margin-bottom:13px}
 label{display:block;font-weight:700;margin-bottom:5px;font-size:15px}
-input[type=text],input[type=tel],select,textarea{width:100%;font:inherit;font-size:16px;border:1.5px solid #C9D7D4;border-radius:12px;padding:12px;background:#fff;color:var(--ink)}
+input[type=text],input[type=tel],select,textarea{-webkit-appearance:none;appearance:none;box-shadow:none;width:100%;font:inherit;font-size:16px;border:1.5px solid #C9D7D4;border-radius:12px;padding:12px;background:#fff;color:var(--ink)}
 textarea{min-height:84px;resize:vertical}
+select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230E4A52' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat left 14px center;padding-left:36px}
+button{-webkit-appearance:none;appearance:none}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pet);box-shadow:0 0 0 3px #7FD6C255}
 .err{color:var(--red);font-size:13.5px;margin-top:4px;display:none}
 .f.bad input,.f.bad select,.f.bad textarea{border-color:var(--red)}
 .f.bad .err{display:block}
-.hp{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);opacity:0}
+.hp{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 .sum{background:var(--bg);border-radius:12px;padding:12px;margin:6px 0 14px;font-size:15px}
 .sum div{display:flex;justify-content:space-between}
 .sum .tot{font-family:Alexandria,sans-serif;font-weight:800;font-size:19px;border-top:1px solid var(--card);margin-top:6px;padding-top:6px}
@@ -104,6 +107,11 @@ footer nav{display:flex;gap:18px;justify-content:center;margin-bottom:8px}
 .sticky .btn{max-width:528px;margin:0 auto;font-size:17px}
 .wa{position:fixed;left:14px;bottom:92px;width:54px;height:54px;border-radius:50%;background:#25D366;display:grid;place-items:center;box-shadow:0 4px 14px #0003;z-index:21}
 .wa svg{width:30px;height:30px;fill:#fff}
+@supports not (inset:0){
+.logo svg{margin-left:7px}.thumbs button{margin-left:8px}.price-row>*{margin-left:10px}
+.feat svg{margin-left:12px}.step::before{margin-left:12px}.offer .dot,.offer .t{margin-left:12px}
+.cod>*{margin-left:8px}footer nav a{margin:0 9px}
+}
 @media (min-width:900px){body{padding-bottom:0}.sticky{display:none}.wa{bottom:20px}}
 </style>
 <script src="config.js"></script>
@@ -121,7 +129,7 @@ footer nav{display:flex;gap:18px;justify-content:center;margin-bottom:8px}
 <main>
 <div class="wrap hero">
   <div class="gallery">
-    <img class="main" id="mainImg" src="img/p1.webp" width="600" height="600" alt="دش التربو والتدليك بـ 3 أوضاع" fetchpriority="high">
+    <img class="main" id="mainImg" src="img/p1.jpg" width="600" height="600" alt="دش التربو والتدليك بـ 3 أوضاع" fetchpriority="high">
   </div>
   <div class="thumbs" id="thumbs"></div>
 
@@ -169,7 +177,7 @@ footer nav{display:flex;gap:18px;justify-content:center;margin-bottom:8px}
     <div class="step">اربط الدش الجديد على نفس الخرطوم.</div>
     <div class="step">افتح المية واختار الوضع اللي يريحك.</div>
   </div>
-  <img src="img/p4.webp" loading="lazy" width="600" height="600" alt="الثلاث أوضاع" style="border-radius:16px;margin-top:12px">
+  <img src="img/p4.jpg" loading="lazy" width="600" height="600" alt="الثلاث أوضاع" style="border-radius:16px;margin-top:12px">
 </div></section>
 
 <section id="order"><div class="wrap">

@@ -38,7 +38,7 @@
   if (!$('orderForm')) { loadPixels(); return; }   // الصفحات التانية
 
   /* ---------- الصور ---------- */
-  var imgs = ['img/p1.webp', 'img/p2.webp', 'img/p4.webp', 'img/p5.webp', 'img/p3.webp', 'img/p6.webp'];
+  var imgs = ['img/p1.jpg', 'img/p2.jpg', 'img/p4.jpg', 'img/p5.jpg', 'img/p3.jpg', 'img/p6.jpg'];
   var thumbs = $('thumbs'), main = $('mainImg');
   imgs.forEach(function (src, i) {
     var b = document.createElement('button');
@@ -67,7 +67,15 @@
       '<span class="t"><b>' + o.label + '</b>' + (o.note ? '<small>' + o.note + '</small>' : '') +
       (o.qty > 1 ? '<small>القطعة بـ ' + fmt(Math.round(o.price / o.qty)) + ' ج</small>' : '') + '</span>' +
       '<span class="p"><b>' + fmt(o.price) + ' ج</b>' + (save > 0 ? '<span class="save">وفّر ' + fmt(save) + ' ج</span>' : '<span class="save" style="color:#4D6468">شامل التوصيل</span>') + '</span>';
-    l.querySelector('input').onchange = function () { sel = o; paint(); };
+    var inp = l.querySelector('input');
+    if (o === sel) l.className += ' on';
+    inp.onchange = function () {
+      sel = o; paint();
+      [].forEach.call(box.querySelectorAll('.offer'), function (x) { x.className = 'offer'; });
+      l.className = 'offer on';
+    };
+    inp.onfocus = function () { l.className += ' focus'; };
+    inp.onblur = function () { l.className = l.className.replace(' focus', ''); };
     box.appendChild(l);
   });
   function paint() {
@@ -120,7 +128,18 @@
     $(id).addEventListener('input', function () { $('f-' + id).classList.remove('bad'); });
   });
 
-  var cairoDay = function () { return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' }); };
+  var cairoDay = function () {
+    var d = new Date();
+    try {
+      var p = {};
+      new Intl.DateTimeFormat('en-US', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' })
+        .formatToParts(d).forEach(function (x) { p[x.type] = x.value; });
+      if (/^\d{4}$/.test(p.year) && /^\d{2}$/.test(p.month) && /^\d{2}$/.test(p.day)) return p.year + '-' + p.month + '-' + p.day;
+    } catch (e) {}
+    var c = new Date(d.getTime() + 2 * 3600000);              // احتياطي: توقيت مصر +2
+    var z = function (n) { return (n < 10 ? '0' : '') + n; };
+    return c.getUTCFullYear() + '-' + z(c.getUTCMonth() + 1) + '-' + z(c.getUTCDate());
+  };
   var src = (function () {
     var q = new URLSearchParams(location.search);
     var s = q.get('utm_source') || (q.get('fbclid') ? 'facebook' : q.get('ttclid') ? 'tiktok' : '');
