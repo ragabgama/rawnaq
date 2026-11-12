@@ -6,10 +6,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="pages.css">
-<script src="config.js?v=2"></script>
+<link rel="stylesheet" href="pages.css?v=3">
+<script src="config.js?v=3"></script>
 <meta name="robots" content="noindex">
 <title>شكرًا لطلبك | رونق</title>
+<style>
+.paybox{background:#FFF8EA;border:2px solid #FFE2B3;border-radius:16px;padding:14px;margin-bottom:12px}
+.paybox b.big{font-size:18px;display:block;margin-bottom:4px}
+.num{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:9px 12px;margin-top:8px;font-weight:800;gap:10px}
+.num button{border:0;background:var(--pet);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;font-family:inherit}
+.it{padding:6px 0;border-bottom:1px dashed var(--card)}
+.it:last-child{border:0}
+.it small{display:block;color:var(--muted)}
+</style>
 </head><body>
 <header><div class="wrap"><a class="logo" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FFB547" d="M12 0c.9 6.4 5.6 11.1 12 12-6.4.9-11.1 5.6-12 12-.9-6.4-5.6-11.1-12-12C6.4 11.1 11.1 6.4 12 0z"/></svg>رونق</a><a href="./" class="muted" style="font-size:14px">الرئيسية</a></div></header>
 <main><div class="wrap">
@@ -19,34 +28,65 @@
   <a class="btn wa" id="waOffline" href="#" target="_blank" rel="noopener" style="margin-top:12px">ابعت الطلب على واتساب</a>
 </div>
 <h1 id="hi">شكرًا، طلبك وصلنا</h1>
-<div class="ok">هنتصل بيك لتأكيد الطلب خلال 24 ساعة</div>
+
+<div class="paybox" id="payBox" hidden>
+  <b class="big">⏳ آخر خطوة: حوّل المبلغ عشان نبدأ نجهّز طلبك</b>
+  <span>حوّل <b id="payAmt"></b> على الرقم ده، وبعدين ابعتلنا صورة التحويل على واتساب.</span>
+  <div class="num"><span id="payLabel"></span><span dir="ltr" id="payNum"></span><button type="button" id="copyNum">نسخ</button></div>
+  <a class="btn wa" id="waPaid" href="#" target="_blank" rel="noopener" style="margin-top:12px">ابعت صورة التحويل على واتساب</a>
+</div>
+
+<div class="ok" id="okMsg">هنتصل بيك لتأكيد الطلب خلال 24 ساعة</div>
+<div class="card" id="customNote" hidden><b>🎨 التصميم الخاص</b><p class="muted">ابعتلنا الصور أو أي تفاصيل للتصميم على واتساب، وهنبعتلك شكل التصميم توافق عليه قبل الطباعة.</p></div>
 <div class="card" id="sum"></div>
 <div class="card"><b>📱 خلّي موبايلك مفتوح</b><p class="muted">المندوب أو خدمة العملاء هيكلموك من رقم ممكن ماتعرفوش.</p></div>
 <a class="btn wa" id="waSend" href="#" target="_blank" rel="noopener">ابعت تفاصيل الطلب على واتساب</a>
 <p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js?v=2"></script>
+<script src="order.js?v=3"></script>
 <script>
 (function(){
-  var o; try{o=JSON.parse(localStorage.getItem('rq_order'));}catch(e){}
-  if(!o){document.getElementById('sum').innerHTML='<span class="muted">مفيش طلب جديد.</span>';return;}
-  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-  document.getElementById('hi').textContent='شكرًا يا '+o.name.split(' ')[0]+'، طلبك وصلنا';
-  document.getElementById('sum').innerHTML=
-    '<div class="row"><span>رقم الطلب</span><b dir="ltr">'+esc(o.id)+'</b></div>'+
-    '<div class="row"><span>المنتج</span><b>'+esc(o.product)+'</b></div>'+
-    '<div class="row"><span>العرض</span><b>'+esc(o.label)+'</b></div>'+
-    '<div class="row"><span>الإجمالي عند الاستلام</span><b>'+o.price+' ج (شامل التوصيل)</b></div>'+
-    '<div class="row"><span>الموبايل</span><b dir="ltr">'+esc(o.phone)+'</b></div>'+
-    '<div class="row"><span>العنوان</span><b>'+esc(o.gov+'، '+o.address)+'</b></div>';
-  var txt='طلب جديد '+o.id+'\n'+o.product+' ('+o.label+')\nالإجمالي: '+o.price+' ج شامل التوصيل\nالاسم: '+o.name+'\nالموبايل: '+o.phone+'\nالمحافظة: '+o.gov+'\nالعنوان: '+o.address;
-  document.getElementById('waSend').href=waLink(txt);
-  if(o.state!=='ok'){document.getElementById('offline').hidden=false;document.getElementById('waOffline').href=waLink(txt);}
-  var fired=[];try{fired=JSON.parse(localStorage.getItem('rq_fired'))||[];}catch(e){}
-  if(fired.indexOf(o.id)<0){
-    track('Purchase',{value:o.price,currency:'EGP',num_items:o.qty,content_ids:[o.sku||o.productId],content_type:'product'},o.id);
-    fired.push(o.id);try{localStorage.setItem('rq_fired',JSON.stringify(fired.slice(-20)));}catch(e){}
+  var o = RQ.store.get('rq_order'), $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
+  if(!o){ $('sum').innerHTML='<span class="muted">مفيش طلب جديد.</span>'; return; }
+  var CFG = RQ.cfg(RQ.store.get('rq_settings'));
+  var PAY = { cod: 'الدفع عند الاستلام', instapay: 'إنستاباي', vodafone: 'فودافون كاش' };
+  var items = o.items || [{ name: o.product, variant: o.label, qty: o.qty, price: o.price / (o.qty || 1) }];
+  $('hi').textContent = 'شكرًا يا ' + o.name.split(' ')[0] + '، طلبك وصلنا';
+  $('sum').innerHTML =
+    '<div class="row"><span>رقم الطلب</span><b dir="ltr">' + esc(o.id) + '</b></div>' +
+    items.map(function (i) {
+      return '<div class="it"><b>' + esc(i.name) + ' × ' + i.qty + '</b>' +
+        '<small>' + [i.variant, i.choice].filter(Boolean).map(esc).join(' · ') + (i.custom ? ' · تصميم خاص: ' + esc(i.custom) : '') + '</small></div>';
+    }).join('') +
+    (o.shipping != null ? '<div class="row"><span>الشحن</span><b>' + fmt(o.shipping) + ' ج</b></div>' : '') +
+    '<div class="row"><span>الإجمالي</span><b>' + fmt(o.total || o.price) + ' ج</b></div>' +
+    '<div class="row"><span>الدفع</span><b>' + esc(PAY[o.pay] || PAY.cod) + '</b></div>' +
+    '<div class="row"><span>الموبايل</span><b dir="ltr">' + esc(o.phone) + '</b></div>' +
+    '<div class="row"><span>العنوان</span><b>' + esc(o.gov + '، ' + o.address) + '</b></div>';
+
+  var lines = items.map(function (i) { var x = [i.variant, i.choice].filter(Boolean); return '- ' + i.name + ' × ' + i.qty + (x.length ? ' (' + x.join(' · ') + ')' : '') + (i.custom ? ' [تصميم خاص: ' + i.custom + ']' : ''); }).join('\n');
+  var txt = 'طلب جديد ' + o.id + '\n' + lines + '\nالإجمالي: ' + fmt(o.total || o.price) + ' ج (' + (PAY[o.pay] || PAY.cod) + ')\nالاسم: ' + o.name + '\nالموبايل: ' + o.phone + '\nالمحافظة: ' + o.gov + '\nالعنوان: ' + o.address;
+  $('waSend').href = waLink(txt);
+  if (items.some(function (i) { return i.custom; })) $('customNote').hidden = false;
+
+  if (o.pay === 'instapay' || o.pay === 'vodafone') {
+    var num = o.pay === 'instapay' ? CFG.instapay : CFG.vodafone;
+    $('payBox').hidden = false; $('okMsg').textContent = 'أول ما التحويل يوصل، هنأكد معاك ونبدأ نجهّز الطلب';
+    $('payAmt').textContent = fmt(o.total) + ' ج';
+    $('payLabel').textContent = PAY[o.pay]; $('payNum').textContent = num;
+    $('waPaid').href = waLink('حوّلت ' + fmt(o.total) + ' ج على ' + PAY[o.pay] + ' لطلب رقم ' + o.id + '، ودي صورة التحويل:');
+    $('copyNum').onclick = function () {
+      var b = this;
+      (navigator.clipboard ? navigator.clipboard.writeText(num) : Promise.reject()).then(function () { b.textContent = 'اتنسخ ✓'; }, function () { prompt('انسخ الرقم:', num); });
+    };
+  }
+  if (o.state !== 'ok') { $('offline').hidden = false; $('waOffline').href = waLink(txt); }
+
+  var fired = RQ.store.get('rq_fired') || [];
+  if (fired.indexOf(o.id) < 0) {
+    track('Purchase', { value: o.total || o.price, currency: 'EGP', num_items: items.reduce(function (a, i) { return a + i.qty; }, 0), content_ids: items.map(function (i) { return i.pid || ''; }), content_type: 'product' }, o.id);
+    fired.push(o.id); RQ.store.set('rq_fired', fired.slice(-20));
   }
 })();
 </script>

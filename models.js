@@ -1,0 +1,26 @@
+/* موديلات الموبايلات اللي Zink بيطبع جرابات ليها (من صفحة المنتج عندهم) */
+window.ZINK_MODELS = [
+  'iPhone 6', 'iPhone 6 Plus', 'iPhone 7', 'iPhone 7 Plus', 'iPhone 8 Plus', 'iPhone X / XS', 'iPhone XS Max', 'iPhone XR',
+  'iPhone 11', 'iPhone 11 Pro', 'iPhone 11 Pro Max', 'iPhone 12 mini', 'iPhone 12', 'iPhone 12 Pro', 'iPhone 12 Pro Max',
+  'iPhone 13 mini', 'iPhone 13', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 14', 'iPhone 14 Plus', 'iPhone 14 Pro', 'iPhone 14 Pro Max',
+  'iPhone 15', 'iPhone 15 Pro', 'iPhone 15 Pro Max', 'iPhone 16', 'iPhone 16 Pro', 'iPhone 16 Pro Max',
+  'Samsung A02 / M02', 'Samsung A02s / M02s', 'Samsung A03s', 'Samsung A04', 'Samsung A04s / A13 5G', 'Samsung A05s', 'Samsung A10', 'Samsung A10s',
+  'Samsung A12 / M12', 'Samsung A13 4G', 'Samsung A14', 'Samsung A15', 'Samsung A20 / A30 / M10s', 'Samsung A20s', 'Samsung A21', 'Samsung A21s',
+  'Samsung A22 4G', 'Samsung A22 5G', 'Samsung A23', 'Samsung A24', 'Samsung A30s', 'Samsung A31', 'Samsung A32 4G', 'Samsung A32 5G', 'Samsung A33',
+  'Samsung A34', 'Samsung A35 5G', 'Samsung A51 / M40s', 'Samsung A52', 'Samsung A53', 'Samsung A54', 'Samsung A70 / A70s', 'Samsung A71', 'Samsung A72',
+  'Samsung A73', 'Samsung A80', 'Samsung M11', 'Samsung M30s', 'Samsung M31', 'Samsung M32', 'Samsung M33 5G', 'Samsung M51', 'Samsung M52', 'Samsung M53',
+  'Samsung S9 Plus', 'Samsung S10', 'Samsung S10 Lite', 'Samsung S20', 'Samsung S20 Plus', 'Samsung S20 FE', 'Samsung S20 Ultra', 'Samsung S21',
+  'Samsung S21 Plus', 'Samsung S21 FE', 'Samsung S21 Ultra', 'Samsung S22', 'Samsung S22 Ultra', 'Samsung S23', 'Samsung S23 Ultra',
+  'Samsung Note 4', 'Samsung Note 9', 'Samsung Note 10', 'Samsung Note 10 Lite', 'Samsung Note 10 Plus', 'Samsung Note 20', 'Samsung Note 20 Plus', 'Samsung Note 20 Ultra',
+  'Oppo A5 / A9 2020 / A11 / A11X', 'Oppo A8', 'Oppo A52 / A72 / A92', 'Oppo A54 4G / A55 5G', 'Oppo A57', 'Oppo A73 / F17', 'Oppo A74', 'Oppo A75',
+  'Oppo A76 / A36 / Realme 9i', 'Oppo A80', 'Oppo A93 / Reno 4 Lite / F17 Pro', 'Oppo A94 / F19 Pro', 'Oppo F7', 'Oppo F11', 'Oppo F11 Pro',
+  'Oppo Reno 2', 'Oppo Reno 2F / 2Z', 'Oppo Reno 3', 'Oppo Reno 4 4G', 'Oppo Reno 4 Pro', 'Oppo Reno 5 4G / 5G', 'Oppo Reno 5 Pro', 'Oppo Reno 6 4G',
+  'Oppo Reno 6 5G', 'Oppo Reno 8 4G', 'Oppo Reno 8T 4G', 'Oppo Reno 10 5G',
+  'Redmi 9', 'Redmi 9T', 'Redmi 10', 'Redmi 10C', 'Redmi 12', 'Redmi Note 7 / 7 Pro', 'Redmi Note 8', 'Redmi Note 8 Pro', 'Redmi Note 9',
+  'Redmi Note 9S / 9 Pro / Note 10 Lite', 'Redmi Note 10 5G', 'Redmi Note 10 Pro', 'Redmi Note 10 Pro 5G', 'Redmi Note 10S', 'Redmi Note 11 4G',
+  'Redmi Note 11 5G', 'Redmi Note 11S 4G', 'Redmi Note 11 Pro 4G / 5G', 'Redmi Note 11T 5G', 'Redmi Note 13', 'Xiaomi Mi 9T / 9T Pro', 'Xiaomi Mi 11T',
+  'Xiaomi Mi 12T', 'Xiaomi Mi Note 10 Lite',
+  'Realme C12 / C15 / C25', 'Realme C21', 'Realme C53', 'Realme 7', 'Realme 7 Pro', 'Realme 8', 'Realme 8 Pro', 'Realme 10', 'Realme 11',
+  'Huawei Nova 2i / Mate 10 Lite / Honor 9i', 'Huawei Nova 5T / Honor 20', 'Huawei Nova 7', 'Honor 20 Lite', 'Honor 20 Pro',
+  'Honor 50 Lite / X20 / Nova 8i', 'Honor 8X', 'Honor Play', 'Huawei Mate 20 Pro'
+];

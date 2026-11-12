@@ -1,6 +1,6 @@
 /* =========================================================
    الحاجات المشتركة بين كل صفحات المتجر
-   (البكسلات، الواتساب، قراية المنتجات والصور من قاعدة البيانات)
+   (البكسلات، الواتساب، السلة، قراية المنتجات والصور من قاعدة البيانات)
    ========================================================= */
 (function () {
   var S = window.STORE;
@@ -36,7 +36,7 @@
     try { if (window.fbq) fbq('track', ev, data || {}, eventId ? { eventID: eventId } : undefined); } catch (e) {}
     try {
       if (window.ttq) {
-        var map = { ViewContent: 'ViewContent', InitiateCheckout: 'InitiateCheckout', Purchase: 'CompletePayment' };
+        var map = { ViewContent: 'ViewContent', AddToCart: 'AddToCart', InitiateCheckout: 'InitiateCheckout', Purchase: 'CompletePayment' };
         var d = Object.assign({}, data || {}); if (eventId) d.event_id = eventId;
         ttq.track(map[ev] || ev, d);
       }
@@ -94,31 +94,62 @@
       return ((j && j.documents) || []).map(function (d) { var o = decFields(d.fields || {}); o.id = d.name.split('/').pop(); return o; });
     });
   };
+  // تحويل قيمة JS لصيغة Firestore (للكتابة)
+  RQ.enc = function enc(v) {
+    if (v === null || v === undefined) return { nullValue: null };
+    if (typeof v === 'boolean') return { booleanValue: v };
+    if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    if (Array.isArray(v)) return { arrayValue: { values: v.map(enc) } };
+    if (typeof v === 'object') { var f = {}; for (var k in v) f[k] = enc(v[k]); return { mapValue: { fields: f } }; }
+    return { stringValue: String(v) };
+  };
 
-  /* ---------- المنتجات (مع نسخة محفوظة عشان الصفحة تفتح بسرعة) ---------- */
+  /* ---------- المنتجات ---------- */
+  // كل منتج ليه "اختيارات سعر" (variants) زي المقاسات، ولو منتج قديم بعروض كمية نحوّله
   RQ.cleanProduct = function (p) {
-    p.offers = (p.offers || []).filter(function (o) { return o && o.qty > 0 && o.price > 0; })
-      .sort(function (a, b) { return a.qty - b.qty; });
     p.images = (p.images || []).filter(Boolean);
+    var v = (p.variants || []).filter(function (x) { return x && Number(x.price) > 0; })
+      .map(function (x) { return { name: String(x.name || '').trim(), price: Math.round(Number(x.price)), was: Math.round(Number(x.was) || 0) }; });
+    if (!v.length && p.offers && p.offers.length) {
+      var o = p.offers.slice().sort(function (a, b) { return a.qty - b.qty; })[0];
+      v = [{ name: '', price: Math.round(o.price / (o.qty || 1)), was: 0 }];
+    }
+    p.variants = v;
+    p.choices = (p.choices || []).map(function (c) { return String(c).trim(); }).filter(Boolean);
+    p.customFee = Math.round(Number(p.customFee) || 0);
+    p.category = p.category || '';
     return p;
   };
+  RQ.fromPrice = function (p) { return p.variants.length ? Math.min.apply(null, p.variants.map(function (v) { return v.price; })) : 0; };
   RQ.products = function (onData) {
-    var cached = RQ.store.get('rq_products');
+    var cached = RQ.store.get('rq_products2');
     if (cached && cached.list) onData(cached.list, true);
     return RQ.fsList('products').then(function (list) {
-      list = list.map(RQ.cleanProduct).filter(function (p) { return p.active !== false && p.offers.length; })
+      list = list.map(RQ.cleanProduct).filter(function (p) { return p.active !== false && p.variants.length; })
         .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
-      RQ.store.set('rq_products', { t: Date.now(), list: list });
+      RQ.store.set('rq_products2', { t: Date.now(), list: list });
       onData(list, false);
       return list;
     });
   };
+
+  /* ---------- الإعدادات (البانر، الدفع، الشحن) ---------- */
+  RQ.cfg = function (s) {
+    s = s || {};
+    var ship = Object.assign({}, S.shipping);
+    if (s.shipping) for (var k in s.shipping) if (Number(s.shipping[k]) >= 0) ship[k] = Number(s.shipping[k]);
+    return {
+      raw: s,
+      instapay: s.instapay || S.instapay, vodafone: s.vodafone || S.vodafoneCash,
+      shipping: ship, codOn: s.codOff !== true
+    };
+  };
   RQ.settings = function (onData) {
     var cached = RQ.store.get('rq_settings');
-    if (cached) onData(cached, true);
+    if (cached) onData(RQ.cfg(cached), true);
     return RQ.fsGet('settings/store').then(function (s) {
-      s = s || {}; RQ.store.set('rq_settings', s); onData(s, false); return s;
-    }).catch(function () {});
+      s = s || {}; RQ.store.set('rq_settings', s); onData(RQ.cfg(s), false); return RQ.cfg(s);
+    }).catch(function () { if (!cached) onData(RQ.cfg({}), false); });
   };
 
   /* ---------- الصور: لينك عادي، أو صورة مرفوعة من لوحة التحكم (m:رقمها) ---------- */
@@ -137,12 +168,27 @@
     }).catch(function () { delete mediaMem[id]; return ''; });
     return mediaMem[id];
   };
-  RQ.setImg = function (el, src) {
-    RQ.img(src).then(function (u) { if (u) el.src = u; });
-  };
+  RQ.setImg = function (el, src) { RQ.img(src).then(function (u) { if (u) el.src = u; }); };
 
-  /* ---------- أقل سعر (قطعة واحدة) ---------- */
-  RQ.fromPrice = function (p) { return p.offers.length ? p.offers[0].price : 0; };
+  /* ---------- السلة ---------- */
+  var CART = 'rq_cart';
+  RQ.cart = {
+    all: function () { var c = RQ.store.get(CART); return Array.isArray(c) ? c : []; },
+    save: function (c) { RQ.store.set(CART, c); RQ.cart.badge(); },
+    count: function () { return RQ.cart.all().reduce(function (a, i) { return a + (i.qty || 0); }, 0); },
+    add: function (item) {
+      var c = RQ.cart.all();
+      var same = c.filter(function (i) { return i.pid === item.pid && i.variant === item.variant && i.choice === item.choice && !i.custom && !item.custom; })[0];
+      if (same) same.qty = Math.min(10, same.qty + item.qty); else c.push(item);
+      RQ.cart.save(c.slice(0, 15));
+    },
+    clear: function () { RQ.cart.save([]); },
+    badge: function () {
+      var n = RQ.cart.count();
+      [].forEach.call(document.querySelectorAll('[data-cart-count]'), function (b) { b.textContent = n; b.hidden = !n; });
+    }
+  };
+  RQ.cart.badge();
 
   RQ.loadPixels();
 })();

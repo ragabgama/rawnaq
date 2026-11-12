@@ -6,36 +6,53 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="pages.css">
-<script src="config.js?v=2"></script>
+<link rel="stylesheet" href="pages.css?v=3">
+<script src="config.js?v=3"></script>
 <title>الشحن والاستبدال | رونق</title>
+<style>.ship{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;font-size:15px}.ship div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--card);padding:3px 0}@media(max-width:480px){.ship{grid-template-columns:1fr}}</style>
 </head><body>
 <header><div class="wrap"><a class="logo" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FFB547" d="M12 0c.9 6.4 5.6 11.1 12 12-6.4.9-11.1 5.6-12 12-.9-6.4-5.6-11.1-12-12C6.4 11.1 11.1 6.4 12 0z"/></svg>رونق</a><a href="./" class="muted" style="font-size:14px">الرئيسية</a></div></header>
 <main><div class="wrap">
-<h1>الشحن والاستبدال</h1>
+<h1>الشحن والدفع والاستبدال</h1>
 <div class="card">
 <h2 style="margin-top:0">التوصيل</h2>
 <ul class="list">
-<li>بنوصّل لكل المحافظات، ما عدا شمال وجنوب سينا والوادي الجديد حاليًا.</li>
-<li>السعر اللي على الموقع شامل التوصيل، ومفيش أي مصاريف زيادة.</li>
-<li>هنتصل بيك خلال 24 ساعة نأكد الطلب.</li>
-<li>التوصيل من 2 لـ 5 أيام عمل حسب المحافظة.</li>
+<li>بنوصّل لكل محافظات مصر.</li>
+<li>كل منتج بيتطبع مخصوص ليك، فالطلب بيوصل خلال 5 لـ 9 أيام عمل تقريبًا.</li>
+<li>الشحن بيتحسب <b>مرة واحدة للأوردر كله</b> مهما كان فيه قطع.</li>
+<li>هنتصل بيك نأكد الطلب قبل ما نجهّزه.</li>
 </ul>
+<h2>أسعار الشحن</h2>
+<div class="ship" id="ship"></div>
 <h2>الدفع</h2>
 <ul class="list">
-<li>الدفع كاش للمندوب لما تستلم.</li>
-<li>تقدر تفتح الشحنة وتعاينها قدام المندوب قبل ما تدفع.</li>
+<li>كاش للمندوب لما تستلم، وتقدر تعاين الشحنة قبل ما تدفع.</li>
+<li>أو تحويل مقدم: إنستاباي <bdi id="ip"></bdi>، أو فودافون كاش <bdi id="vf"></bdi>، وتبعتلنا صورة التحويل على واتساب.</li>
+<li><b>التصميم الخاص</b> (اسمك، صورتك، فكرتك) بيتدفع مقدم، لأنه معمول ليك انت بس.</li>
 </ul>
-<h2>الاستبدال والاسترجاع (14 يوم)</h2>
+<h2>الاستبدال</h2>
 <ul class="list">
-<li>لو فيه عيب منّا: نستبدله أو نرجّعلك فلوسك، والشحن علينا.</li>
-<li>لو غيّرت رأيك والمنتج سليم وفي علبته: تقدر ترجّعه، والشحن عليك.</li>
-<li>كلّمنا على واتساب وابعت رقم الطلب وصورة المنتج.</li>
+<li>لو المنتج وصل مكسور أو فيه عيب في الطباعة: ابعتلنا صورة على واتساب خلال 3 أيام من الاستلام، ونبعتلك واحد جديد على حسابنا.</li>
+<li>عشان كل قطعة بتتطبع مخصوص، مابنقدرش نسترجع منتج سليم بعد ما اتطبع، خصوصًا التصميم الخاص.</li>
+<li>ممكن يكون فيه فرق بسيط في درجة اللون بين الشاشة والطباعة، وده طبيعي.</li>
 </ul>
 <h2>الإلغاء</h2>
-<ul class="list"><li>الإلغاء ببلاش قبل ما الطلب يتشحن. كلّمنا على واتساب أو قول للي هيتصل بيك.</li></ul>
+<ul class="list"><li>تقدر تلغي ببلاش قبل ما الطلب يدخل الطباعة. كلّمنا على واتساب في أسرع وقت.</li></ul>
 </div>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js?v=2"></script>
+<script src="order.js?v=3"></script>
+<script>
+(function () {
+  function paint(cfg) {
+    document.getElementById('ip').textContent = cfg.instapay;
+    document.getElementById('vf').textContent = cfg.vodafone;
+    document.getElementById('ship').innerHTML = STORE.governorates.map(function (g) {
+      return '<div><span>' + RQ.esc(g) + '</span><b>' + RQ.fmt(cfg.shipping[g]) + ' ج</b></div>';
+    }).join('');
+  }
+  paint(RQ.cfg(RQ.store.get('rq_settings')));
+  RQ.settings(paint);
+})();
+</script>
 </body></html>

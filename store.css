@@ -23,19 +23,58 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;heigh
 @media (max-width:760px){.nav{display:none}}
 @media (min-width:761px){.hdr-cod{display:none}}
 
-/* البانر */
-.banner{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--pet) 0%,var(--pet2) 60%,#1B7B6F 100%);color:#fff}
-.banner .bimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.banner.has-img::after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,#0E4A52e6 0%,#0E4A5299 45%,#0E4A5200 80%)}
-.banner .in{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:44px 16px;min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
-.banner h1{font-size:34px;max-width:560px;margin-bottom:8px}
-.banner p{font-size:17px;max-width:520px;opacity:.95;margin-bottom:18px}
-.banner .btn{width:auto;padding:13px 28px}
-.banner.only-img .in{min-height:0;padding:0}
-.banner.only-img .bimg{position:static;height:auto}
-.banner.only-img::after{display:none}
-@media (min-width:900px){.banner .in{min-height:380px;padding:60px 16px}.banner h1{font-size:44px}.banner p{font-size:19px}}
-@media (max-width:560px){.banner .in{min-height:300px;padding:32px 16px}.banner h1{font-size:28px}}
+/* البانر: كلام + صورة جنب بعض (وعلى الموبايل الصورة فوق) */
+.banner{position:relative;overflow:hidden;background:radial-gradient(1200px 500px at 85% 0%,#1B7B6F 0%,transparent 60%),linear-gradient(135deg,#0B3B42 0%,var(--pet) 55%,#14636D 100%);color:#fff}
+.banner .in{max-width:1180px;margin:0 auto;padding:0 16px;display:grid;grid-template-columns:1.05fr 1fr;align-items:center;gap:24px;min-height:440px}
+.banner .tx{padding:40px 0}
+.banner .kick{display:inline-block;background:#FFB54726;color:var(--gold);border:1px solid #FFB54766;border-radius:999px;padding:3px 14px;font-size:13.5px;font-weight:800;margin-bottom:12px}
+.banner h1{font-size:44px;line-height:1.25;margin-bottom:10px}
+.banner h1 em{font-style:normal;color:var(--gold)}
+.banner p{font-size:18px;opacity:.92;margin-bottom:18px;max-width:520px}
+.banner .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.banner .chips span{background:#ffffff14;border:1px solid #ffffff2b;border-radius:999px;padding:5px 12px;font-size:13.5px;font-weight:700}
+.banner .ctas{display:flex;gap:10px;flex-wrap:wrap}
+.banner .btn{width:auto;padding:13px 26px;font-size:17px}
+.banner .btn.ghost{background:transparent;color:#fff;border:2px solid #ffffff80;box-shadow:none}
+.banner .vis{align-self:stretch;display:flex;align-items:center;justify-content:center}
+.banner .vis img{width:100%;max-width:560px;height:auto;filter:drop-shadow(0 18px 30px #0006)}
+.banner.only-img .in{display:block;padding:0;min-height:0;max-width:none}
+.banner.only-img .tx{display:none}
+.banner.only-img .vis img{max-width:none;filter:none}
+@media (max-width:860px){
+  .banner .in{grid-template-columns:1fr;gap:0;min-height:0}
+  .banner .vis{order:-1;padding-top:18px}
+  .banner .vis img{max-width:420px}
+  .banner .tx{padding:8px 0 30px;text-align:center}
+  .banner p{margin-left:auto;margin-right:auto}
+  .banner .chips,.banner .ctas{justify-content:center}
+  .banner h1{font-size:32px}
+}
+@media (max-width:420px){.banner h1{font-size:28px}.banner p{font-size:16px}.banner .btn{padding:12px 18px;font-size:16px}}
+
+/* الأقسام والخدمات */
+.cats{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;scrollbar-width:none}
+.cats button{flex:0 0 auto;border:2px solid var(--card);background:#fff;border-radius:999px;padding:7px 18px;font-weight:800;cursor:pointer;color:var(--pet)}
+.cats button.on{background:var(--pet);border-color:var(--pet);color:#fff}
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:900px){.services{grid-template-columns:repeat(2,1fr)}}
+.svc{background:#fff;border-radius:var(--r);padding:16px}
+.svc i{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#E6F7F2;font-style:normal;font-size:22px;margin-bottom:8px}
+.svc b{display:block;font-family:Alexandria,sans-serif;font-size:16px;color:var(--pet);margin-bottom:2px}
+.svc span{color:var(--muted);font-size:14px}
+.custom{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:center;background:linear-gradient(135deg,#FFF6E6,#FFFDF8);border:2px solid #FFE2B3;border-radius:22px;padding:22px}
+.custom h2{margin-bottom:6px}
+.custom ol{padding-inline-start:20px;margin:8px 0 14px}
+.custom .btn{width:auto;display:inline-flex;padding:12px 22px;font-size:16px}
+.custom .pay{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.custom .pay span{background:#fff;border-radius:10px;padding:6px 12px;font-weight:800;font-size:14px;border:1px solid #F3D9A8}
+@media (max-width:760px){.custom{grid-template-columns:1fr}}
+
+/* السلة في الهيدر */
+.hdr-r{display:flex;align-items:center;gap:12px}
+.cartbtn{position:relative;display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--bg);text-decoration:none;color:var(--pet)}
+.cartbtn svg{width:22px;height:22px}
+.cartbtn b{position:absolute;top:-5px;left:-5px;background:var(--gold);color:var(--ink);font-size:12px;min-width:20px;height:20px;border-radius:999px;display:grid;place-items:center;padding:0 5px}
 
 /* المميزات تحت البانر */
 .perks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px auto 0}
@@ -158,3 +197,50 @@ body.has-sticky .wa{bottom:92px}
 .offer .dot,.offer .t{margin-left:12px}.cod>*{margin-left:8px}footer nav a{margin:0 9px}.pc .pr>*{margin-left:8px}
 .desc li::before{margin-left:10px}
 }
+
+/* اختيارات المنتج */
+.opt{margin:14px 0}
+.opt>label,.opt .lbl{display:block;font-weight:800;margin-bottom:6px;font-size:15px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills button{border:2px solid var(--card);background:#fff;border-radius:12px;padding:8px 14px;cursor:pointer;font-weight:700;text-align:center;line-height:1.35}
+.pills button small{display:block;color:var(--muted);font-weight:700;font-size:12.5px}
+.pills button.on{border-color:var(--pet);background:#F0FAF7;color:var(--pet)}
+.qty{display:inline-flex;align-items:center;border:2px solid var(--card);border-radius:12px;background:#fff;overflow:hidden}
+.qty button{width:42px;height:42px;border:0;background:transparent;font-size:20px;font-weight:800;cursor:pointer;color:var(--pet)}
+.qty input{width:46px;height:42px;border:0;text-align:center;font:inherit;font-weight:800;background:transparent;-moz-appearance:textfield}
+.qty input::-webkit-inner-spin-button{-webkit-appearance:none}
+.cbox{background:#FFF8EA;border:2px dashed #F3C77A;border-radius:14px;padding:12px 14px;margin:12px 0}
+.cbox .chk{display:flex;gap:10px;align-items:flex-start;font-weight:800;cursor:pointer}
+.cbox .chk input{width:20px;height:20px;margin-top:3px;flex:0 0 20px}
+.cbox .chk small{display:block;font-weight:600;color:#8A5300}
+.cbox textarea{margin-top:10px;min-height:76px}
+.buy{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-top:16px}
+.buy .btn{font-size:18px}
+.btn.alt{background:var(--pet);color:#fff;box-shadow:0 4px 0 #082F35;margin-top:10px}
+.added{display:none;background:#E6F7F2;color:var(--pet);border-radius:12px;padding:10px 12px;font-weight:800;margin-top:10px}
+.added a{color:var(--pet)}
+.ship-note{color:var(--muted);font-size:13.5px;margin-top:6px}
+
+/* صفحة السلة */
+.cartpage{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;padding:18px 0 40px;align-items:start}
+@media (max-width:900px){.cartpage{grid-template-columns:1fr}}
+.cartpage h1{font-size:24px;color:var(--pet);margin-bottom:10px}
+.ci{display:grid;grid-template-columns:76px 1fr auto;gap:12px;background:#fff;border-radius:14px;padding:10px;margin-bottom:10px;align-items:center}
+.ci img{width:76px;height:76px;border-radius:10px;object-fit:cover;background:var(--card)}
+.ci .n{font-weight:800;line-height:1.4}
+.ci .m{color:var(--muted);font-size:13.5px}
+.ci .c{background:#FFF3DE;color:#8A5300;border-radius:8px;padding:2px 8px;font-size:12.5px;font-weight:700;display:inline-block;margin-top:3px}
+.ci .r{text-align:left}
+.ci .r b{font-family:Alexandria,sans-serif;display:block;margin-bottom:6px}
+.ci .qty button{width:32px;height:32px;font-size:17px}
+.ci .qty input{width:32px;height:32px}
+.ci .x{border:0;background:none;color:var(--red);font-weight:700;cursor:pointer;font-size:13px;margin-top:4px}
+.payopts{display:grid;gap:8px;margin-bottom:12px}
+.payopt{display:flex;gap:10px;align-items:center;background:#fff;border:2px solid var(--card);border-radius:12px;padding:11px 12px;cursor:pointer;font-weight:700}
+.payopt input{width:18px;height:18px;margin:0}
+.payopt.on{border-color:var(--pet);background:#F0FAF7}
+.payopt.off{opacity:.45;cursor:not-allowed}
+.payopt small{display:block;color:var(--muted);font-weight:600;font-size:12.5px}
+.paybox{background:#FFF8EA;border:2px solid #FFE2B3;border-radius:14px;padding:14px;margin:12px 0}
+.paybox .num{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:8px 12px;margin-top:8px;font-weight:800;gap:10px}
+.paybox .num button{border:0;background:var(--pet);color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-weight:700}
