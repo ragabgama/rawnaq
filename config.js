@@ -36,6 +36,6 @@ window.STORE = {
     'شمال سيناء': 123, 'جنوب سيناء': 123, 'الوادي الجديد': 123
   },
 
-  categories: ['جرابات الموبايل', 'براويز ولوحات', 'منتجات البيت']
+  categories: ['جرابات الموبايل', 'براويز ولوحات']
 };
 window.STORE.governorates = Object.keys(window.STORE.shipping);
