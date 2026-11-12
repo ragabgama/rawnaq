@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="pages.css">
-<script src="config.js"></script>
+<script src="config.js?v=2"></script>
 <meta name="robots" content="noindex">
 <title>شكرًا لطلبك | رونق</title>
 </head><body>
@@ -26,7 +26,7 @@
 <p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js"></script>
+<script src="order.js?v=2"></script>
 <script>
 (function(){
   var o; try{o=JSON.parse(localStorage.getItem('rq_order'));}catch(e){}
@@ -45,7 +45,7 @@
   if(o.state!=='ok'){document.getElementById('offline').hidden=false;document.getElementById('waOffline').href=waLink(txt);}
   var fired=[];try{fired=JSON.parse(localStorage.getItem('rq_fired'))||[];}catch(e){}
   if(fired.indexOf(o.id)<0){
-    track('Purchase',{value:o.price,currency:'EGP',num_items:o.qty,content_ids:[o.sku],content_type:'product'},o.id);
+    track('Purchase',{value:o.price,currency:'EGP',num_items:o.qty,content_ids:[o.sku||o.productId],content_type:'product'},o.id);
     fired.push(o.id);try{localStorage.setItem('rq_fired',JSON.stringify(fired.slice(-20)));}catch(e){}
   }
 })();

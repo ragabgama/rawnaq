@@ -1,14 +1,28 @@
+/* =========================================================
+   الحاجات المشتركة بين كل صفحات المتجر
+   (البكسلات، الواتساب، قراية المنتجات والصور من قاعدة البيانات)
+   ========================================================= */
 (function () {
-  var S = window.STORE, P = S.product;
+  var S = window.STORE;
   var $ = function (id) { return document.getElementById(id); };
-  var fmt = function (n) { return Number(n).toLocaleString('en-US'); };
-  var store = {
+  var RQ = window.RQ = {};
+
+  RQ.$ = $;
+  RQ.fmt = function (n) { return Math.round(Number(n) || 0).toLocaleString('en-US'); };
+  RQ.esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  RQ.store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
-    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   };
 
   /* ---------- البكسلات ---------- */
-  window.loadPixels = function () {
+  var pixelsLoaded = false;
+  RQ.loadPixels = function () {
+    if (pixelsLoaded) return; pixelsLoaded = true;
     if (S.facebookPixel) {
       !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments) }; if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s) }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', S.facebookPixel); fbq('track', 'PageView');
@@ -17,7 +31,8 @@
       !function (w, d, t) { w.TiktokAnalyticsObject = t; var ttq = w[t] = w[t] || []; ttq.methods = ['page', 'track', 'identify', 'instances', 'debug', 'on', 'off', 'once', 'ready', 'alias', 'group', 'enableCookie', 'disableCookie']; ttq.setAndDefer = function (t, e) { t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } }; for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]); ttq.load = function (e, n) { var i = 'https://analytics.tiktok.com/i18n/pixel/events.js'; ttq._i = ttq._i || {}; ttq._i[e] = []; ttq._i[e]._u = i; ttq._t = ttq._t || {}; ttq._t[e] = +new Date; ttq._o = ttq._o || {}; ttq._o[e] = n || {}; var o = d.createElement('script'); o.type = 'text/javascript'; o.async = !0; o.src = i + '?sdkid=' + e + '&lib=' + t; var a = d.getElementsByTagName('script')[0]; a.parentNode.insertBefore(o, a) }; ttq.load(S.tiktokPixel); ttq.page(); }(window, document, 'ttq');
     }
   };
-  window.track = function (ev, data, eventId) {
+  window.loadPixels = RQ.loadPixels;
+  window.track = RQ.track = function (ev, data, eventId) {
     try { if (window.fbq) fbq('track', ev, data || {}, eventId ? { eventID: eventId } : undefined); } catch (e) {}
     try {
       if (window.ttq) {
@@ -30,204 +45,104 @@
 
   /* ---------- واتساب ---------- */
   var waLink = function (text) { return 'https://wa.me/' + S.whatsapp + '?text=' + encodeURIComponent(text); };
-  window.waLink = waLink;
+  window.waLink = RQ.waLink = waLink;
   var wa = $('waBtn');
-  if (wa) wa.href = waLink('أهلًا، عندي سؤال عن ' + P.name);
+  if (wa) wa.href = waLink('أهلًا، عندي سؤال');
   var yr = $('yr'); if (yr) yr.textContent = new Date().getFullYear();
 
-  if (!$('orderForm')) { loadPixels(); return; }   // الصفحات التانية
-
-  /* ---------- الصور ---------- */
-  var imgs = ['img/p1.jpg', 'img/p2.jpg', 'img/p4.jpg', 'img/p5.jpg', 'img/p3.jpg', 'img/p6.jpg'];
-  var thumbs = $('thumbs'), main = $('mainImg');
-  imgs.forEach(function (src, i) {
-    var b = document.createElement('button');
-    b.type = 'button'; b.setAttribute('aria-label', 'صورة ' + (i + 1));
-    b.setAttribute('aria-current', i === 0 ? 'true' : 'false');
-    b.innerHTML = '<img src="' + src + '" loading="lazy" width="62" height="62" alt="">';
-    b.onclick = function () {
-      main.src = src;
-      thumbs.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-current', 'false'); });
-      b.setAttribute('aria-current', 'true');
-    };
-    thumbs.appendChild(b);
-  });
-
-  /* ---------- فيديو المنتج: يشتغل لما العميل يوصله ---------- */
-  var vid = $('demoVid');
-  if (vid) {
-    var startVid = function () { vid.preload = 'auto'; var p = vid.play(); if (p && p.catch) p.catch(function () {}); };
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) startVid(); else vid.pause(); });
-      }, { threshold: 0.3 }).observe(vid);
-    } else { startVid(); }
-    vid.addEventListener('click', function () { vid.paused ? startVid() : vid.pause(); });
-  }
-
-  /* ---------- العروض ---------- */
-  var base = P.offers[0].price;
-  var sel = P.offers.filter(function (o) { return o.default; })[0] || P.offers[0];
-  var box = $('offers');
-  P.offers.forEach(function (o) {
-    var save = base * o.qty - o.price;
-    var l = document.createElement('label');
-    l.className = 'offer';
-    l.innerHTML = (o.badge ? '<span class="badge">' + o.badge + '</span>' : '') +
-      '<input type="radio" name="offer" value="' + o.qty + '"' + (o === sel ? ' checked' : '') + '>' +
-      '<span class="dot"></span>' +
-      '<span class="t"><b>' + o.label + '</b>' + (o.note ? '<small>' + o.note + '</small>' : '') +
-      (o.qty > 1 ? '<small>القطعة بـ ' + fmt(Math.round(o.price / o.qty)) + ' ج</small>' : '') + '</span>' +
-      '<span class="p"><b>' + fmt(o.price) + ' ج</b>' + (save > 0 ? '<span class="save">وفّر ' + fmt(save) + ' ج</span>' : '<span class="save" style="color:#4D6468">شامل التوصيل</span>') + '</span>';
-    var inp = l.querySelector('input');
-    if (o === sel) l.className += ' on';
-    inp.onchange = function () {
-      sel = o; paint();
-      [].forEach.call(box.querySelectorAll('.offer'), function (x) { x.className = 'offer'; });
-      l.className = 'offer on';
-    };
-    inp.onfocus = function () { l.className += ' focus'; };
-    inp.onblur = function () { l.className = l.className.replace(' focus', ''); };
-    box.appendChild(l);
-  });
-  function paint() {
-    $('heroPrice').innerHTML = fmt(sel.price) + ' <small>ج</small>';
-    $('heroPer').textContent = sel.qty > 1 ? '(' + sel.label + ')' : '';
-    $('sumLabel').textContent = sel.label;
-    $('sumPrice').textContent = fmt(sel.price) + ' ج';
-    $('sumTotal').textContent = fmt(sel.price) + ' ج';
-    $('stickyBtn').textContent = 'اطلب الآن · ' + fmt(sel.price) + ' ج';
-  }
-  paint();
-
-  /* ---------- المحافظات ---------- */
-  var gov = $('gov');
-  S.governorates.forEach(function (g) { var o = document.createElement('option'); o.value = o.textContent = g; gov.appendChild(o); });
-
-  /* ---------- الزرار الثابت ---------- */
-  var sticky = $('sticky');
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) { sticky.classList.toggle('hide', e.isIntersecting); });
-    }, { threshold: 0.05 }).observe($('order'));
-  }
-
-  /* ---------- التحقق ---------- */
-  function normPhone(v) {
-    v = String(v || '').replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
-      .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); }).replace(/\D/g, '');
-    if (v.indexOf('0020') === 0) v = v.slice(4);
-    else if (v.indexOf('20') === 0 && v.length === 12) v = v.slice(2);
-    if (v.length === 10 && v[0] === '1') v = '0' + v;
-    return v;
-  }
-  function setBad(id, bad) { $('f-' + id).classList.toggle('bad', bad); return !bad; }
-  function validate() {
-    var ok = true, first = null;
-    var name = $('name').value.trim().replace(/\s+/g, ' ');
-    var phone = normPhone($('phone').value);
-    var address = $('address').value.trim();
-    [['name', name.length >= 5 && name.split(' ').length >= 2],
-     ['phone', /^01[0125]\d{8}$/.test(phone)],
-     ['gov', !!gov.value],
-     ['address', address.length >= 10]].forEach(function (c) {
-      if (!setBad(c[0], !c[1])) { ok = false; first = first || c[0]; }
-    });
-    if (first) $(first).focus();
-    return ok ? { name: name, phone: phone, gov: gov.value, address: address } : null;
-  }
-  ['name', 'phone', 'gov', 'address'].forEach(function (id) {
-    $(id).addEventListener('input', function () { $('f-' + id).classList.remove('bad'); });
-  });
-
-  var cairoDay = function () {
-    var d = new Date();
-    try {
-      var p = {};
-      new Intl.DateTimeFormat('en-US', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' })
-        .formatToParts(d).forEach(function (x) { p[x.type] = x.value; });
-      if (/^\d{4}$/.test(p.year) && /^\d{2}$/.test(p.month) && /^\d{2}$/.test(p.day)) return p.year + '-' + p.month + '-' + p.day;
-    } catch (e) {}
-    var c = new Date(d.getTime() + 2 * 3600000);              // احتياطي: توقيت مصر +2
-    var z = function (n) { return (n < 10 ? '0' : '') + n; };
-    return c.getUTCFullYear() + '-' + z(c.getUTCMonth() + 1) + '-' + z(c.getUTCDate());
-  };
-  var src = (function () {
-    var q = new URLSearchParams(location.search);
+  /* ---------- مصدر الزيارة (فيسبوك / تيك توك) ---------- */
+  RQ.src = (function () {
+    var q; try { q = new URLSearchParams(location.search); } catch (e) { return 'direct'; }
     var s = q.get('utm_source') || (q.get('fbclid') ? 'facebook' : q.get('ttclid') ? 'tiktok' : '');
     var c = q.get('utm_campaign') || '';
-    if (s) store.set('rq_src', s + (c ? '/' + c : ''));
-    return store.get('rq_src') || 'direct';
+    if (s) RQ.store.set('rq_src', s + (c ? '/' + c : ''));
+    return RQ.store.get('rq_src') || 'direct';
   })();
 
-  /* ---------- الإرسال ---------- */
-  var busy = false;
-  $('orderForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (busy) return;
-    var msg = $('formMsg'); msg.style.display = 'none';
-    var d = validate(); if (!d) return;
-    var hp = this.website.value;
+  /* ---------- قراية قاعدة البيانات (من غير تسجيل دخول) ---------- */
+  var F = S.firebase;
+  var BASE = 'projects/' + F.projectId + '/databases/(default)/documents';
+  RQ.BASE = BASE;
+  function dec(v) {
+    if (!v) return null;
+    if ('stringValue' in v) return v.stringValue;
+    if ('integerValue' in v) return Number(v.integerValue);
+    if ('doubleValue' in v) return Number(v.doubleValue);
+    if ('booleanValue' in v) return v.booleanValue;
+    if ('timestampValue' in v) return v.timestampValue;
+    if ('nullValue' in v) return null;
+    if ('arrayValue' in v) return (v.arrayValue.values || []).map(dec);
+    if ('mapValue' in v) return decFields(v.mapValue.fields || {});
+    return null;
+  }
+  function decFields(f) { var o = {}; for (var k in f) o[k] = dec(f[k]); return o; }
+  function getJSON(url) {
+    return fetch(url).then(function (r) {
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    });
+  }
+  RQ.fsGet = function (path) {
+    return getJSON('https://firestore.googleapis.com/v1/' + BASE + '/' + path + '?key=' + F.apiKey).then(function (j) {
+      if (!j || !j.fields) return null;
+      var o = decFields(j.fields); o.id = j.name.split('/').pop(); return o;
+    });
+  };
+  RQ.fsList = function (col) {
+    return getJSON('https://firestore.googleapis.com/v1/' + BASE + '/' + col + '?pageSize=300&key=' + F.apiKey).then(function (j) {
+      return ((j && j.documents) || []).map(function (d) { var o = decFields(d.fields || {}); o.id = d.name.split('/').pop(); return o; });
+    });
+  };
 
-    var seen = store.get('rq_last');
-    if (seen && seen.phone === d.phone && seen.day === cairoDay()) {
-      msg.textContent = 'طلبك من الرقم ده وصلنا النهارده خلاص، وهنتصل بيك نأكده.';
-      msg.style.display = 'block'; return;
-    }
+  /* ---------- المنتجات (مع نسخة محفوظة عشان الصفحة تفتح بسرعة) ---------- */
+  RQ.cleanProduct = function (p) {
+    p.offers = (p.offers || []).filter(function (o) { return o && o.qty > 0 && o.price > 0; })
+      .sort(function (a, b) { return a.qty - b.qty; });
+    p.images = (p.images || []).filter(Boolean);
+    return p;
+  };
+  RQ.products = function (onData) {
+    var cached = RQ.store.get('rq_products');
+    if (cached && cached.list) onData(cached.list, true);
+    return RQ.fsList('products').then(function (list) {
+      list = list.map(RQ.cleanProduct).filter(function (p) { return p.active !== false && p.offers.length; })
+        .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+      RQ.store.set('rq_products', { t: Date.now(), list: list });
+      onData(list, false);
+      return list;
+    });
+  };
+  RQ.settings = function (onData) {
+    var cached = RQ.store.get('rq_settings');
+    if (cached) onData(cached, true);
+    return RQ.fsGet('settings/store').then(function (s) {
+      s = s || {}; RQ.store.set('rq_settings', s); onData(s, false); return s;
+    }).catch(function () {});
+  };
 
-    busy = true;
-    var btn = $('submitBtn'); btn.disabled = true; btn.textContent = 'بنسجّل طلبك…';
-    track('InitiateCheckout', { value: sel.price, currency: 'EGP', num_items: sel.qty });
+  /* ---------- الصور: لينك عادي، أو صورة مرفوعة من لوحة التحكم (m:رقمها) ---------- */
+  var mediaMem = {};
+  RQ.img = function (src) {
+    src = String(src || '');
+    if (src.indexOf('m:') !== 0) return Promise.resolve(src);
+    var id = src.slice(2);
+    if (mediaMem[id]) return mediaMem[id];
+    var key = 'rq_m_' + id;
+    try { var hit = localStorage.getItem(key); if (hit) return (mediaMem[id] = Promise.resolve(hit)); } catch (e) {}
+    mediaMem[id] = RQ.fsGet('media/' + id).then(function (m) {
+      var data = (m && m.data) || '';
+      if (data) { try { localStorage.setItem(key, data); } catch (e) { /* المساحة خلصت: عادي */ } }
+      return data;
+    }).catch(function () { delete mediaMem[id]; return ''; });
+    return mediaMem[id];
+  };
+  RQ.setImg = function (el, src) {
+    RQ.img(src).then(function (u) { if (u) el.src = u; });
+  };
 
-    var id = 'RQ' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 90 + 10);
-    var order = { id: id, qty: sel.qty, price: sel.price, label: sel.label, name: d.name, phone: d.phone, gov: d.gov, address: d.address, sku: P.sku, product: P.name, src: src, hp: hp };
+  /* ---------- أقل سعر (قطعة واحدة) ---------- */
+  RQ.fromPrice = function (p) { return p.offers.length ? p.offers[0].price : 0; };
 
-    function done(state) {
-      order.state = state;           // ok | offline
-      delete order.hp;
-      store.set('rq_order', order);
-      if (state === 'ok') store.set('rq_last', { phone: d.phone, day: cairoDay() });
-      location.href = 'thanks.html';
-    }
-
-    if (hp) { done('ok'); return; }                       // روبوت: مانسجلش حاجة
-    var F = S.firebase;
-    if (!F || !F.projectId) { done('offline'); return; }
-
-    // رقم المستند = الموبايل + تاريخ النهارده (بتوقيت القاهرة) → نفس الرقم مايطلبش مرتين في نفس اليوم
-    var docId = d.phone + '_' + cairoDay().replace(/-/g, '');
-    var base = 'projects/' + F.projectId + '/databases/(default)/documents';
-    var sv = function (v) { return { stringValue: String(v) }; };
-    var body = { writes: [{
-      update: { name: base + '/orders/' + docId, fields: {
-        id: sv(id), qty: { integerValue: String(sel.qty) }, total: { integerValue: String(sel.price) },
-        name: sv(d.name.slice(0, 80)), phone: sv(d.phone), gov: sv(d.gov), address: sv(d.address.slice(0, 250)),
-        sku: sv(P.sku), src: sv(String(src).slice(0, 60)), status: sv('جديد'), notes: sv(''), taagerNo: sv('')
-      } },
-      currentDocument: { exists: false },
-      updateTransforms: [{ fieldPath: 'createdAt', setToServerValue: 'REQUEST_TIME' }]
-    }] };
-
-    var ctl = 'AbortController' in window ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
-    fetch('https://firestore.googleapis.com/v1/' + base + ':commit?key=' + F.apiKey, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined
-    })
-      .then(function (r) {
-        clearTimeout(timer);
-        if (r.ok) return done('ok');
-        if (r.status === 409) {                            // نفس الرقم طلب النهارده
-          store.set('rq_last', { phone: d.phone, day: cairoDay() });
-          msg.textContent = 'طلبك من الرقم ده وصلنا النهارده خلاص، وهنتصل بيك نأكده.';
-          msg.style.display = 'block';
-          busy = false; btn.disabled = false; btn.textContent = 'تأكيد الطلب';
-          return;
-        }
-        done('offline');                                   // أي مشكلة تانية: الطلب يروح واتساب
-      })
-      .catch(function () { clearTimeout(timer); done('offline'); });
-  });
-
-  loadPixels();
-  track('ViewContent', { value: sel.price, currency: 'EGP', content_name: P.name, content_ids: [P.sku], content_type: 'product' });
+  RQ.loadPixels();
 })();
