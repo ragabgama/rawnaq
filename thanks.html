@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="pages.css?v=3">
-<script src="config.js?v=3"></script>
+<link rel="stylesheet" href="pages.css?v=5">
+<script src="config.js?v=5"></script>
 <meta name="robots" content="noindex">
 <title>شكرًا لطلبك | رونق</title>
 <style>
@@ -37,14 +37,14 @@
 </div>
 
 <div class="ok" id="okMsg">هنتصل بيك لتأكيد الطلب خلال 24 ساعة</div>
-<div class="card" id="customNote" hidden><b>🎨 التصميم الخاص</b><p class="muted">ابعتلنا الصور أو أي تفاصيل للتصميم على واتساب، وهنبعتلك شكل التصميم توافق عليه قبل الطباعة.</p></div>
+<div class="card" id="customNote" hidden><b>🎨 طلبك المخصوص</b><p class="muted">صورك وصلتنا. هنراجعها ونبعتلك شكل التصميم على واتساب توافق عليه قبل الطباعة. لو عندك صور أو تفاصيل زيادة ابعتهالنا على واتساب.</p></div>
 <div class="card" id="sum"></div>
 <div class="card"><b>📱 خلّي موبايلك مفتوح</b><p class="muted">المندوب أو خدمة العملاء هيكلموك من رقم ممكن ماتعرفوش.</p></div>
 <a class="btn wa" id="waSend" href="#" target="_blank" rel="noopener">ابعت تفاصيل الطلب على واتساب</a>
 <p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js?v=3"></script>
+<script src="order.js?v=5"></script>
 <script>
 (function(){
   var o = RQ.store.get('rq_order'), $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
@@ -68,7 +68,7 @@
   var lines = items.map(function (i) { var x = [i.variant, i.choice].filter(Boolean); return '- ' + i.name + ' × ' + i.qty + (x.length ? ' (' + x.join(' · ') + ')' : '') + (i.custom ? ' [تصميم خاص: ' + i.custom + ']' : ''); }).join('\n');
   var txt = 'طلب جديد ' + o.id + '\n' + lines + '\nالإجمالي: ' + fmt(o.total || o.price) + ' ج (' + (PAY[o.pay] || PAY.cod) + ')\nالاسم: ' + o.name + '\nالموبايل: ' + o.phone + '\nالمحافظة: ' + o.gov + '\nالعنوان: ' + o.address;
   $('waSend').href = waLink(txt);
-  if (items.some(function (i) { return i.custom; })) $('customNote').hidden = false;
+  if (items.some(function (i) { return i.custom || (i.uploads && i.uploads.length); })) $('customNote').hidden = false;
 
   if (o.pay === 'instapay' || o.pay === 'vodafone') {
     var num = o.pay === 'instapay' ? CFG.instapay : CFG.vodafone;

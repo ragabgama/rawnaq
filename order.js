@@ -115,8 +115,16 @@
       v = [{ name: '', price: Math.round(o.price / (o.qty || 1)), was: 0 }];
     }
     p.variants = v;
-    p.choices = (p.choices || []).map(function (c) { return String(c).trim(); }).filter(Boolean);
+    // كل اختيار ممكن يبقى «اسم | سعر» لو الموديل ده سعره مختلف
+    p.choicePrice = {};
+    p.choices = (p.choices || []).map(function (c) {
+      var m = String(c).split('|'), name = m[0].trim(), pr = Math.round(Number(m[1]));
+      if (name && pr > 0) p.choicePrice[name] = pr;
+      return name;
+    }).filter(Boolean);
+    p.sub = String(p.sub || '').trim();
     p.customFee = Math.round(Number(p.customFee) || 0);
+    p.maxUploads = Math.max(1, Math.min(3, Math.round(Number(p.maxUploads) || 1)));
     p.category = p.category || '';
     return p;
   };
@@ -178,7 +186,7 @@
     count: function () { return RQ.cart.all().reduce(function (a, i) { return a + (i.qty || 0); }, 0); },
     add: function (item) {
       var c = RQ.cart.all();
-      var same = c.filter(function (i) { return i.pid === item.pid && i.variant === item.variant && i.choice === item.choice && !i.custom && !item.custom; })[0];
+      var same = c.filter(function (i) { return i.pid === item.pid && i.variant === item.variant && i.choice === item.choice && !i.custom && !item.custom && !i.uploads && !item.uploads; })[0];
       if (same) same.qty = Math.min(10, same.qty + item.qty); else c.push(item);
       RQ.cart.save(c.slice(0, 15));
     },
@@ -189,6 +197,76 @@
     }
   };
   RQ.cart.badge();
+
+  /* ---------- اختيار الموبايل (الماركة الأول وبعدين الموديل) ---------- */
+  var BRANDS = [['Apple', /^iphone/i], ['Samsung', /^samsung/i], ['Oppo', /^oppo/i], ['Xiaomi', /^(redmi|xiaomi|mi )/i],
+    ['Realme', /^realme/i], ['Huawei / Honor', /^(huawei|honor)/i], ['Infinix', /^infinix/i], ['Tecno', /^tecno/i], ['Vivo', /^vivo/i]];
+  RQ.brandOf = function (m) {
+    for (var i = 0; i < BRANDS.length; i++) if (BRANDS[i][1].test(String(m).trim())) return BRANDS[i][0];
+    return 'أخرى';
+  };
+  RQ.isPhoneList = function (list) {
+    if (!list || list.length < 3) return false;
+    var n = list.filter(function (m) { return RQ.brandOf(m) !== 'أخرى'; }).length;
+    return n / list.length > 0.6;
+  };
+  RQ.myPhone = function (v) { if (v !== undefined) RQ.store.set('rq_phone', v); return RQ.store.get('rq_phone') || ''; };
+  // بيرسم أزرار الماركات + قايمة الموديلات، وبيرجّع function تجيب الاختيار
+  RQ.phonePicker = function (box, models, onChange) {
+    var esc = RQ.esc, brands = [];
+    models.forEach(function (m) { var b = RQ.brandOf(m); if (brands.indexOf(b) < 0) brands.push(b); });
+    var cur = models.indexOf(RQ.myPhone()) >= 0 ? RQ.myPhone() : '';
+    var brand = cur ? RQ.brandOf(cur) : '';
+    box.innerHTML = '<div class="brands"></div><select class="pmodel"></select>' +
+      (cur ? '' : '') + '<div class="phint">مش متأكد من الموديل؟ افتح الإعدادات ← حول الهاتف، والاسم مكتوب هناك.</div>';
+    var bb = box.querySelector('.brands'), sel = box.querySelector('.pmodel');
+    function paint() {
+      bb.innerHTML = brands.map(function (b) { return '<button type="button" data-b="' + esc(b) + '" class="' + (b === brand ? 'on' : '') + '">' + esc(b) + '</button>'; }).join('');
+      var list = models.filter(function (m) { return RQ.brandOf(m) === brand; });
+      sel.innerHTML = '<option value="">' + (brand ? 'اختار الموديل' : 'اختار الماركة الأول') + '</option>' +
+        list.map(function (m) { return '<option' + (m === cur ? ' selected' : '') + '>' + esc(m) + '</option>'; }).join('');
+      sel.disabled = !brand;
+    }
+    bb.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      brand = b.dataset.b; cur = ''; paint(); sel.focus(); if (onChange) onChange('');
+    });
+    sel.addEventListener('change', function () { cur = sel.value; if (cur) RQ.myPhone(cur); if (onChange) onChange(cur); });
+    paint();
+    return function () { return cur; };
+  };
+
+  /* ---------- رفع صور العملاء (للطباعة) ---------- */
+  RQ.compress = function (file, max, maxLen) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, s = Math.min(1, max / Math.max(w, h));
+        w = Math.round(w * s); h = Math.round(h * s);
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        var q = 0.9, out = c.toDataURL('image/jpeg', q);
+        while (out.length > maxLen && q > 0.4) { q -= 0.08; out = c.toDataURL('image/jpeg', q); }
+        URL.revokeObjectURL(url);
+        if (out.length > maxLen) return rej(new Error('big'));
+        res({ data: out, w: img.naturalWidth, h: img.naturalHeight });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error('bad')); };
+      img.src = url;
+    });
+  };
+  RQ.uploadPhoto = function (dataUrl) {
+    var abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789', id = 'U';
+    for (var i = 0; i < 19; i++) id += abc[Math.floor(Math.random() * abc.length)];
+    var body = { writes: [{
+      update: { name: BASE + '/uploads/' + id, fields: { data: { stringValue: dataUrl } } },
+      currentDocument: { exists: false },
+      updateTransforms: [{ fieldPath: 'createdAt', setToServerValue: 'REQUEST_TIME' }]
+    }] };
+    return fetch('https://firestore.googleapis.com/v1/' + BASE + ':commit?key=' + F.apiKey, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) { if (!r.ok) throw new Error('upload ' + r.status); return id; });
+  };
 
   RQ.loadPixels();
 })();

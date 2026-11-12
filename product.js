@@ -4,7 +4,8 @@
   try { pid = new URLSearchParams(location.search).get('id') || ''; } catch (e) {}
   if (!/^[A-Za-z0-9]{1,40}$/.test(pid)) pid = '';
 
-  var P = null, vSel = 0, painted = false;
+  var P = null, vSel = 0, painted = false, getPhone = null, phoneMode = false;
+  var ups = [];   // الصور اللي العميل اختارها: {data, thumb, w, h}
 
   function missing(msg) { if (!painted) { $('missing').hidden = false; if (msg) $('missing').innerHTML = msg; $('crumb').textContent = 'مش متاح'; } }
   if (!pid) { missing(); return; }
@@ -55,18 +56,32 @@
       return '<button type="button" data-i="' + i + '" class="' + (i === vSel ? 'on' : '') + '">' + esc(v.name || 'عادي') + '<small>' + fmt(v.price) + ' ج</small></button>';
     }).join('');
 
-    /* موديل الموبايل / اختيار */
-    var sel = $('choice'), keep = sel.value;
+    /* موديل الموبايل (الماركة الأول) أو قايمة عادية */
     $('cBox').hidden = !p.choices.length;
     $('cLabel').textContent = p.choiceLabel || 'اختار';
-    sel.innerHTML = '<option value="">' + esc(p.choiceLabel ? 'اختار ' + p.choiceLabel : 'اختار') + '</option>' +
-      p.choices.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
-    if (keep && p.choices.indexOf(keep) >= 0) sel.value = keep;
+    phoneMode = RQ.isPhoneList(p.choices);
+    $('phoneBox').hidden = !phoneMode; $('choice').hidden = phoneMode;
+    if (phoneMode) {
+      getPhone = RQ.phonePicker($('phoneBox'), p.choices, function () { $('cErr').style.display = 'none'; if (P) paint(); });
+    } else {
+      var sel = $('choice'), keep = sel.value;
+      sel.innerHTML = '<option value="">' + esc(p.choiceLabel ? 'اختار ' + p.choiceLabel : 'اختار') + '</option>' +
+        p.choices.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('');
+      if (keep && p.choices.indexOf(keep) >= 0) sel.value = keep;
+    }
 
-    /* التصميم الخاص */
+    /* رفع الصور */
+    $('upBox').hidden = !p.allowUpload;
+    $('upFile').multiple = p.maxUploads > 1;
+    $('upLabel').textContent = p.maxUploads > 1 ? 'ارفع صورك (لحد ' + p.maxUploads + ' صور)' : 'ارفع صورتك';
+    paintUps();
+
+    /* الاسم / الكلام على التصميم */
     $('customBox').hidden = !p.allowCustom;
     $('customFee').textContent = p.customFee ? '(+' + fmt(p.customFee) + ' ج)' : '';
     if (p.customHint) $('customText').placeholder = p.customHint;
+    if (p.allowUpload) { $('customTitle').textContent = 'عايز تكتب اسم أو كلام كمان؟'; $('customSmall').textContent = 'اختياري: اكتب الاسم أو أي ملاحظة على التصميم.'; }
+    $('prepaidNote').hidden = !(p.allowUpload || p.allowCustom);
 
     paint();
 
@@ -100,16 +115,43 @@
     if (first) track('ViewContent', { value: unit(), currency: 'EGP', content_name: p.name, content_ids: [p.id], content_type: 'product' });
   }
 
-  function custom() { return !!(P && P.allowCustom && $('customOn').checked); }
-  function unit() { var v = P.variants[vSel]; return v.price + (custom() ? P.customFee : 0); }
+  /* ---------- الصور اللي العميل بيرفعها ---------- */
+  function paintUps() {
+    $('upThumbs').innerHTML = ups.map(function (u, i) {
+      var low = u.w < 900 && u.h < 900;
+      return '<div><img src="' + u.thumb + '" alt=""><button type="button" data-i="' + i + '" aria-label="شيل">✕</button>' + (low ? '<span class="warn">الصورة صغيرة</span>' : '') + '</div>';
+    }).join('');
+    if (P) $('upFile').disabled = ups.length >= P.maxUploads;
+  }
+  $('upThumbs').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    ups.splice(Number(b.dataset.i), 1); paintUps();
+  });
+  $('upFile').addEventListener('change', function () {
+    var files = [].slice.call(this.files || []); this.value = '';
+    $('upErr').style.display = 'none';
+    var room = (P ? P.maxUploads : 1) - ups.length;
+    files.slice(0, Math.max(0, room)).forEach(function (f) {
+      RQ.compress(f, 2200, 950000).then(function (big) {
+        return RQ.compress(f, 220, 40000).then(function (small) {
+          ups.push({ data: big.data, thumb: small.data, w: big.w, h: big.h }); paintUps();
+        });
+      }).catch(function () { $('upErr').textContent = 'الصورة دي مش راضية تتفتح، جرّب صورة تانية'; $('upErr').style.display = 'block'; });
+    });
+  });
+
+  function customText() { return P && P.allowCustom && $('customOn').checked ? $('customText').value.trim() : ''; }
+  function base() { var c = choiceVal(); return (c && P.choicePrice[c]) || P.variants[vSel].price; }
+  function unit() { return base() + (P.allowCustom && $('customOn').checked ? P.customFee : 0); }
   function qty() { var q = Math.round(Number($('qty').value) || 1); return Math.max(1, Math.min(10, q)); }
+  function choiceVal() { return phoneMode ? (getPhone ? getPhone() : '') : $('choice').value; }
   function paint() {
     var v = P.variants[vSel], u = unit();
     $('price').innerHTML = fmt(u) + ' <small>ج</small>';
-    $('was').hidden = !(v.was > v.price);
+    $('was').hidden = !(v.was > base());
     $('was').textContent = fmt(v.was) + ' ج';
     [].forEach.call($('vPills').children, function (b, i) { b.className = i === vSel ? 'on' : ''; });
-    $('customText').hidden = !custom();
+    $('customText').hidden = !(P.allowCustom && $('customOn').checked);
     $('stickyBtn').textContent = 'أضف للسلة · ' + fmt(u * qty()) + ' ج';
   }
 
@@ -117,38 +159,58 @@
     var b = e.target.closest('button'); if (!b) return;
     vSel = Number(b.dataset.i); paint();
   });
-  $('customOn').addEventListener('change', function () { paint(); if (custom()) $('customText').focus(); });
+  $('customOn').addEventListener('change', function () { paint(); if ($('customOn').checked) $('customText').focus(); });
   $('qMinus').onclick = function () { $('qty').value = Math.max(1, qty() - 1); paint(); };
   $('qPlus').onclick = function () { $('qty').value = Math.min(10, qty() + 1); paint(); };
   $('qty').addEventListener('change', function () { $('qty').value = qty(); paint(); });
-  $('choice').addEventListener('change', function () { $('cErr').style.display = 'none'; $('choice').style.borderColor = ''; });
+  $('choice').addEventListener('change', function () { $('cErr').style.display = 'none'; $('choice').style.borderColor = ''; if (P) paint(); });
 
-  function add(go) {
+  var busy = false;
+  function check() {
     if (!P) return false;
-    if (P.choices.length && !$('choice').value) {
-      $('cErr').style.display = 'block'; $('choice').style.borderColor = 'var(--red)';
-      $('cBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('choice').focus();
-      return false;
+    if (P.allowUpload && !ups.length) {
+      $('upErr').textContent = 'ارفع الصورة الأول'; $('upErr').style.display = 'block';
+      $('upBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); return false;
     }
-    var ct = $('customText').value.trim();
-    if (custom() && ct.length < 2) { $('customText').focus(); $('customText').style.borderColor = 'var(--red)'; return false; }
-    var v = P.variants[vSel];
-    RQ.cart.add({
-      pid: P.id, name: P.name, img: P.images[0] || '', variant: v.name || '', choice: $('choice').value || '',
-      qty: qty(), price: unit(), custom: custom() ? ct.slice(0, 300) : ''
-    });
-    track('AddToCart', { value: unit() * qty(), currency: 'EGP', content_ids: [P.id], content_name: P.name, content_type: 'product' });
-    if (go) { location.href = 'cart.html'; return true; }
-    $('added').style.display = 'block';
-    $('customText').value = ''; $('customOn').checked = false; $('qty').value = 1; paint();
+    if (P.choices.length && !choiceVal()) {
+      $('cErr').style.display = 'block'; if (!phoneMode) $('choice').style.borderColor = 'var(--red)';
+      $('cBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); return false;
+    }
+    if (P.allowCustom && $('customOn').checked && $('customText').value.trim().length < 2) {
+      $('customText').focus(); $('customText').style.borderColor = 'var(--red)'; return false;
+    }
     return true;
+  }
+  function add(go) {
+    if (busy || !check()) return;
+    var v = P.variants[vSel];
+    var item = { pid: P.id, name: P.name, img: P.images[0] || '', variant: v.name || '', choice: choiceVal() || '',
+      qty: qty(), price: unit(), custom: customText().slice(0, 300) };
+    function finish(ids) {
+      if (ids && ids.length) { item.uploads = ids; item.thumbs = ups.map(function (u) { return u.thumb; }); }
+      RQ.cart.add(item);
+      track('AddToCart', { value: item.price * item.qty, currency: 'EGP', content_ids: [P.id], content_name: P.name, content_type: 'product' });
+      if (go) { location.href = 'cart.html'; return; }
+      $('added').style.display = 'block'; $('added').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      $('customText').value = ''; $('customOn').checked = false; $('qty').value = 1; ups = []; paintUps(); paint();
+    }
+    if (!P.allowUpload) return finish(null);
+    // نرفع الصور الأول
+    busy = true;
+    var btns = [$('addBtn'), $('buyNow'), $('stickyBtn')];
+    btns.forEach(function (b) { b.disabled = true; });
+    $('addBtn').textContent = 'بنرفع صورتك…';
+    Promise.all(ups.map(function (u) { return RQ.uploadPhoto(u.data); })).then(function (ids) {
+      busy = false; btns.forEach(function (b) { b.disabled = false; }); $('addBtn').textContent = 'أضف للسلة';
+      finish(ids);
+    }).catch(function () {
+      busy = false; btns.forEach(function (b) { b.disabled = false; }); $('addBtn').textContent = 'أضف للسلة';
+      $('upErr').textContent = 'ماعرفناش نرفع الصورة. جرّب تاني، أو ابعتهالنا على واتساب.'; $('upErr').style.display = 'block';
+    });
   }
   $('addBtn').onclick = function () { add(false); };
   $('buyNow').onclick = function () { add(true); };
-  $('stickyBtn').onclick = function () {
-    if (P && P.choices.length && !$('choice').value) { $('cBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('cErr').style.display = 'block'; return; }
-    if (add(false)) $('added').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
+  $('stickyBtn').onclick = function () { add(false); };
 
   /* الزرار الثابت يختفي لما زرار السلة يبان */
   var sticky = $('sticky');

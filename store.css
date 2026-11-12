@@ -244,3 +244,55 @@ body.has-sticky .wa{bottom:92px}
 .paybox{background:#FFF8EA;border:2px solid #FFE2B3;border-radius:14px;padding:14px;margin:12px 0}
 .paybox .num{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:8px 12px;margin-top:8px;font-weight:800;gap:10px}
 .paybox .num button{border:0;background:var(--pet);color:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-weight:700}
+
+/* شريط الأقسام تحت الهيدر */
+.catbar{background:#fff;border-bottom:1px solid var(--card)}
+.catbar .wrap{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-top:8px;padding-bottom:8px}
+.catbar a{flex:0 0 auto;text-decoration:none;font-weight:800;font-size:14px;color:var(--pet);background:var(--bg);border-radius:999px;padding:6px 14px;white-space:nowrap}
+.catbar a.hot{background:var(--gold);color:var(--ink)}
+@media (min-width:761px){.catbar{display:none}}
+
+/* اختيار الموبايل */
+.brands{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.brands button{border:2px solid var(--card);background:#fff;border-radius:10px;padding:7px 12px;font-weight:800;cursor:pointer;color:var(--ink)}
+.brands button.on{border-color:var(--pet);background:var(--pet);color:#fff}
+.pmodel[disabled]{opacity:.55}
+.phint{color:var(--muted);font-size:12.5px;margin-top:5px}
+.myphone{background:#fff;border-radius:var(--r);padding:16px;display:grid;grid-template-columns:1fr 1.3fr;gap:16px;align-items:center}
+.myphone h2{margin:0 0 4px}
+.myphone p{color:var(--muted);font-size:14.5px}
+@media (max-width:760px){.myphone{grid-template-columns:1fr}}
+
+/* بطاقات «اطبع صورتك» */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.tiles{grid-template-columns:1fr}}
+.tile{position:relative;display:flex;align-items:center;gap:14px;border-radius:20px;padding:18px;text-decoration:none;color:#fff;overflow:hidden;min-height:150px;background:linear-gradient(135deg,#0E4A52,#1B7B6F)}
+.tile.b{background:linear-gradient(135deg,#B95F3D,#E0A15E)}
+.tile .ic{flex:0 0 86px;height:110px;display:grid;place-items:center}
+.tile .ic svg{width:86px;height:110px;filter:drop-shadow(0 8px 14px #0005)}
+.tile b{display:block;font-family:Alexandria,sans-serif;font-size:21px;line-height:1.3}
+.tile span{display:block;opacity:.92;font-size:14.5px;margin:4px 0 8px}
+.tile i{font-style:normal;display:inline-block;background:#fff;color:var(--ink);border-radius:999px;padding:4px 14px;font-weight:800;font-size:14px}
+
+/* رفع الصور في صفحة المنتج */
+.upbox{border:2px dashed var(--pet);background:#F0FAF7;border-radius:16px;padding:14px;margin:12px 0;text-align:center}
+.upbox .pick{display:inline-flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-weight:800;color:var(--pet)}
+.upbox .pick svg{width:34px;height:34px}
+.upbox small{display:block;color:var(--muted);font-weight:600;font-size:12.5px}
+.upthumbs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.upthumbs div{position:relative;width:84px;height:84px;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 2px 8px #0002}
+.upthumbs img{width:100%;height:100%;object-fit:cover}
+.upthumbs button{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;border:0;background:#000a;color:#fff;cursor:pointer;font-size:12px;line-height:22px;padding:0}
+.upthumbs .warn{position:absolute;bottom:0;left:0;right:0;background:#C2410Ce6;color:#fff;font-size:10.5px;font-weight:700;padding:1px 2px}
+.uphelp{text-align:right;margin-top:8px;font-size:13.5px}
+.uphelp summary{padding:6px 0;font-size:13.5px}
+.uphelp ul{padding-inline-start:18px;color:var(--muted)}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.steps3 div{background:#fff;border-radius:14px;padding:12px;font-size:14px}
+.steps3 b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--gold);margin-bottom:6px}
+@media (max-width:640px){.steps3{grid-template-columns:1fr}}
+.ci .ups{display:flex;gap:4px;margin-top:4px}
+.ci .ups img{width:34px;height:34px;border-radius:6px;object-fit:cover}
+
+.cats.subs button{border-width:1.5px;padding:5px 14px;font-size:14px;font-weight:700;background:#fff;color:var(--muted)}
+.cats.subs button.on{background:#E6F7F2;border-color:var(--mint);color:var(--pet)}

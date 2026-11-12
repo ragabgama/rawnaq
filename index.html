@@ -15,8 +15,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="store.css?v=3">
-<script src="config.js?v=3"></script>
+<link rel="stylesheet" href="store.css?v=5">
+<script src="config.js?v=5"></script>
 </head>
 <body>
 <div class="topbar" id="topbar">توصيل لكل المحافظات · ادفع كاش أو أونلاين</div>
@@ -25,9 +25,10 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FFB547" d="M12 0c.9 6.4 5.6 11.1 12 12-6.4.9-11.1 5.6-12 12-.9-6.4-5.6-11.1-12-12C6.4 11.1 11.1 6.4 12 0z"/></svg>
     رونق
   </a>
-  <nav class="nav"><a href="./">الرئيسية</a><a href="#products">المنتجات</a><a href="#custom">تصميم خاص</a><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav>
+  <nav class="nav"><a href="./">الرئيسية</a><a href="./?cat=%D8%AC%D8%B1%D8%A7%D8%A8%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D9%88%D8%A8%D8%A7%D9%8A%D9%84#products">جرابات</a><a href="./?cat=%D8%A8%D8%B1%D8%A7%D9%88%D9%8A%D8%B2%20%D9%88%D9%84%D9%88%D8%AD%D8%A7%D8%AA#products">براويز ولوحات</a><a href="custom.html" style="color:var(--pet)">📸 اطبع صورتك</a><a href="./#custom">اسمك على المنتج</a><a href="contact.html">تواصل معنا</a></nav>
   <div class="hdr-r"><a class="cartbtn" href="cart.html" aria-label="السلة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg><b data-cart-count hidden>0</b></a></div>
 </div></header>
+<div class="catbar"><div class="wrap"><a href="./#products">كل المنتجات</a><a href="./?cat=%D8%AC%D8%B1%D8%A7%D8%A8%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D9%88%D8%A8%D8%A7%D9%8A%D9%84#products">جرابات الموبايل</a><a href="./?cat=%D8%A8%D8%B1%D8%A7%D9%88%D9%8A%D8%B2%20%D9%88%D9%84%D9%88%D8%AD%D8%A7%D8%AA#products">براويز ولوحات</a><a class="hot" href="custom.html">📸 اطبع صورتك</a><a href="./#custom">اسمك على المنتج</a><a href="contact.html">تواصل معنا</a></div></div>
 
 <main>
 <section class="banner" id="banner">
@@ -36,16 +37,32 @@
       <span class="kick" id="bKick">تصميمات خاصة · مطبوعة مخصوص ليك</span>
       <h1 id="bTitle">رجّع لبيتك وموبايلك <em>رونقهم</em></h1>
       <p id="bSub">لوحات حيطة وتابلوهات ديكور وجرابات موبايل بتصميمات مش هتلاقيها في حتة تانية، ولو عايز اسمك أو تصميمك إحنا نطبعهولك.</p>
-      <div class="chips"><span>🖼️ لوحات وتابلوهات</span><span>📱 جرابات لأكتر من 100 موبايل</span><span>✍️ اسمك على المنتج</span><span>🚚 لكل المحافظات</span></div>
-      <div class="ctas"><a class="btn" id="bBtn" href="#products">تسوّق دلوقتي</a><a class="btn ghost" href="#custom">اطلب تصميم خاص</a></div>
+      <div class="chips"><span>🖼️ لوحات وتابلوهات</span><span>📱 جرابات لأكتر من 100 موبايل</span><span>📸 صورتك على جراب أو برواز</span><span>🚚 لكل المحافظات</span></div>
+      <div class="ctas"><a class="btn" id="bBtn" href="#products">تسوّق دلوقتي</a><a class="btn ghost" href="custom.html">📸 اطبع صورتك</a></div>
     </div>
     <div class="vis"><img id="bImg" src="img/hero.png" width="1100" height="900" alt="لوحات حيطة وجرابات موبايل من رونق" fetchpriority="high"></div>
   </div>
 </section>
 
+
+<section class="sec" style="padding-bottom:0"><div class="wrap">
+  <div class="tiles">
+    <a class="tile" href="custom.html?t=case"><div class="ic"><svg viewBox="0 0 86 110"><rect x="6" y="3" width="74" height="104" rx="16" fill="#E9EDF0"/><rect x="11" y="8" width="64" height="94" rx="12" fill="#F6D8B8"/><rect x="16" y="13" width="26" height="26" rx="8" fill="#22272b"/><circle cx="24" cy="21" r="5" fill="#0b0d0e"/><circle cx="34" cy="31" r="5" fill="#0b0d0e"/><circle cx="43" cy="66" r="15" fill="#C9754C"/><path d="M30 92c4-9 22-9 26 0" fill="#7E9C8C"/></svg></div><div><b>اطبع صورتك على جراب</b><span>ارفع أي صورة، اختار موبايلك، ونطبعهالك على ضهر الجراب.</span><i>ابدأ دلوقتي ←</i></div></a>
+    <a class="tile b" href="custom.html?t=frame"><div class="ic"><svg viewBox="0 0 86 110"><rect x="3" y="3" width="80" height="104" rx="3" fill="#16181a"/><rect x="10" y="10" width="66" height="90" fill="#F6F1E7"/><rect x="17" y="17" width="52" height="76" fill="#0E4A52"/><circle cx="43" cy="45" r="13" fill="#FFB547"/><path d="M17 93l18-24 12 14 9-9 13 19z" fill="#7FD6C2"/></svg></div><div><b>اطبع صورتك في برواز</b><span>صورة العيلة، الفرح، أو أي ذكرى… في برواز يزيّن حيطتك.</span><i>ابدأ دلوقتي ←</i></div></a>
+  </div>
+</div></section>
+
+<section class="sec" style="padding-bottom:0"><div class="wrap">
+  <div class="myphone">
+    <div><h2 class="h" style="font-size:22px;color:var(--pet)">موبايلك إيه؟ 📱</h2><p id="mpText">اختاره مرة واحدة، وهيظهرلك على طول في صفحة أي جراب.</p></div>
+    <div id="mpBox"></div>
+  </div>
+</div></section>
+
 <section class="sec" id="products"><div class="wrap">
   <h2>منتجاتنا</h2>
   <div class="cats" id="cats" hidden></div>
+  <div class="cats subs" id="subs" hidden></div>
   <div class="grid" id="grid">
     <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
   </div>
@@ -88,7 +105,8 @@
 
 <a class="wa" id="waBtn" href="#" target="_blank" rel="noopener" aria-label="كلمنا واتساب"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg></a>
 
-<script src="order.js?v=3"></script>
+<script src="models.js?v=5"></script>
+<script src="order.js?v=5"></script>
 <script>
 (function () {
   var $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
@@ -108,7 +126,14 @@
   });
 
   /* المنتجات + الأقسام */
-  var all = [], cat = '', paintedKey = '';
+  var all = [], cat = '', sub = '', paintedKey = '', phone = RQ.myPhone();
+  /* موبايلك إيه؟ */
+  RQ.phonePicker($('mpBox'), window.ZINK_MODELS || [], function (m) {
+    phone = m; paintedKey = '';
+    $('mpText').textContent = m ? 'تمام، هنوريك الجرابات اللي تنفع لـ ' + m + ' ✓' : 'اختاره مرة واحدة، وهيظهرلك على طول في صفحة أي جراب.';
+    paint();
+  });
+  if (phone) $('mpText').textContent = 'موبايلك: ' + phone + ' ✓ (تقدر تغيّره من هنا)';
   function card(p) {
     var price = RQ.fromPrice(p), v0 = p.variants.filter(function (v) { return v.price === price; })[0] || {};
     var was = v0.was || 0, off = was > price ? Math.round((1 - price / was) * 100) : 0;
@@ -117,12 +142,12 @@
       '<div class="ph"><img data-src="' + esc(p.images[0] || '') + '" alt="' + esc(p.name) + '" loading="lazy" width="400" height="400"></div>' +
       '<div class="bd"><div class="nm">' + esc(p.name) + '</div>' +
       '<div class="pr"><b>' + (p.variants.length > 1 ? 'من ' : '') + fmt(price) + ' ج</b>' + (off >= 5 ? '<s>' + fmt(was) + ' ج</s>' : '') + '</div>' +
-      (p.allowCustom ? '<div class="inc">✍️ متاح بتصميمك</div>' : '<div class="inc">&nbsp;</div>') +
+      (phone && p.choices.indexOf(phone) >= 0 ? '<div class="inc">✓ متاح لـ ' + esc(phone) + '</div>' : p.allowUpload ? '<div class="inc">📸 بصورتك</div>' : p.allowCustom ? '<div class="inc">✍️ ممكن باسمك</div>' : '<div class="inc">&nbsp;</div>') +
       '<div class="go"><span>شوف المنتج</span></div></div></a>';
   }
   function paint() {
-    var list = all.filter(function (p) { return !cat || p.category === cat; });
-    var key = cat + JSON.stringify(list.map(function (p) { return [p.id, p.name, p.images[0], RQ.fromPrice(p), p.allowCustom]; }));
+    var list = all.filter(function (p) { return (!cat || p.category === cat) && (!sub || p.sub === sub); });
+    var key = cat + '|' + sub + phone + JSON.stringify(list.map(function (p) { return [p.id, p.name, p.images[0], RQ.fromPrice(p), p.allowCustom, p.allowUpload]; }));
     if (key === paintedKey) return; paintedKey = key;
     var g = $('grid');
     if (!list.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">قريب هنضيف منتجات جديدة</div>'; return; }
@@ -131,15 +156,27 @@
   }
   function paintCats() {
     var cats = [];
-    all.forEach(function (p) { if (p.category && cats.indexOf(p.category) < 0) cats.push(p.category); });
+    (STORE.categories || []).concat(all.map(function (p) { return p.category; })).forEach(function (c) {
+      if (c && cats.indexOf(c) < 0 && all.some(function (p) { return p.category === c; })) cats.push(c);
+    });
     $('cats').hidden = cats.length < 2;
     $('cats').innerHTML = ['<button data-c="" class="' + (!cat ? 'on' : '') + '">الكل</button>'].concat(cats.map(function (c) {
       return '<button data-c="' + esc(c) + '" class="' + (c === cat ? 'on' : '') + '">' + esc(c) + '</button>';
     })).join('');
+    var subs = [];
+    all.forEach(function (p) { if (cat && p.category === cat && p.sub && subs.indexOf(p.sub) < 0) subs.push(p.sub); });
+    $('subs').hidden = subs.length < 2;
+    $('subs').innerHTML = ['<button data-s="" class="' + (!sub ? 'on' : '') + '">كل ' + esc(cat) + '</button>'].concat(subs.map(function (c) {
+      return '<button data-s="' + esc(c) + '" class="' + (c === sub ? 'on' : '') + '">' + esc(c) + '</button>';
+    })).join('');
   }
   $('cats').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    cat = b.dataset.c; paintCats(); paint();
+    cat = b.dataset.c; sub = ''; paintCats(); paint();
+  });
+  $('subs').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    sub = b.dataset.s; paintCats(); paint();
   });
   try { var qc = new URLSearchParams(location.search).get('cat'); if (qc) cat = qc; } catch (e) {}
   RQ.products(function (list) { all = list; paintCats(); paint(); }).catch(function () {

@@ -63,6 +63,9 @@ textarea{min-height:70px;resize:vertical}
 .o .its{margin:8px 0;background:var(--bg);border-radius:10px;padding:8px 10px}
 .o .its div{padding:2px 0}
 .o .its small{color:var(--muted)}
+.o .ups{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.o .ups a{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--pet);font-size:12.5px;font-weight:700}
+.o .ups img{width:72px;height:72px;object-fit:cover;border-radius:8px;background:var(--card)}
 .o .its .cu{display:block;background:#FFF3DE;color:#8A5300;border-radius:6px;padding:2px 6px;font-size:13px;margin-top:2px}
 .o .ad{margin:6px 0}
 .o .money{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
@@ -129,8 +132,8 @@ textarea{min-height:70px;resize:vertical}
 .shipg input{width:70px;padding:5px 7px;font-size:15px}
 @supports not (inset:0){.views button{margin-left:6px}.tabs button{margin-left:6px}.o .acts>*{margin:0 0 6px 6px}.pcard .acts>*{margin:0 0 6px 6px}.chk input{margin-left:8px}}
 </style>
-<script src="config.js?v=3"></script>
-<script src="models.js?v=3"></script>
+<script src="config.js?v=5"></script>
+<script src="models.js?v=5"></script>
 </head>
 <body>
 <div class="top"><div class="in"><b>لوحة تحكم رونق</b><span id="topActs" hidden><small id="who" style="opacity:.8"></small> <a href="./" target="_blank" rel="noopener">فتح الموقع</a> <button id="logout">خروج</button></span></div></div>
@@ -189,8 +192,9 @@ textarea{min-height:70px;resize:vertical}
       <h3>الاسم والكلام</h3>
       <div class="two">
         <div class="fld"><label for="f_name">اسم المنتج *</label><input type="text" id="f_name" maxlength="90"></div>
-        <div class="fld"><label for="f_cat">القسم</label><input type="text" id="f_cat" list="catList" maxlength="40" placeholder="لوحات الحيطة"><datalist id="catList"></datalist></div>
+        <div class="fld"><label for="f_cat">القسم الرئيسي</label><select id="f_cat"></select></div>
       </div>
+      <div class="fld"><label for="f_sub">القسم الفرعي (اختياري)</label><input type="text" id="f_sub" list="subList" maxlength="40" placeholder="مثلًا: عربي، بنات، فن إسلامي، طقم 3 براويز"><datalist id="subList"></datalist><small>بيظهر للعميل كفلتر جوه القسم الرئيسي.</small></div>
       <div class="fld"><label for="f_short">سطر قصير تحت الاسم</label><input type="text" id="f_short" maxlength="160" placeholder="مثلًا: طقم 3 لوح بيدّي الصالة روح جديدة"></div>
       <div class="fld"><label for="f_desc">الوصف</label><textarea id="f_desc" rows="8" placeholder="## إيه اللي هيفرق معاك&#10;- ميزة أولى&#10;- ميزة تانية&#10;فقرة عادية..."></textarea>
         <small>اكتب السطر بـ <b>##</b> في أوله عشان يبقى عنوان، وبـ <b>-</b> في أوله عشان يبقى نقطة بعلامة ✓.</small></div>
@@ -220,12 +224,18 @@ textarea{min-height:70px;resize:vertical}
         <div class="fld"><label for="f_clabel">اسم القايمة</label><input type="text" id="f_clabel" maxlength="30" placeholder="موديل الموبايل"></div>
         <div class="fld"><label>&nbsp;</label><button type="button" class="btn s" id="zinkModels">حط موديلات Zink الجاهزة (165 موديل)</button></div>
       </div>
-      <div class="fld"><label for="f_choices">الاختيارات (كل واحد في سطر)</label><textarea id="f_choices" rows="5" placeholder="iPhone 15&#10;iPhone 15 Pro&#10;Samsung A54"></textarea><small>سيبها فاضية لو المنتج مش محتاج قايمة (زي اللوح).</small></div>
+      <div class="fld"><label for="f_choices">الاختيارات (كل واحد في سطر)</label><textarea id="f_choices" rows="5" placeholder="iPhone 15&#10;iPhone 15 Pro&#10;Samsung A54"></textarea><small>سيبها فاضية لو المنتج مش محتاج قايمة. لو موديل معين سعره مختلف اكتبه كده: <b dir="ltr">iPhone 17 Pro Max | 279</b>. وللبراويز ممكن تستخدمها للون البرواز (أسود، أبيض).</small></div>
     </div>
 
     <div class="box">
-      <h3>التصميم الخاص</h3>
-      <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="f_custom"> العميل يقدر يطلب تصميم خاص (اسمه، صورته، فكرته)</label>
+      <h3>📸 العميل يرفع صورته</h3>
+      <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="f_upload"> العميل لازم يرفع صورة عشان يطلب المنتج ده (زي «جراب بصورتك» أو «برواز بصورتك»)</label>
+      <div class="two"><div class="fld"><label for="f_maxup">أقصى عدد صور</label><select id="f_maxup"><option value="1">صورة واحدة</option><option value="2">صورتين</option><option value="3">3 صور</option></select><small>المنتج ده هيظهر في صفحة «اطبع صورتك»، وبيتدفع مقدم أوتوماتيك.</small></div></div>
+    </div>
+
+    <div class="box">
+      <h3>✍️ اسم أو كلام على التصميم</h3>
+      <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="f_custom"> العميل يقدر يكتب اسمه أو كلام على التصميم</label>
       <div class="two">
         <div class="fld"><label for="f_cfee">زيادة سعر التصميم الخاص</label><input type="number" id="f_cfee" min="0" inputmode="numeric" placeholder="0"><small>بتتضاف على سعر القطعة. التصميم الخاص بيتدفع مقدم أوتوماتيك.</small></div>
         <div class="fld"><label for="f_chint">مثال يظهر للعميل</label><input type="text" id="f_chint" maxlength="120" placeholder="مثلًا: اسمك بخط عربي وألوانك المفضلة"></div>
@@ -394,7 +404,8 @@ function rebuild() {
         if (c == null) known = false; else profit += (Number(i.price) - c) * Number(i.qty);
         if (p) {
           const v = variantsOf(p).find((x) => (x.name || '') === (i.variant || ''));
-          const exp = v ? Number(v.price) + (i.custom ? Number(p.customFee) || 0 : 0) : null;
+          const cp = {}; (p.choices || []).forEach((c) => { const m = String(c).split('|'); if (m[1] && Number(m[1]) > 0) cp[m[0].trim()] = Math.round(Number(m[1])); });
+          const exp = v ? ((i.choice && cp[i.choice]) || Number(v.price)) + (i.custom ? Number(p.customFee) || 0 : 0) : null;
           if (exp != null && exp !== Number(i.price)) bad = true;
         }
         return Object.assign({}, i, { surl: p ? (p.supplierUrl || (p.taagerId ? 'https://taager.com/eg/products/' + p.taagerId : '')) : '' });
@@ -403,7 +414,7 @@ function rebuild() {
       if (sub !== Number(r.subtotal) || Number(r.total) !== Number(r.subtotal) + Number(r.shipping)) bad = true;
       if (Number(r.shipping) !== shipOf(r.gov)) bad = true;
       return Object.assign(base, { items, subtotal: Number(r.subtotal), shipping: Number(r.shipping), total: Number(r.total), profit: known ? profit : null, bad,
-        custom: items.some((i) => i.custom), pids: items.map((i) => i.pid) });
+        custom: items.some((i) => i.custom || (i.uploads && i.uploads.length)), pids: items.map((i) => i.pid) });
     }
     // طلب قديم (تاجر)
     const qty = Number(r.qty) || 1, total = Number(r.total) || 0, ship = TAAGER_SHIP[r.gov] || 100, per = Math.floor((total - ship) / qty);
@@ -427,14 +438,14 @@ function inPeriod(o) {
 }
 const cur = () => orders.filter((o) => inPeriod(o) && (!$('pf').value || o.pids.includes($('pf').value)));
 $('spend').oninput = function () { LS.set('rq_spend_' + period, this.value); renderStats(cur()); };
-$('q').oninput = () => renderList(cur());
+$('q').oninput = () => { renderList(cur()); loadUpThumbs(); };
 $('pf').onchange = () => render();
 function fillPF() {
   const v = $('pf').value;
   $('pf').innerHTML = '<option value="">كل المنتجات</option>' + products.map((p) => '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>').join('');
   $('pf').value = v;
-  const cats = [...new Set(S.categories.concat(products.map((p) => p.category).filter(Boolean)))];
-  $('catList').innerHTML = cats.map((c) => '<option value="' + esc(c) + '">').join('');
+  const subs = [...new Set(['عربي', 'بنات', 'شباب', 'كورة', 'أنمي', 'مصري', 'فينتدج', 'بصورتك', 'باسمك', 'طقم 3 براويز', 'طقم بروازين', 'فن إسلامي', 'غرف الأطفال', 'مودرن'].concat(products.map((p) => p.sub).filter(Boolean)))];
+  $('subList').innerHTML = subs.map((c) => '<option value="' + esc(c) + '">').join('');
 }
 
 function renderStats(list) {
@@ -463,7 +474,7 @@ function renderTabs(list) {
   });
 }
 const pcs = (q) => q + (q > 1 ? ' قطع' : ' قطعة');
-const itemLine = (i) => i.name + ([i.variant, i.choice].filter(Boolean).length ? ' (' + [i.variant, i.choice].filter(Boolean).join(' · ') + ')' : '') + ' × ' + i.qty + (i.custom ? ' [تصميم خاص: ' + i.custom + ']' : '');
+const itemLine = (i) => i.name + ([i.variant, i.choice].filter(Boolean).length ? ' (' + [i.variant, i.choice].filter(Boolean).join(' · ') + ')' : '') + ' × ' + i.qty + (i.custom ? ' [اسم/كلام: ' + i.custom + ']' : '') + (i.uploads && i.uploads.length ? ' [صورة العميل: ' + i.uploads.length + ' - في لوحة التحكم]' : '');
 function collectAmount(o) { return o.pay === 'cod' ? o.total : 0; }
 function waConfirm(o) {
   const first = o.name.split(' ')[0];
@@ -486,7 +497,8 @@ function renderList(list) {
     '<div class="h"><div><div class="nm">' + esc(o.name) + '</div><div class="meta">' + esc(o.id) + ' · ' + esc(o.time.replace('T', ' ')) + ' · ' + esc(o.src) + '</div></div>' +
     '<select data-f="status">' + statusList(o).map((s) => '<option' + (s === o.status ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select></div>' +
     '<div class="its">' + o.items.map((i) => '<div>🛍️ <b>' + esc(i.name) + '</b> × ' + i.qty + ' <small>' + [i.variant, i.choice].filter(Boolean).map(esc).join(' · ') + ' · ' + fmt(i.price) + ' ج</small>' +
-      (i.custom ? '<span class="cu">✍️ تصميم خاص: ' + esc(i.custom) + '</span>' : '') + '</div>').join('') + '</div>' +
+      (i.custom ? '<span class="cu">✍️ ' + esc(i.custom) + '</span>' : '') +
+      (i.uploads && i.uploads.length ? '<div class="ups">' + i.uploads.map((u, k) => '<a href="#" data-up="' + esc(u) + '" data-nm="' + esc(o.id + '-' + (k + 1)) + '" title="دوس عشان تحمّل الصورة"><img data-upimg="' + esc(u) + '" alt="صورة العميل"><span>⬇️ تحميل</span></a>').join('') + '</div>' : '') + '</div>').join('') + '</div>' +
     '<div class="ad"><b dir="ltr">' + esc(o.phone) + '</b> · ' + esc(o.gov) + '<br>' + esc(o.address) + (o.custNote ? '<br><small>📝 ' + esc(o.custNote) + '</small>' : '') + '</div>' +
     '<div class="money"><span class="chip pay">' + esc(PAY[o.pay] || o.pay) + '</span><span class="chip">الإجمالي <b>' + fmt(o.total) + ' ج</b></span><span class="chip">شحن ' + fmt(o.shipping) + '</span>' +
     (o.legacy ? '<span class="chip">سعر القطعة في تاجر: <b>' + o.perPiece + '</b></span>' : '') +
@@ -499,8 +511,25 @@ function renderList(list) {
     '<textarea data-f="notes" placeholder="ملاحظات (مثلًا: كلّمته ومردش، يتصل بعد 5)">' + esc(o.notes) + '</textarea></div></div>';
   }).join('');
 }
+const upCache = {};
+function getUpload(id) {
+  if (!upCache[id]) upCache[id] = getDoc(doc(db, 'uploads', id)).then((s) => (s.exists() ? s.data().data : '')).catch(() => '');
+  return upCache[id];
+}
+function loadUpThumbs() {
+  [].forEach.call($('list').querySelectorAll('img[data-upimg]'), (im) => { getUpload(im.dataset.upimg).then((u) => { if (u) im.src = u; }); });
+}
 const byId = (id) => orders.find((o) => o.docId === id);
 $('list').addEventListener('click', (e) => {
+  const up = e.target.closest('[data-up]');
+  if (up) {
+    e.preventDefault();
+    getUpload(up.dataset.up).then((u) => {
+      if (!u) return toast('الصورة مش موجودة');
+      const l = document.createElement('a'); l.href = u; l.download = 'rawnaq-' + up.dataset.nm + '.jpg'; document.body.appendChild(l); l.click(); l.remove();
+    });
+    return;
+  }
   const a = e.target.closest('[data-a]'); if (!a) return;
   const card = a.closest('.o'), o = byId(card.dataset.id); if (!o) return;
   if (a.dataset.a === 'copy') {
@@ -521,7 +550,7 @@ async function saveOrder(o, ch) {
 function render() {
   [].forEach.call($('periods').children, (b) => { b.className = b.dataset.p === period ? 'on' : ''; });
   $('spend').value = LS.get('rq_spend_' + period) || '';
-  const list = cur(); renderStats(list); renderTabs(list); renderList(list);
+  const list = cur(); renderStats(list); renderTabs(list); renderList(list); loadUpThumbs();
 }
 
 /* ================= الصور ================= */
@@ -571,6 +600,10 @@ function askUrl() {
 }
 
 /* ================= المنتجات ================= */
+function catOptions(cur) {
+  const cats = [...new Set(S.categories.concat(products.map((p) => p.category).filter(Boolean)).concat(cur ? [cur] : []))];
+  return '<option value="">من غير قسم</option>' + cats.map((c) => '<option>' + esc(c) + '</option>').join('');
+}
 function lowest(p) { const v = variantsOf(p); return v.length ? Math.min.apply(null, v.map((x) => Number(x.price))) : 0; }
 function renderProducts() {
   const el = $('plist');
@@ -579,7 +612,7 @@ function renderProducts() {
     '<div class="ph"><img data-src="' + esc((p.images || [])[0] || '') + '" alt=""></div>' +
     '<div class="bd"><div class="nm">' + esc(p.name) + '</div>' +
     '<div><span class="tag ' + (p.active === false ? 'off">مخفي' : 'on">ظاهر في الموقع') + '</span> · ' + esc(p.category || 'من غير قسم') + '</div>' +
-    '<div>من <b>' + fmt(lowest(p)) + ' ج</b> · ' + variantsOf(p).length + ' مقاس' + (p.allowCustom ? ' · ✍️ تصميم خاص' : '') + (p.variants ? '' : ' · <span class="warn">محتاج تعديل</span>') + '</div>' +
+    '<div>من <b>' + fmt(lowest(p)) + ' ج</b> · ' + variantsOf(p).length + ' مقاس' + (p.allowUpload ? ' · 📸 بصورة العميل' : '') + (p.allowCustom ? ' · ✍️ اسم' : '') + (p.variants ? '' : ' · <span class="warn">محتاج تعديل</span>') + '</div>' +
     '<div class="acts"><button class="btn s p" data-a="edit">تعديل</button>' +
     '<button class="btn s" data-a="toggle">' + (p.active === false ? 'إظهار' : 'إخفاء') + '</button>' +
     '<button class="btn s" data-a="dup">نسخة</button>' +
@@ -618,7 +651,9 @@ function openForm(p, dup) {
   $('pfTitle').textContent = p ? (dup ? 'نسخة من: ' + p.name : 'تعديل: ' + p.name) : 'منتج جديد';
   const g = (k, d) => (p && p[k] != null ? p[k] : d);
   $('f_name').value = p ? (dup ? p.name + ' (نسخة)' : p.name) : '';
+  $('f_cat').innerHTML = catOptions(g('category', ''));
   $('f_cat').value = g('category', '');
+  $('f_sub').value = g('sub', '');
   $('f_short').value = g('short', '');
   $('f_desc').value = g('description', '');
   $('f_video').value = g('video', '');
@@ -628,6 +663,8 @@ function openForm(p, dup) {
   $('f_clabel').value = g('choiceLabel', '');
   $('f_choices').value = (g('choices', []) || []).join('\n');
   $('f_custom').checked = !!g('allowCustom', false);
+  $('f_upload').checked = !!g('allowUpload', false);
+  $('f_maxup').value = String(g('maxUploads', 1) || 1);
   $('f_cfee').value = g('customFee', '') || '';
   $('f_chint').value = g('customHint', '');
   $('f_active').checked = p ? (dup ? false : p.active !== false) : true;
@@ -721,9 +758,10 @@ $('pform').addEventListener('submit', async (e) => {
   if (variants.length > 1 && variants.some((x) => !x.name)) return toast('لو فيه أكتر من مقاس، اكتب اسم كل واحد');
   const choices = [...new Set($('f_choices').value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean))].slice(0, 300);
   const data = {
-    name, category: $('f_cat').value.trim(), short: $('f_short').value.trim(), description: $('f_desc').value.replace(/\s+$/, ''),
+    name, category: $('f_cat').value.trim(), sub: $('f_sub').value.trim(), short: $('f_short').value.trim(), description: $('f_desc').value.replace(/\s+$/, ''),
     images: imgs.slice(), video: $('f_video').value.trim(), variantLabel: $('f_vlabel').value.trim(), variants,
     choiceLabel: $('f_clabel').value.trim(), choices,
+    allowUpload: $('f_upload').checked, maxUploads: Number($('f_maxup').value) || 1,
     allowCustom: $('f_custom').checked, customFee: Math.round(Number($('f_cfee').value)) || 0, customHint: $('f_chint').value.trim(),
     supplierUrl: $('f_surl').value.trim(), sku: $('f_sku').value.trim(),
     active: $('f_active').checked, order: Number($('f_order').value) || 0, updatedAt: serverTimestamp()

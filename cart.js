@@ -9,7 +9,7 @@
   var lastGov = RQ.store.get('rq_gov'); if (lastGov && STORE.governorates.indexOf(lastGov) >= 0) gov.value = lastGov;
 
   var items = function () { return RQ.cart.all(); };
-  var hasCustom = function () { return items().some(function (i) { return !!i.custom; }); };
+  var hasCustom = function () { return items().some(function (i) { return !!i.custom || !!(i.uploads && i.uploads.length); }); };
   var subtotal = function () { return items().reduce(function (a, i) { return a + i.price * i.qty; }, 0); };
   var shipping = function () { return gov.value ? (Number(CFG.shipping[gov.value]) || 0) : 0; };
 
@@ -21,7 +21,8 @@
       return '<div class="ci" data-k="' + k + '"><img alt="" data-src="' + esc(i.img) + '">' +
         '<div><div class="n">' + esc(i.name) + '</div>' +
         '<div class="m">' + [i.variant, i.choice].filter(Boolean).map(esc).join(' · ') + '</div>' +
-        (i.custom ? '<span class="c">تصميم خاص: ' + esc(i.custom) + '</span>' : '') + '</div>' +
+        (i.custom ? '<span class="c">' + esc(i.custom) + '</span>' : '') +
+        (i.thumbs && i.thumbs.length ? '<div class="ups">' + i.thumbs.map(function (t) { return '<img alt="" src="' + esc(t) + '">'; }).join('') + '<span class="c">صورتك ✓</span></div>' : '') + '</div>' +
         '<div class="r"><b>' + fmt(i.price * i.qty) + ' ج</b>' +
         '<div class="qty"><button type="button" data-a="-">−</button><input value="' + i.qty + '" readonly aria-label="الكمية"><button type="button" data-a="+">+</button></div>' +
         '<button type="button" class="x" data-a="x">شيل</button></div></div>';
@@ -39,7 +40,7 @@
     var cod = document.querySelector('.payopt[data-p=cod]');
     cod.classList.toggle('off', !codOk);
     cod.querySelector('input').disabled = !codOk;
-    $('codNote').textContent = codOk ? 'كاش للمندوب لما الطلب يوصلك' : (hasCustom() ? 'مش متاح للتصميم الخاص، التصميم الخاص بيتدفع مقدم' : 'مش متاح دلوقتي');
+    $('codNote').textContent = codOk ? 'كاش للمندوب لما الطلب يوصلك' : (hasCustom() ? 'مش متاح للمنتجات المخصوصة (صورتك أو اسمك)، بتتدفع مقدم' : 'مش متاح دلوقتي');
     if (!codOk && pay === 'cod') setPay('');
     if (!pay && codOk) setPay('cod');
     $('submitBtn').textContent = 'تأكيد الطلب · ' + fmt(sub + sh) + ' ج';
@@ -72,7 +73,7 @@
       if (!p) { changed = true; return false; }
       var v = p.variants.filter(function (x) { return (x.name || '') === (i.variant || ''); })[0];
       if (!v) { changed = true; return false; }
-      var price = v.price + (i.custom ? p.customFee : 0);
+      var price = ((i.choice && p.choicePrice[i.choice]) || v.price) + (i.custom ? p.customFee : 0);
       if (price !== i.price || p.name !== i.name) { i.price = price; i.name = p.name; changed = true; }
       return true;
     });
@@ -127,7 +128,7 @@
     if (busy || !items().length) return;
     var msg = $('formMsg'); msg.style.display = 'none';
     var d = validate(); if (!d) return;
-    if (pay === 'cod' && hasCustom()) { msg.textContent = 'التصميم الخاص بيتدفع مقدم. اختار إنستاباي أو فودافون كاش.'; msg.style.display = 'block'; return; }
+    if (pay === 'cod' && hasCustom()) { msg.textContent = 'المنتجات المخصوصة (صورتك أو اسمك) بتتدفع مقدم. اختار إنستاباي أو فودافون كاش.'; msg.style.display = 'block'; return; }
 
     busy = true;
     var btn = $('submitBtn'); btn.disabled = true; btn.textContent = 'بنسجّل طلبك…';
@@ -136,7 +137,7 @@
     var status = pay === 'cod' ? 'جديد' : 'مستني الدفع';
     var lineItems = c.map(function (i) {
       return { pid: String(i.pid), name: String(i.name).slice(0, 90), variant: String(i.variant || '').slice(0, 40), choice: String(i.choice || '').slice(0, 60),
-        qty: Math.round(i.qty), price: Math.round(i.price), custom: String(i.custom || '').slice(0, 300) };
+        qty: Math.round(i.qty), price: Math.round(i.price), custom: String(i.custom || '').slice(0, 300), uploads: (i.uploads || []).slice(0, 3).map(String) };
     });
     var order = { id: id, items: lineItems, subtotal: sub, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status };
 
