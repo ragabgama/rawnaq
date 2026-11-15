@@ -131,6 +131,7 @@ textarea{min-height:70px;resize:vertical}
 .shipg label{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--bg);border-radius:8px;padding:5px 8px;font-size:14px;font-weight:700}
 .shipg input{width:70px;padding:5px 7px;font-size:15px}
 @supports not (inset:0){.views button{margin-left:6px}.tabs button{margin-left:6px}.o .acts>*{margin:0 0 6px 6px}.pcard .acts>*{margin:0 0 6px 6px}.chk input{margin-left:8px}}
+.slides{display:grid;gap:10px}.slide{display:grid;grid-template-columns:240px 1fr;gap:10px;align-items:center;background:#F5F8F7;border-radius:12px;padding:8px}.slide img{width:100%;aspect-ratio:1400/600;object-fit:cover;border-radius:8px;background:#ddd}.sbtns{display:flex;gap:6px;margin-top:6px}@media(max-width:600px){.slide{grid-template-columns:1fr}}
 </style>
 <script src="config.js?v=7"></script>
 <script src="models.js?v=7"></script>
@@ -272,7 +273,14 @@ textarea{min-height:70px;resize:vertical}
   <div class="bar"><h2>البانر والإعدادات</h2><a class="btn s" href="./" target="_blank" rel="noopener">شوف الموقع</a></div>
 
   <div class="box">
-    <h3>البانر</h3>
+    <h3>🖼️ صور البنر (بتتقلب لوحدها في أول الصفحة)</h3>
+    <small style="margin-bottom:8px">ارفع صورة مقاسها <b>1400 × 600</b> بالظبط (عرض × طول)، والكلام يكون مكتوب في التصميم نفسه. تقدر تحط لحد 5 صور، وكل صورة ممكن تحط لها لينك (زي cases.html أو frames.html أو لينك منتج). لو مفيش ولا صورة، بيظهر البانر بالكلام اللي تحت.</small>
+    <div id="slidesBox" class="slides"></div>
+    <label class="btn p" style="margin:8px 0 0">+ رفع صورة بنر<input type="file" id="sl_file" accept="image/*" hidden></label>
+  </div>
+
+  <div class="box">
+    <h3>البانر بالكلام (لو مفيش صور فوق)</h3>
     <div class="bprev"><div><b id="bpTitle"></b><span id="bpSub"></span></div><img id="bpImg" alt="" src="img/hero.png"></div>
     <div class="fld"><label>صورة البانر</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -805,7 +813,7 @@ $('pform').addEventListener('submit', async (e) => {
 });
 
 /* ================= البانر والإعدادات ================= */
-let bannerImg = null, settingsDirty = false;
+let bannerImg = null, settingsDirty = false, slides = [];
 const ship0 = () => Object.assign({}, S.shipping, settings.shipping || {});
 $('shipg').innerHTML = S.governorates.map((g) => '<label>' + esc(g) + '<input type="number" min="0" data-g="' + esc(g) + '"></label>').join('');
 $('v-settings').addEventListener('input', () => { settingsDirty = true; });
@@ -813,6 +821,8 @@ function fillSettings() {
   if (settingsDirty) return;
   const s = settings;
   bannerImg = s.bannerImg || '';
+  slides = (Array.isArray(s.banners) ? s.banners : []).map((b) => ({ img: b.img || '', link: b.link || '' })).filter((b) => b.img);
+  renderSlides();
   $('b_kick').value = s.bannerKick || ''; $('b_title').value = s.bannerTitle || ''; $('b_sub').value = s.bannerSub || '';
   $('b_btn').value = s.bannerBtn || ''; $('b_top').value = s.topbar || ''; $('b_off').checked = !!s.bannerTextOff;
   $('s_ip').value = s.instapay || S.instapay; $('s_vf').value = s.vodafone || S.vodafoneCash; $('s_cod').checked = s.codOff !== true;
@@ -835,12 +845,35 @@ $('b_file').onchange = async function () {
   try { bannerImg = await uploadImage(f, 1400, /png/i.test(f.type)); settingsDirty = true; paintBanner(); toast('الصورة اترفعت. دوس «حفظ كل الإعدادات»'); }
   catch (err) { toast('ماعرفناش نرفع الصورة'); }
 };
+function renderSlides() {
+  $('slidesBox').innerHTML = slides.length ? slides.map((b, i) => '<div class="slide"><img data-si="' + i + '" alt=""><div><input type="text" data-sl="' + i + '" placeholder="لينك لما حد يدوس (اختياري)" value="' + esc(b.link) + '" dir="ltr"><div class="sbtns"><button type="button" class="btn s" data-mv="' + i + '" data-d="-1">⬆️</button><button type="button" class="btn s" data-mv="' + i + '" data-d="1">⬇️</button><button type="button" class="btn r" data-del="' + i + '">مسح</button></div></div></div>').join('') : '<small>مفيش صور بنر لسه.</small>';
+  [].forEach.call($('slidesBox').querySelectorAll('img[data-si]'), (im) => { resolveImg(slides[+im.dataset.si].img).then((u) => { if (u) im.src = u; }); });
+  $('sl_file').parentElement.hidden = slides.length >= 5;
+}
+$('slidesBox').addEventListener('input', (e) => { const i = e.target.dataset.sl; if (i != null) { slides[+i].link = e.target.value.trim(); settingsDirty = true; } });
+$('slidesBox').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.del != null) { slides.splice(+b.dataset.del, 1); }
+  else if (b.dataset.mv != null) { const i = +b.dataset.mv, j = i + Number(b.dataset.d); if (j < 0 || j >= slides.length) return; const t = slides[i]; slides[i] = slides[j]; slides[j] = t; }
+  settingsDirty = true; renderSlides();
+});
+$('sl_file').onchange = async function () {
+  const f = this.files && this.files[0]; this.value = ''; if (!f) return;
+  toast('بيرفع الصورة…', 8000);
+  try {
+    const dim = await new Promise((ok) => { const im = new Image(); im.onload = () => ok([im.naturalWidth, im.naturalHeight]); im.onerror = () => ok([0, 0]); im.src = URL.createObjectURL(f); });
+    const img = await uploadImage(f, 1400, /png/i.test(f.type));
+    slides.push({ img, link: '' }); settingsDirty = true; renderSlides();
+    const r = dim[1] ? dim[0] / dim[1] : 0;
+    toast(r && Math.abs(r - 1400 / 600) > 0.08 ? '⚠️ الصورة اترفعت بس مقاسها ' + dim[0] + '×' + dim[1] + '، الأحسن 1400×600. دوس «حفظ كل الإعدادات»' : 'الصورة اترفعت. دوس «حفظ كل الإعدادات»', 6000);
+  } catch (err) { toast('ماعرفناش نرفع الصورة'); }
+};
 $('b_url').onclick = () => { const u = askUrl(); if (u) { bannerImg = u; settingsDirty = true; paintBanner(); } };
 $('b_rm').onclick = () => { bannerImg = ''; settingsDirty = true; paintBanner(); };
 $('s_save').onclick = async () => {
   const shipping = {};
   [].forEach.call($('shipg').querySelectorAll('input'), (i) => { const n = Math.round(Number(i.value)); if (i.value !== '' && n >= 0) shipping[i.dataset.g] = n; });
-  const data = { bannerImg: bannerImg || '', bannerKick: $('b_kick').value.trim(), bannerTitle: $('b_title').value.trim(), bannerSub: $('b_sub').value.trim(),
+  const data = { banners: slides.filter((b) => b.img).map((b) => ({ img: b.img, link: /^(https:\/\/|[\w-]+\.html)/.test(b.link) ? b.link.slice(0, 300) : '' })), bannerImg: bannerImg || '', bannerKick: $('b_kick').value.trim(), bannerTitle: $('b_title').value.trim(), bannerSub: $('b_sub').value.trim(),
     bannerBtn: $('b_btn').value.trim(), topbar: $('b_top').value.trim(), bannerTextOff: $('b_off').checked,
     caseBundles: [].map.call($('bundleg').querySelectorAll('input'), (i) => ({ qty: +i.dataset.q, total: Math.round(+i.value) || 0 })).filter((b) => b.total > 0),
     freeShipOver: Math.max(0, Math.round(Number($('s_free').value)) || 0),

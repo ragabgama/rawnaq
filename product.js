@@ -4,7 +4,7 @@
   try { pid = new URLSearchParams(location.search).get('id') || ''; } catch (e) {}
   if (!/^[A-Za-z0-9]{1,40}$/.test(pid)) pid = '';
 
-  var P = null, vSel = 0, painted = false, getPhone = null, phoneMode = false;
+  var P = null, tSel = '', vSel = 0, painted = false, getPhone = null, phoneMode = false;
   var ups = [];   // الصور اللي العميل اختارها: {data, thumb, w, h}
 
   function missing(msg) { if (!painted) { $('missing').hidden = false; if (msg) $('missing').innerHTML = msg; $('crumb').textContent = 'مش متاح'; } }
@@ -58,12 +58,19 @@
     var showV = p.variants.length > 1 || !!p.variants[0].name;
     $('vBox').hidden = !showV;
     $('vLabel').textContent = p.variantLabel || 'المقاس';
-    $('vPills').innerHTML = p.variants.map(function (v, i) {
-      return '<button type="button" data-i="' + i + '" class="' + (i === vSel ? 'on' : '') + '">' + esc(v.name || 'عادي') + '<small>' + fmt(v.price) + ' ج</small></button>';
-    }).join('');
+    var types = typesOf(p);
+    $('tBox').hidden = types.length < 2;
+    if (types.length > 1) {
+      if (types.indexOf(tSel) < 0) tSel = typeOf(p.variants[vSel].name) || types[0];
+      $('tPills').innerHTML = types.map(function (t) {
+        var mn = Math.min.apply(null, p.variants.filter(function (v) { return typeOf(v.name) === t; }).map(function (v) { return v.price; }));
+        return '<button type="button" data-t="' + esc(t) + '">' + esc(t) + '<small>من ' + fmt(mn) + ' ج</small></button>';
+      }).join('');
+    } else tSel = '';
+    renderSizes();
 
     /* موديل الموبايل (الماركة الأول) أو قايمة عادية */
-    $('cBox').hidden = !p.choices.length;
+    $('cBox').hidden = !p.choices.length || noFrame();
     $('cLabel').textContent = p.choiceLabel || 'اختار';
     phoneMode = RQ.isPhoneList(p.choices);
     $('phoneBox').hidden = !phoneMode; $('choice').hidden = phoneMode;
@@ -146,8 +153,32 @@
     });
   });
 
+  function typeOf(n) { n = String(n || ''); var k = n.indexOf(' · '); return k > 0 ? n.slice(0, k) : ''; }
+  function sizeOf(n) { n = String(n || ''); var k = n.indexOf(' · '); return k > 0 ? n.slice(k + 3) : n; }
+  function typesOf(p) { var t = []; p.variants.forEach(function (v) { var x = typeOf(v.name); if (x && t.indexOf(x) < 0) t.push(x); }); return t.length && p.variants.every(function (v) { return typeOf(v.name); }) ? t : []; }
+  function noFrame() { return !!tSel && !/برواز/.test(tSel.replace(/من غير برواز|بدون برواز/, '')) ; }
+  function renderSizes() {
+    if (tSel && typeOf(P.variants[vSel].name) !== tSel) {
+      var want = sizeOf(P.variants[vSel].name), j = -1;
+      P.variants.forEach(function (v, i) { if (j < 0 && typeOf(v.name) === tSel && sizeOf(v.name) === want) j = i; });
+      if (j < 0) P.variants.forEach(function (v, i) { if (j < 0 && typeOf(v.name) === tSel) j = i; });
+      vSel = j < 0 ? 0 : j;
+    }
+    $('vPills').innerHTML = P.variants.map(function (v, i) {
+      if (tSel && typeOf(v.name) !== tSel) return '';
+      return '<button type="button" data-i="' + i + '" class="' + (i === vSel ? 'on' : '') + '">' + esc(sizeOf(v.name) || 'عادي') + '<small>' + fmt(v.price) + ' ج</small></button>';
+    }).join('');
+    [].forEach.call($('tPills').children, function (b) { b.className = b.dataset.t === tSel ? 'on' : ''; });
+    var nf = noFrame();
+    $('tNote').textContent = !tSel ? '' : nf ? 'لوحة مطبوعة على خشب MDF، خفيفة وجاهزة للتعليق، من غير برواز ولا أكريليك.' : 'برواز خشب قدامه أكريليك، جاهز للتعليق.';
+    $('cBox').hidden = !P.choices.length || nf;
+    if (tSel) {
+      var pick = P.images.filter(function (s) { return nf ? /\/tab-/.test(s) : !/\/tab-/.test(s); })[0];
+      if (pick) RQ.setImg($('mainImg'), pick);
+    }
+  }
   function customText() { return P && P.allowCustom && $('customOn').checked ? $('customText').value.trim() : ''; }
-  function base() { var c = choiceVal(); return (c && P.choicePrice[c]) || P.variants[vSel].price; }
+  function base() { var c = $('cBox').hidden ? '' : choiceVal(); return (c && P.choicePrice[c]) || P.variants[vSel].price; }
   function unit() { return base() + (P.allowCustom && $('customOn').checked ? P.customFee : 0); }
   function qty() { var q = Math.round(Number($('qty').value) || 1); return Math.max(1, Math.min(10, q)); }
   function choiceVal() { return phoneMode ? (getPhone ? getPhone() : '') : $('choice').value; }
@@ -156,11 +187,15 @@
     $('price').innerHTML = fmt(u) + ' <small>ج</small>';
     $('was').hidden = !(v.was > base());
     $('was').textContent = fmt(v.was) + ' ج';
-    [].forEach.call($('vPills').children, function (b, i) { b.className = i === vSel ? 'on' : ''; });
+    [].forEach.call($('vPills').children, function (b) { b.className = Number(b.dataset.i) === vSel ? 'on' : ''; });
     $('customText').hidden = !(P.allowCustom && $('customOn').checked);
     $('stickyBtn').textContent = 'أضف للسلة · ' + fmt(u * qty()) + ' ج';
   }
 
+  $('tPills').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !P) return;
+    tSel = b.dataset.t; renderSizes(); paint();
+  });
   $('vPills').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     vSel = Number(b.dataset.i); paint();
@@ -178,7 +213,7 @@
       $('upErr').textContent = 'ارفع الصورة الأول'; $('upErr').style.display = 'block';
       $('upBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); return false;
     }
-    if (P.choices.length && !choiceVal()) {
+    if (P.choices.length && !$('cBox').hidden && !choiceVal()) {
       $('cErr').style.display = 'block'; if (!phoneMode) $('choice').style.borderColor = 'var(--red)';
       $('cBox').scrollIntoView({ behavior: 'smooth', block: 'center' }); return false;
     }
@@ -190,7 +225,7 @@
   function add(go) {
     if (busy || !check()) return;
     var v = P.variants[vSel];
-    var item = { pid: P.id, name: P.name, cat: P.category || '', img: P.images[0] || '', variant: v.name || '', choice: choiceVal() || '',
+    var item = { pid: P.id, name: P.name, cat: P.category || '', img: P.images[0] || '', variant: v.name || '', choice: $('cBox').hidden ? '' : (choiceVal() || ''),
       qty: qty(), price: unit(), custom: customText().slice(0, 300) };
     function finish(ids) {
       if (ids && ids.length) { item.uploads = ids; item.thumbs = ups.map(function (u) { return u.thumb; }); }

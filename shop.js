@@ -13,7 +13,7 @@
       '<img data-src="' + esc(p.images[0] || '') + '" alt="' + esc(p.name) + '" loading="lazy" width="540" height="540"></div>' +
       '<div class="pinfo"><small>' + [code(p), p.sub].filter(Boolean).map(esc).join(' · ') + '</small><b>' + esc(p.name) + '</b>' +
       '<div class="pprice">' + (p.variants.length > 1 ? '<i>من</i> ' : '') + fmt(price) + ' ج' + (off >= 5 ? ' <s>' + fmt(was) + ' ج</s>' : '') + '</div>' +
-      (ok ? '<em>✓ متاح لـ ' + esc(phone) + '</em>' : (!isC && p.variants.length > 1 ? '<em class="g">' + p.variants.length + ' مقاسات · أسود أو أبيض</em>' : '')) +
+      (ok ? '<em>✓ متاح لـ ' + esc(phone) + '</em>' : (!isC && p.variants.length > 1 ? '<em class="g">' + (p.variants.some(function (v) { return / · /.test(v.name); }) ? 'ببرواز أو تابلوه من غير برواز' : p.variants.length + ' مقاسات · أسود أو أبيض') + '</em>' : '')) +
       '</div></a>';
   };
   RQ.lazy = function (box) { [].forEach.call(box.querySelectorAll('img[data-src]'), function (im) { if (im.dataset.src) RQ.setImg(im, im.dataset.src); im.removeAttribute('data-src'); }); };
