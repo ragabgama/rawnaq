@@ -121,7 +121,7 @@
     $('reviews').hidden = !r.length;
     $('revBox').innerHTML = r.map(function (x) { return '<div class="rev"><div class="stars">★★★★★</div><p>' + esc(x.text) + '</p><b>' + esc(x.name) + (x.gov ? ' <small>· ' + esc(x.gov) + '</small>' : '') + '</b></div>'; }).join('');
   }
-  function bundles() { RQ.paintBundles($('bundlesBox'), CFG.bundles, 249); $('bundles').hidden = !CFG.bundles.length; }
+  function bundles() { RQ.paintBundles($('bundlesBox'), CFG.bundles, 175); $('bundles').hidden = !CFG.bundles.length; }
   RQ.settings(function (cfg) {
     CFG = cfg; var s = cfg.raw;
     if (s.topbar) $('topbar').textContent = s.topbar;

@@ -55,6 +55,11 @@
 
   /* عروض الجرابات */
   RQ.paintBundles = function (box, bundles, single) {
+    try {
+      var L = (RQ.store.get('rq_products2') || {}).list || [];
+      var cp = L.filter(function (p) { return p.category === STORE.caseCat && !p.allowUpload && !p.allowCustom; }).map(RQ.fromPrice).filter(function (x) { return x > 0; });
+      if (cp.length) single = Math.min.apply(null, cp);
+    } catch (e) {}
     box.innerHTML = bundles.map(function (b) {
       var save = single * b.qty - b.total;
       return '<div class="bundle"><b>' + b.qty + ' جرابات</b><span class="bp">' + fmt(b.total) + ' ج</span><span class="be">القطعة بـ ' + fmt(Math.round(b.total / b.qty)) + ' ج</span>' + (save > 0 ? '<span class="bs">وفّر ' + fmt(save) + ' ج</span>' : '') + '</div>';
