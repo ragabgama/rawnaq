@@ -5,13 +5,14 @@
   RQ.isCase = function (p) { return p.category === STORE.caseCat; };
   RQ.card = function (p, phone) {
     var price = RQ.fromPrice(p), isC = RQ.isCase(p), set = /طقم/.test((p.sub || '') + p.name);
+    var v0 = p.variants.filter(function (v) { return v.price === price; })[0] || {}, was = Number(v0.was) || 0, off = was > price ? Math.round((1 - price / was) * 100) : 0;
     var ok = isC && phone && p.choices.indexOf(phone) >= 0;
     var tag = p.allowUpload ? '📸 بصورتك' : p.allowCustom ? '✍️ باسمك' : set ? 'طقم 3 براويز' : '';
     return '<a class="pcard" href="product.html?id=' + encodeURIComponent(p.id) + '">' +
-      '<div class="pimg">' + (tag ? '<span class="ptag">' + tag + '</span>' : '') +
+      '<div class="pimg">' + (off >= 5 ? '<span class="poff">خصم ' + off + '%</span>' : '') + (tag ? '<span class="ptag">' + tag + '</span>' : '') +
       '<img data-src="' + esc(p.images[0] || '') + '" alt="' + esc(p.name) + '" loading="lazy" width="540" height="540"></div>' +
       '<div class="pinfo"><small>' + [code(p), p.sub].filter(Boolean).map(esc).join(' · ') + '</small><b>' + esc(p.name) + '</b>' +
-      '<div class="pprice">' + (p.variants.length > 1 ? '<i>من</i> ' : '') + fmt(price) + ' ج</div>' +
+      '<div class="pprice">' + (p.variants.length > 1 ? '<i>من</i> ' : '') + fmt(price) + ' ج' + (off >= 5 ? ' <s>' + fmt(was) + ' ج</s>' : '') + '</div>' +
       (ok ? '<em>✓ متاح لـ ' + esc(phone) + '</em>' : (!isC && p.variants.length > 1 ? '<em class="g">' + p.variants.length + ' مقاسات · أسود أو أبيض</em>' : '')) +
       '</div></a>';
   };

@@ -40,6 +40,7 @@ window.STORE = {
 
   // عروض الجرابات: كام جراب بكام (أي تصميمات مع بعض)
   caseCat: 'جرابات الموبايل',
-  caseBundles: [{ qty: 2, total: 449 }, { qty: 3, total: 629 }, { qty: 4, total: 799 }, { qty: 5, total: 949 }]
+  freeShipOver: 999,
+  caseBundles: [{ qty: 2, total: 329 }, { qty: 3, total: 459 }, { qty: 4, total: 579 }, { qty: 5, total: 699 }]
 };
 window.STORE.governorates = Object.keys(window.STORE.shipping);

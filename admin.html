@@ -305,6 +305,7 @@ textarea{min-height:70px;resize:vertical}
     <h3>🎁 عروض الجرابات</h3>
     <small style="margin-bottom:8px">لما العميل يشتري كذا جراب (أي تصميمات)، بيدفع السعر ده بدل سعر القطع لوحدها. سيب الخانة فاضية لو مش عايز العرض ده.</small>
     <div class="shipg" id="bundleg"></div>
+    <label style="display:block;margin-top:10px">🚚 شحن مجاني لو الطلب (بعد الخصم) أكتر من أو يساوي: <input type="number" min="0" id="s_free" style="max-width:140px"> ج <small>(اكتب 0 عشان تقفل العرض)</small></label>
   </div>
 
   <div class="box">
@@ -435,7 +436,8 @@ function rebuild() {
       if (sub !== Number(r.subtotal) || Number(r.total) !== Number(r.subtotal) - disc + Number(r.shipping)) bad = true;
       if (disc !== bundleDisc(items)) bad = true;
       profit -= disc;
-      if (Number(r.shipping) !== shipOf(r.gov)) bad = true;
+      const fso = settings.freeShipOver != null && settings.freeShipOver !== '' ? Number(settings.freeShipOver) : (S.freeShipOver || 0);
+      if (Number(r.shipping) !== (fso > 0 && sub - disc >= fso ? 0 : shipOf(r.gov))) bad = true;
       return Object.assign(base, { items, discount: disc, subtotal: Number(r.subtotal), shipping: Number(r.shipping), total: Number(r.total), profit: known ? profit : null, bad,
         custom: items.some((i) => i.custom || (i.uploads && i.uploads.length)), pids: items.map((i) => i.pid) });
     }
@@ -815,6 +817,7 @@ function fillSettings() {
   $('b_btn').value = s.bannerBtn || ''; $('b_top').value = s.topbar || ''; $('b_off').checked = !!s.bannerTextOff;
   $('s_ip').value = s.instapay || S.instapay; $('s_vf').value = s.vodafone || S.vodafoneCash; $('s_cod').checked = s.codOff !== true;
   const sh = ship0(); [].forEach.call($('shipg').querySelectorAll('input'), (i) => { i.value = sh[i.dataset.g]; });
+  $('s_free').value = settings.freeShipOver != null && settings.freeShipOver !== '' ? settings.freeShipOver : (S.freeShipOver || 0);
   $('s_rev').value = (Array.isArray(s.reviews) ? s.reviews : []).map((r) => [r.name, r.gov, r.text].join(' | ')).join('\n');
   const bmap = {}; caseBundles().forEach((b) => { bmap[b.qty] = b.total; });
   $('bundleg').innerHTML = [2, 3, 4, 5, 6].map((q) => '<label>' + q + ' جرابات بـ<input type="number" min="0" data-q="' + q + '" value="' + (bmap[q] || '') + '"></label>').join('');
@@ -840,6 +843,7 @@ $('s_save').onclick = async () => {
   const data = { bannerImg: bannerImg || '', bannerKick: $('b_kick').value.trim(), bannerTitle: $('b_title').value.trim(), bannerSub: $('b_sub').value.trim(),
     bannerBtn: $('b_btn').value.trim(), topbar: $('b_top').value.trim(), bannerTextOff: $('b_off').checked,
     caseBundles: [].map.call($('bundleg').querySelectorAll('input'), (i) => ({ qty: +i.dataset.q, total: Math.round(+i.value) || 0 })).filter((b) => b.total > 0),
+    freeShipOver: Math.max(0, Math.round(Number($('s_free').value)) || 0),
     reviews: $('s_rev').value.split('\n').map((l) => l.split('|').map((x) => x.trim())).filter((a) => a.length >= 3 && a[0] && a[2]).map((a) => ({ name: a[0].slice(0, 40), gov: a[1].slice(0, 30), text: a.slice(2).join(' | ').slice(0, 300) })),
     instapay: $('s_ip').value.trim(), vodafone: $('s_vf').value.trim(), codOff: !$('s_cod').checked, shipping, updatedAt: serverTimestamp() };
   $('s_save').disabled = true;

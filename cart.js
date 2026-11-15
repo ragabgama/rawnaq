@@ -12,7 +12,8 @@
   var hasCustom = function () { return items().some(function (i) { return !!i.custom || !!(i.uploads && i.uploads.length); }); };
   var subtotal = function () { return items().reduce(function (a, i) { return a + i.price * i.qty; }, 0); };
   var discount = function () { return RQ.bundleDiscount(items(), CFG.bundles).discount; };
-  var shipping = function () { return gov.value ? (Number(CFG.shipping[gov.value]) || 0) : 0; };
+  var freeShip = function () { return CFG.freeShip > 0 && subtotal() - discount() >= CFG.freeShip; };
+  var shipping = function () { return gov.value && !freeShip() ? (Number(CFG.shipping[gov.value]) || 0) : 0; };
 
   function renderItems() {
     var c = items();
@@ -38,7 +39,10 @@
     var nb = CFG.bundles.filter(function (b) { return b.qty > bd.count; })[0];
     $('bundleHint').hidden = !(bd.count >= 1 && nb);
     if (nb) $('bundleHint').innerHTML = '🎁 ضيف ' + (nb.qty - bd.count) + ' جراب كمان وخد الـ ' + nb.qty + ' جرابات بـ <b>' + fmt(nb.total) + ' ج</b> بس. <a href="cases.html">شوف الجرابات</a>';
-    $('sShip').textContent = gov.value ? fmt(sh) + ' ج (' + gov.value + ')' : 'اختار المحافظة';
+    $('sShip').textContent = freeShip() ? 'مجاني 🎉' : gov.value ? fmt(sh) + ' ج (' + gov.value + ')' : 'اختار المحافظة';
+    var left = CFG.freeShip - (sub - ds);
+    $('shipHint').hidden = !(CFG.freeShip > 0);
+    $('shipHint').innerHTML = left > 0 ? '🚚 فاضلك <b>' + fmt(left) + ' ج</b> وتاخد الشحن مجاني' : '🎉 مبروك! الشحن عليك مجاني';
     $('sTot').textContent = fmt(sub - ds + sh) + ' ج';
     // الدفع عند الاستلام مش متاح للتصميم الخاص
     var codOk = CFG.codOn && !hasCustom();

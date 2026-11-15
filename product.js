@@ -36,6 +36,7 @@
     main.alt = p.name; thumbs.innerHTML = '';
     main.parentElement.classList.toggle('casebg', p.category === STORE.caseCat);
     var bl = RQ.cfg(RQ.store.get('rq_settings')).bundles, isCase = p.category === STORE.caseCat;
+    var fso = RQ.cfg(RQ.store.get('rq_settings')).freeShip; if (fso > 0) $('shipNote').textContent = '🚚 الشحن مجاني للطلبات من ' + fmt(fso) + ' ج، وأقل من كده حسب محافظتك';
     $('bundleNote').hidden = !(isCase && bl.length);
     if (isCase && bl.length) $('bundleNote').innerHTML = '🎁 عروض: ' + bl.map(function (b) { return b.qty + ' جرابات بـ ' + fmt(b.total) + ' ج'; }).join(' · ') + ' (أي تصميمات)';
     if (p.images[0]) RQ.setImg(main, p.images[0]);

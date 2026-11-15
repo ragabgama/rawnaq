@@ -150,6 +150,7 @@
       raw: s,
       instapay: s.instapay || S.instapay, vodafone: s.vodafone || S.vodafoneCash,
       shipping: ship, codOn: s.codOff !== true,
+      freeShip: s.freeShipOver != null && s.freeShipOver !== '' ? Math.max(0, Math.round(Number(s.freeShipOver)) || 0) : (S.freeShipOver || 0),
       bundles: (Array.isArray(s.caseBundles) && s.caseBundles.length ? s.caseBundles : S.caseBundles || [])
         .map(function (b) { return { qty: Math.round(Number(b.qty)), total: Math.round(Number(b.total)) }; })
         .filter(function (b) { return b.qty >= 2 && b.total > 0; }).sort(function (a, b) { return a.qty - b.qty; })
