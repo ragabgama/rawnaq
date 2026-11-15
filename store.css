@@ -532,3 +532,8 @@ header .cartbtn{background:transparent!important;border:0!important;color:#fff!i
 .hdots button{width:9px;height:9px;border-radius:50%;border:0;background:#ffffff80;cursor:pointer;padding:0}
 .hdots button.on{background:#FFB547;width:22px;border-radius:999px}
 @media (max-width:600px){.hslider{border-radius:16px}}
+.harr{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:#ffffffd9;box-shadow:0 4px 14px #0003;display:grid;place-items:center;cursor:pointer;z-index:2}
+.harr svg{width:22px;height:22px;fill:none;stroke:#0E4A52;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.harr.l{left:12px}.harr.r{right:12px}
+.harr:hover{background:#fff}
+@media (max-width:600px){.harr{width:32px;height:32px;top:auto;bottom:6px;transform:none}.harr svg{width:16px;height:16px}.harr.l{left:8px}.harr.r{right:8px}}
