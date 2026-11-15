@@ -16,7 +16,17 @@
   };
   RQ.store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
-    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+    set: function (k, v) {
+      var s; try { s = JSON.stringify(v); } catch (e) { return false; }
+      try { localStorage.setItem(k, s); return true; } catch (e) {}
+      /* المساحة اتملت: نمسح الصور المتخزنة مؤقتًا (ممكن نجيبها تاني) ونجرّب */
+      try {
+        var del = [];
+        for (var i = 0; i < localStorage.length; i++) { var x = localStorage.key(i); if (x && x !== k && (x.indexOf('rq_m_') === 0 || x === 'rq_products2')) del.push(x); }
+        del.forEach(function (x) { localStorage.removeItem(x); });
+        localStorage.setItem(k, s); return true;
+      } catch (e2) { return false; }
+    }
   };
 
   /* ---------- البكسلات ---------- */
@@ -186,13 +196,13 @@
   var CART = 'rq_cart';
   RQ.cart = {
     all: function () { var c = RQ.store.get(CART); return Array.isArray(c) ? c : []; },
-    save: function (c) { RQ.store.set(CART, c); RQ.cart.badge(); },
+    save: function (c) { var ok = RQ.store.set(CART, c); RQ.cart.badge(); return ok; },
     count: function () { return RQ.cart.all().reduce(function (a, i) { return a + (i.qty || 0); }, 0); },
     add: function (item) {
       var c = RQ.cart.all();
       var same = c.filter(function (i) { return i.pid === item.pid && i.variant === item.variant && i.choice === item.choice && !i.custom && !item.custom && !i.uploads && !item.uploads; })[0];
       if (same) same.qty = Math.min(10, same.qty + item.qty); else c.push(item);
-      RQ.cart.save(c.slice(0, 15));
+      return RQ.cart.save(c.slice(0, 15));
     },
     clear: function () { RQ.cart.save([]); },
     badge: function () {

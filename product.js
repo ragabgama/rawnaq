@@ -229,7 +229,7 @@
       qty: qty(), price: unit(), custom: customText().slice(0, 300) };
     function finish(ids) {
       if (ids && ids.length) { item.uploads = ids; item.thumbs = ups.map(function (u) { return u.thumb; }); }
-      RQ.cart.add(item);
+      if (!RQ.cart.add(item)) { delete item.thumbs; if (!RQ.cart.add(item)) { alert('مش قادرين نحفظ السلة على المتصفح ده. جرّب تقفل وتفتح الصفحة، أو كلمنا على واتساب.'); busy = false; return; } }
       track('AddToCart', { value: item.price * item.qty, currency: 'EGP', content_ids: [P.id], content_name: P.name, content_type: 'product' });
       if (go) { location.href = 'cart.html'; return; }
       $('added').style.display = 'block'; $('added').scrollIntoView({ behavior: 'smooth', block: 'center' });
