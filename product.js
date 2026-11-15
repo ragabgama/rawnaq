@@ -25,6 +25,7 @@
     if (vSel >= p.variants.length) vSel = 0;
     document.title = p.name + ' | رونق';
     $('crumb').textContent = p.name;
+    var isC0 = p.category === STORE.caseCat; $('crumbCat').href = isC0 ? 'cases.html' : 'frames.html'; $('crumbCat').textContent = isC0 ? 'جرابات الموبايل' : 'براويز ولوحات';
     $('pp').hidden = false; $('more').hidden = false; $('missing').hidden = true;
     $('pName').textContent = p.name;
     $('pShort').textContent = p.short || ''; $('pShort').hidden = !p.short;

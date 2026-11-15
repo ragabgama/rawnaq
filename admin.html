@@ -308,6 +308,12 @@ textarea{min-height:70px;resize:vertical}
   </div>
 
   <div class="box">
+    <h3>⭐ آراء العملاء</h3>
+    <small style="margin-bottom:8px">اكتب كل رأي في سطر كده: الاسم | المحافظة | الكلام. حط آراء حقيقية بس (من واتساب أو الكومنتات). لو سبتها فاضية، الجزء ده مش هيظهر في الموقع.</small>
+    <textarea id="s_rev" rows="5" placeholder="منة | الجيزة | الجراب وصل حلو جدا والطباعة زي الصورة بالظبط"></textarea>
+  </div>
+
+  <div class="box">
     <h3>أسعار الشحن لكل محافظة</h3>
     <small style="margin-bottom:8px">ده اللي العميل بيدفعه شحن (مرة واحدة للأوردر). الأرقام دي أسعار Zink، عدّلها لو اتغيّرت.</small>
     <div class="shipg" id="shipg"></div>
@@ -809,6 +815,7 @@ function fillSettings() {
   $('b_btn').value = s.bannerBtn || ''; $('b_top').value = s.topbar || ''; $('b_off').checked = !!s.bannerTextOff;
   $('s_ip').value = s.instapay || S.instapay; $('s_vf').value = s.vodafone || S.vodafoneCash; $('s_cod').checked = s.codOff !== true;
   const sh = ship0(); [].forEach.call($('shipg').querySelectorAll('input'), (i) => { i.value = sh[i.dataset.g]; });
+  $('s_rev').value = (Array.isArray(s.reviews) ? s.reviews : []).map((r) => [r.name, r.gov, r.text].join(' | ')).join('\n');
   const bmap = {}; caseBundles().forEach((b) => { bmap[b.qty] = b.total; });
   $('bundleg').innerHTML = [2, 3, 4, 5, 6].map((q) => '<label>' + q + ' جرابات بـ<input type="number" min="0" data-q="' + q + '" value="' + (bmap[q] || '') + '"></label>').join('');
   paintBanner();
@@ -833,6 +840,7 @@ $('s_save').onclick = async () => {
   const data = { bannerImg: bannerImg || '', bannerKick: $('b_kick').value.trim(), bannerTitle: $('b_title').value.trim(), bannerSub: $('b_sub').value.trim(),
     bannerBtn: $('b_btn').value.trim(), topbar: $('b_top').value.trim(), bannerTextOff: $('b_off').checked,
     caseBundles: [].map.call($('bundleg').querySelectorAll('input'), (i) => ({ qty: +i.dataset.q, total: Math.round(+i.value) || 0 })).filter((b) => b.total > 0),
+    reviews: $('s_rev').value.split('\n').map((l) => l.split('|').map((x) => x.trim())).filter((a) => a.length >= 3 && a[0] && a[2]).map((a) => ({ name: a[0].slice(0, 40), gov: a[1].slice(0, 30), text: a.slice(2).join(' | ').slice(0, 300) })),
     instapay: $('s_ip').value.trim(), vodafone: $('s_vf').value.trim(), codOff: !$('s_cod').checked, shipping, updatedAt: serverTimestamp() };
   $('s_save').disabled = true;
   try { await setDoc(doc(db, 'settings', 'store'), data); settingsDirty = false; toast('الإعدادات اتحفظت ✓'); }

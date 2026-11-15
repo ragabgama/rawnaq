@@ -37,7 +37,7 @@
     $('sDiscRow').hidden = !ds; $('sDisc').textContent = '− ' + fmt(ds) + ' ج';
     var nb = CFG.bundles.filter(function (b) { return b.qty > bd.count; })[0];
     $('bundleHint').hidden = !(bd.count >= 1 && nb);
-    if (nb) $('bundleHint').innerHTML = '🎁 ضيف ' + (nb.qty - bd.count) + ' جراب كمان وخد الـ ' + nb.qty + ' جرابات بـ <b>' + fmt(nb.total) + ' ج</b> بس. <a href="./?cat=' + encodeURIComponent(STORE.caseCat) + '#products">شوف الجرابات</a>';
+    if (nb) $('bundleHint').innerHTML = '🎁 ضيف ' + (nb.qty - bd.count) + ' جراب كمان وخد الـ ' + nb.qty + ' جرابات بـ <b>' + fmt(nb.total) + ' ج</b> بس. <a href="cases.html">شوف الجرابات</a>';
     $('sShip').textContent = gov.value ? fmt(sh) + ' ج (' + gov.value + ')' : 'اختار المحافظة';
     $('sTot').textContent = fmt(sub - ds + sh) + ' ج';
     // الدفع عند الاستلام مش متاح للتصميم الخاص
