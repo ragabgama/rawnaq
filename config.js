@@ -36,6 +36,10 @@ window.STORE = {
     'شمال سيناء': 123, 'جنوب سيناء': 123, 'الوادي الجديد': 123
   },
 
-  categories: ['جرابات الموبايل', 'براويز ولوحات']
+  categories: ['جرابات الموبايل', 'براويز ولوحات'],
+
+  // عروض الجرابات: كام جراب بكام (أي تصميمات مع بعض)
+  caseCat: 'جرابات الموبايل',
+  caseBundles: [{ qty: 2, total: 449 }, { qty: 3, total: 629 }, { qty: 4, total: 799 }, { qty: 5, total: 949 }]
 };
 window.STORE.governorates = Object.keys(window.STORE.shipping);

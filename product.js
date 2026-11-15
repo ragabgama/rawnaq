@@ -33,6 +33,10 @@
     /* الصور */
     var thumbs = $('thumbs'), main = $('mainImg');
     main.alt = p.name; thumbs.innerHTML = '';
+    main.parentElement.classList.toggle('casebg', p.category === STORE.caseCat);
+    var bl = RQ.cfg(RQ.store.get('rq_settings')).bundles, isCase = p.category === STORE.caseCat;
+    $('bundleNote').hidden = !(isCase && bl.length);
+    if (isCase && bl.length) $('bundleNote').innerHTML = '🎁 عروض: ' + bl.map(function (b) { return b.qty + ' جرابات بـ ' + fmt(b.total) + ' ج'; }).join(' · ') + ' (أي تصميمات)';
     if (p.images[0]) RQ.setImg(main, p.images[0]);
     if (p.images.length > 1) p.images.forEach(function (src, i) {
       var b = document.createElement('button');
@@ -184,7 +188,7 @@
   function add(go) {
     if (busy || !check()) return;
     var v = P.variants[vSel];
-    var item = { pid: P.id, name: P.name, img: P.images[0] || '', variant: v.name || '', choice: choiceVal() || '',
+    var item = { pid: P.id, name: P.name, cat: P.category || '', img: P.images[0] || '', variant: v.name || '', choice: choiceVal() || '',
       qty: qty(), price: unit(), custom: customText().slice(0, 300) };
     function finish(ids) {
       if (ids && ids.length) { item.uploads = ids; item.thumbs = ups.map(function (u) { return u.thumb; }); }

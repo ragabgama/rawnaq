@@ -132,8 +132,8 @@ textarea{min-height:70px;resize:vertical}
 .shipg input{width:70px;padding:5px 7px;font-size:15px}
 @supports not (inset:0){.views button{margin-left:6px}.tabs button{margin-left:6px}.o .acts>*{margin:0 0 6px 6px}.pcard .acts>*{margin:0 0 6px 6px}.chk input{margin-left:8px}}
 </style>
-<script src="config.js?v=5"></script>
-<script src="models.js?v=5"></script>
+<script src="config.js?v=7"></script>
+<script src="models.js?v=7"></script>
 </head>
 <body>
 <div class="top"><div class="in"><b>لوحة تحكم رونق</b><span id="topActs" hidden><small id="who" style="opacity:.8"></small> <a href="./" target="_blank" rel="noopener">فتح الموقع</a> <button id="logout">خروج</button></span></div></div>
@@ -302,6 +302,12 @@ textarea{min-height:70px;resize:vertical}
   </div>
 
   <div class="box">
+    <h3>🎁 عروض الجرابات</h3>
+    <small style="margin-bottom:8px">لما العميل يشتري كذا جراب (أي تصميمات)، بيدفع السعر ده بدل سعر القطع لوحدها. سيب الخانة فاضية لو مش عايز العرض ده.</small>
+    <div class="shipg" id="bundleg"></div>
+  </div>
+
+  <div class="box">
     <h3>أسعار الشحن لكل محافظة</h3>
     <small style="margin-bottom:8px">ده اللي العميل بيدفعه شحن (مرة واحدة للأوردر). الأرقام دي أسعار Zink، عدّلها لو اتغيّرت.</small>
     <div class="shipg" id="shipg"></div>
@@ -335,6 +341,15 @@ const fmt = (n) => Math.round(Number(n) || 0).toLocaleString('en-US');
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const cairo = (d) => d.toLocaleString('sv-SE', { timeZone: 'Africa/Cairo' }).slice(0, 16).replace(' ', 'T');
 const vkey = (name) => (name || '').trim() || '_';
+const caseBundles = () => (Array.isArray(settings.caseBundles) && settings.caseBundles.length ? settings.caseBundles : S.caseBundles || []).map((b) => ({ qty: +b.qty, total: +b.total })).filter((b) => b.qty >= 2 && b.total > 0).sort((a, b) => a.qty - b.qty);
+function bundleDisc(items) {
+  const units = []; const bl = caseBundles();
+  items.forEach((i) => { const p = prodById(i.pid); if (p && p.category === S.caseCat) for (let q = 0; q < i.qty; q++) units.push(+i.price || 0); });
+  if (units.length < 2 || !bl.length) return 0;
+  units.sort((a, b) => a - b); let left = units.length, pos = 0, d = 0; const max = bl[bl.length - 1];
+  while (left >= bl[0].qty) { const b = left >= max.qty ? max : bl.filter((x) => x.qty <= left).pop(); let s = 0; for (let k = 0; k < b.qty; k++) s += units[pos + k]; if (s > b.total) d += s - b.total; pos += b.qty; left -= b.qty; }
+  return Math.round(d);
+}
 const shipOf = (gov) => { const m = Object.assign({}, S.shipping, settings.shipping || {}); return Number(m[gov]) || 0; };
 function toast(t, ms) { const x = $('toast'); x.textContent = t; x.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => { x.style.display = 'none'; }, ms || 2400); }
 
@@ -410,10 +425,12 @@ function rebuild() {
         }
         return Object.assign({}, i, { surl: p ? (p.supplierUrl || (p.taagerId ? 'https://taager.com/eg/products/' + p.taagerId : '')) : '' });
       });
-      const sub = items.reduce((a, i) => a + i.price * i.qty, 0);
-      if (sub !== Number(r.subtotal) || Number(r.total) !== Number(r.subtotal) + Number(r.shipping)) bad = true;
+      const sub = items.reduce((a, i) => a + i.price * i.qty, 0), disc = Number(r.discount) || 0;
+      if (sub !== Number(r.subtotal) || Number(r.total) !== Number(r.subtotal) - disc + Number(r.shipping)) bad = true;
+      if (disc !== bundleDisc(items)) bad = true;
+      profit -= disc;
       if (Number(r.shipping) !== shipOf(r.gov)) bad = true;
-      return Object.assign(base, { items, subtotal: Number(r.subtotal), shipping: Number(r.shipping), total: Number(r.total), profit: known ? profit : null, bad,
+      return Object.assign(base, { items, discount: disc, subtotal: Number(r.subtotal), shipping: Number(r.shipping), total: Number(r.total), profit: known ? profit : null, bad,
         custom: items.some((i) => i.custom || (i.uploads && i.uploads.length)), pids: items.map((i) => i.pid) });
     }
     // طلب قديم (تاجر)
@@ -500,7 +517,7 @@ function renderList(list) {
       (i.custom ? '<span class="cu">✍️ ' + esc(i.custom) + '</span>' : '') +
       (i.uploads && i.uploads.length ? '<div class="ups">' + i.uploads.map((u, k) => '<a href="#" data-up="' + esc(u) + '" data-nm="' + esc(o.id + '-' + (k + 1)) + '" title="دوس عشان تحمّل الصورة"><img data-upimg="' + esc(u) + '" alt="صورة العميل"><span>⬇️ تحميل</span></a>').join('') + '</div>' : '') + '</div>').join('') + '</div>' +
     '<div class="ad"><b dir="ltr">' + esc(o.phone) + '</b> · ' + esc(o.gov) + '<br>' + esc(o.address) + (o.custNote ? '<br><small>📝 ' + esc(o.custNote) + '</small>' : '') + '</div>' +
-    '<div class="money"><span class="chip pay">' + esc(PAY[o.pay] || o.pay) + '</span><span class="chip">الإجمالي <b>' + fmt(o.total) + ' ج</b></span><span class="chip">شحن ' + fmt(o.shipping) + '</span>' +
+    '<div class="money"><span class="chip pay">' + esc(PAY[o.pay] || o.pay) + '</span><span class="chip">الإجمالي <b>' + fmt(o.total) + ' ج</b></span><span class="chip">شحن ' + fmt(o.shipping) + '</span>' + (o.discount ? '<span class="chip pr">🎁 خصم عرض ' + fmt(o.discount) + '</span>' : '') +
     (o.legacy ? '<span class="chip">سعر القطعة في تاجر: <b>' + o.perPiece + '</b></span>' : '') +
     (o.profit == null ? '<span class="chip wn">حط تكلفة المورد في المنتج عشان نحسب الربح</span>' : '<span class="chip pr">ربحك: <b>' + fmt(o.profit) + ' ج</b></span>') +
     (o.bad ? '<span class="chip bad">⚠️ السعر مختلف عن أسعار الموقع، راجعه</span>' : '') + '</div>' +
@@ -792,6 +809,8 @@ function fillSettings() {
   $('b_btn').value = s.bannerBtn || ''; $('b_top').value = s.topbar || ''; $('b_off').checked = !!s.bannerTextOff;
   $('s_ip').value = s.instapay || S.instapay; $('s_vf').value = s.vodafone || S.vodafoneCash; $('s_cod').checked = s.codOff !== true;
   const sh = ship0(); [].forEach.call($('shipg').querySelectorAll('input'), (i) => { i.value = sh[i.dataset.g]; });
+  const bmap = {}; caseBundles().forEach((b) => { bmap[b.qty] = b.total; });
+  $('bundleg').innerHTML = [2, 3, 4, 5, 6].map((q) => '<label>' + q + ' جرابات بـ<input type="number" min="0" data-q="' + q + '" value="' + (bmap[q] || '') + '"></label>').join('');
   paintBanner();
 }
 function paintBanner() {
@@ -813,6 +832,7 @@ $('s_save').onclick = async () => {
   [].forEach.call($('shipg').querySelectorAll('input'), (i) => { const n = Math.round(Number(i.value)); if (i.value !== '' && n >= 0) shipping[i.dataset.g] = n; });
   const data = { bannerImg: bannerImg || '', bannerKick: $('b_kick').value.trim(), bannerTitle: $('b_title').value.trim(), bannerSub: $('b_sub').value.trim(),
     bannerBtn: $('b_btn').value.trim(), topbar: $('b_top').value.trim(), bannerTextOff: $('b_off').checked,
+    caseBundles: [].map.call($('bundleg').querySelectorAll('input'), (i) => ({ qty: +i.dataset.q, total: Math.round(+i.value) || 0 })).filter((b) => b.total > 0),
     instapay: $('s_ip').value.trim(), vodafone: $('s_vf').value.trim(), codOff: !$('s_cod').checked, shipping, updatedAt: serverTimestamp() };
   $('s_save').disabled = true;
   try { await setDoc(doc(db, 'settings', 'store'), data); settingsDirty = false; toast('الإعدادات اتحفظت ✓'); }

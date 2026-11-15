@@ -11,6 +11,7 @@
   var items = function () { return RQ.cart.all(); };
   var hasCustom = function () { return items().some(function (i) { return !!i.custom || !!(i.uploads && i.uploads.length); }); };
   var subtotal = function () { return items().reduce(function (a, i) { return a + i.price * i.qty; }, 0); };
+  var discount = function () { return RQ.bundleDiscount(items(), CFG.bundles).discount; };
   var shipping = function () { return gov.value ? (Number(CFG.shipping[gov.value]) || 0) : 0; };
 
   function renderItems() {
@@ -31,10 +32,14 @@
     renderSum();
   }
   function renderSum() {
-    var sub = subtotal(), sh = shipping();
+    var sub = subtotal(), sh = shipping(), bd = RQ.bundleDiscount(items(), CFG.bundles), ds = bd.discount;
     $('sSub').textContent = fmt(sub) + ' ج';
+    $('sDiscRow').hidden = !ds; $('sDisc').textContent = '− ' + fmt(ds) + ' ج';
+    var nb = CFG.bundles.filter(function (b) { return b.qty > bd.count; })[0];
+    $('bundleHint').hidden = !(bd.count >= 1 && nb);
+    if (nb) $('bundleHint').innerHTML = '🎁 ضيف ' + (nb.qty - bd.count) + ' جراب كمان وخد الـ ' + nb.qty + ' جرابات بـ <b>' + fmt(nb.total) + ' ج</b> بس. <a href="./?cat=' + encodeURIComponent(STORE.caseCat) + '#products">شوف الجرابات</a>';
     $('sShip').textContent = gov.value ? fmt(sh) + ' ج (' + gov.value + ')' : 'اختار المحافظة';
-    $('sTot').textContent = fmt(sub + sh) + ' ج';
+    $('sTot').textContent = fmt(sub - ds + sh) + ' ج';
     // الدفع عند الاستلام مش متاح للتصميم الخاص
     var codOk = CFG.codOn && !hasCustom();
     var cod = document.querySelector('.payopt[data-p=cod]');
@@ -43,7 +48,7 @@
     $('codNote').textContent = codOk ? 'كاش للمندوب لما الطلب يوصلك' : (hasCustom() ? 'مش متاح للمنتجات المخصوصة (صورتك أو اسمك)، بتتدفع مقدم' : 'مش متاح دلوقتي');
     if (!codOk && pay === 'cod') setPay('');
     if (!pay && codOk) setPay('cod');
-    $('submitBtn').textContent = 'تأكيد الطلب · ' + fmt(sub + sh) + ' ج';
+    $('submitBtn').textContent = 'تأكيد الطلب · ' + fmt(sub - ds + sh) + ' ج';
   }
   function setPay(p) {
     pay = p;
@@ -74,7 +79,7 @@
       var v = p.variants.filter(function (x) { return (x.name || '') === (i.variant || ''); })[0];
       if (!v) { changed = true; return false; }
       var price = ((i.choice && p.choicePrice[i.choice]) || v.price) + (i.custom ? p.customFee : 0);
-      if (price !== i.price || p.name !== i.name) { i.price = price; i.name = p.name; changed = true; }
+      if (price !== i.price || p.name !== i.name || i.cat !== (p.category || '')) { i.price = price; i.name = p.name; i.cat = p.category || ''; changed = true; }
       return true;
     });
     if (changed) { RQ.cart.save(c); renderItems(); }
@@ -132,14 +137,14 @@
 
     busy = true;
     var btn = $('submitBtn'); btn.disabled = true; btn.textContent = 'بنسجّل طلبك…';
-    var c = items(), sub = subtotal(), sh = shipping(), tot = sub + sh;
+    var c = items(), sub = subtotal(), sh = shipping(), ds = discount(), tot = sub - ds + sh;
     var id = 'RQ' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 90 + 10);
     var status = pay === 'cod' ? 'جديد' : 'مستني الدفع';
     var lineItems = c.map(function (i) {
       return { pid: String(i.pid), name: String(i.name).slice(0, 90), variant: String(i.variant || '').slice(0, 40), choice: String(i.choice || '').slice(0, 60),
         qty: Math.round(i.qty), price: Math.round(i.price), custom: String(i.custom || '').slice(0, 300), uploads: (i.uploads || []).slice(0, 3).map(String) };
     });
-    var order = { id: id, items: lineItems, subtotal: sub, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status };
+    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status };
 
     function done(state) {
       order.state = state;
@@ -151,7 +156,7 @@
 
     var F = STORE.firebase, base = RQ.BASE, day = cairoDay();
     var fields = {
-      id: id, items: lineItems, subtotal: sub, shipping: sh, total: tot,
+      id: id, items: lineItems, subtotal: sub, discount: ds, shipping: sh, total: tot,
       name: d.name.slice(0, 80), phone: d.phone, gov: d.gov, address: d.address.slice(0, 250), custNote: $('note').value.trim().slice(0, 200),
       pay: pay, src: String(RQ.src).slice(0, 60), status: status, notes: '', taagerNo: ''
     };

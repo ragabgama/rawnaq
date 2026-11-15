@@ -149,7 +149,10 @@
     return {
       raw: s,
       instapay: s.instapay || S.instapay, vodafone: s.vodafone || S.vodafoneCash,
-      shipping: ship, codOn: s.codOff !== true
+      shipping: ship, codOn: s.codOff !== true,
+      bundles: (Array.isArray(s.caseBundles) && s.caseBundles.length ? s.caseBundles : S.caseBundles || [])
+        .map(function (b) { return { qty: Math.round(Number(b.qty)), total: Math.round(Number(b.total)) }; })
+        .filter(function (b) { return b.qty >= 2 && b.total > 0; }).sort(function (a, b) { return a.qty - b.qty; })
     };
   };
   RQ.settings = function (onData) {
@@ -197,6 +200,22 @@
     }
   };
   RQ.cart.badge();
+
+  /* ---------- خصم عروض الجرابات (اشتري أكتر ووفّر) ---------- */
+  RQ.bundleDiscount = function (items, bundles) {
+    var units = [];
+    (items || []).forEach(function (i) { if (i.cat === S.caseCat) for (var q = 0; q < i.qty; q++) units.push(Number(i.price) || 0); });
+    if (units.length < 2 || !bundles || !bundles.length) return { discount: 0, count: units.length, used: [] };
+    units.sort(function (a, b) { return a - b; });
+    var left = units.length, pos = 0, disc = 0, used = [], max = bundles[bundles.length - 1];
+    while (left >= bundles[0].qty) {
+      var b = left >= max.qty ? max : bundles.filter(function (x) { return x.qty <= left; }).pop();
+      var sum = 0; for (var k = 0; k < b.qty; k++) sum += units[pos + k];
+      if (sum > b.total) { disc += sum - b.total; used.push(b); }
+      pos += b.qty; left -= b.qty;
+    }
+    return { discount: Math.round(disc), count: units.length, used: used };
+  };
 
   /* ---------- اختيار الموبايل (الماركة الأول وبعدين الموديل) ---------- */
   var BRANDS = [['Apple', /^iphone/i], ['Samsung', /^samsung/i], ['Oppo', /^oppo/i], ['Xiaomi', /^(redmi|xiaomi|mi )/i],
