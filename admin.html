@@ -901,18 +901,23 @@ function saleEx() {
     $(id + 'Ex').textContent = v ? (pc ? 'مثال: ' + p.name + ' هيبقى ' + r5(baseOf(v) * (1 - pc / 100)) + ' ج بدل ' + baseOf(v) + ' ج' : 'مثال: ' + p.name + ' بسعره الأصلي ' + baseOf(v) + ' ج') : '';
   });
 }
+let saleLoaded = { c: null, f: null };
 function fillSale() {
   if (document.activeElement === $('d_cases') || document.activeElement === $('d_frames')) return;
   const act = products.filter((p) => p.active !== false && !isCustomP(p));
-  $('d_cases').value = curSale(act.filter(isCaseP)); $('d_frames').value = curSale(act.filter((p) => !isCaseP(p)));
+  saleLoaded = { c: curSale(act.filter(isCaseP)), f: curSale(act.filter((p) => !isCaseP(p))) };
+  $('d_cases').value = saleLoaded.c; $('d_frames').value = saleLoaded.f;
   saleEx();
 }
 ['d_cases', 'd_frames'].forEach((id) => $(id).addEventListener('input', saleEx));
 $('d_apply').onclick = async () => {
   const pc = { c: Math.max(0, Math.min(90, Math.round(Number($('d_cases').value) || 0))), f: Math.max(0, Math.min(90, Math.round(Number($('d_frames').value) || 0))) };
   const inc = $('d_custom').checked;
-  const list = products.filter((p) => inc || !isCustomP(p));
-  if (!confirm('هيتطبّق خصم ' + pc.c + '% على الجرابات و' + pc.f + '% على البراويز (' + list.length + ' منتج). موافق؟')) return;
+  const doC = pc.c !== saleLoaded.c || inc, doF = pc.f !== saleLoaded.f || inc;
+  if (!doC && !doF) { toast('مفيش تغيير: غيّر النسبة الأول'); return; }
+  const list = products.filter((p) => (inc || !isCustomP(p)) && (isCaseP(p) ? doC : doF));
+  const what = [doC ? 'خصم ' + pc.c + '% على الجرابات' : '', doF ? 'خصم ' + pc.f + '% على البراويز' : ''].filter(Boolean).join(' و');
+  if (!confirm('هيتطبّق ' + what + ' (' + list.length + ' منتج). موافق؟')) return;
   $('d_apply').disabled = true;
   try {
     for (let i = 0; i < list.length; i += 400) {
