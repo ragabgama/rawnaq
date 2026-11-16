@@ -132,8 +132,9 @@ textarea{min-height:70px;resize:vertical}
 .shipg input{width:70px;padding:5px 7px;font-size:15px}
 @supports not (inset:0){.views button{margin-left:6px}.tabs button{margin-left:6px}.o .acts>*{margin:0 0 6px 6px}.pcard .acts>*{margin:0 0 6px 6px}.chk input{margin-left:8px}}
 .slides{display:grid;gap:10px}.slide{display:grid;grid-template-columns:240px 1fr;gap:10px;align-items:center;background:#F5F8F7;border-radius:12px;padding:8px}.slide img{width:100%;aspect-ratio:1400/600;object-fit:cover;border-radius:8px;background:#ddd}.sbtns{display:flex;gap:6px;margin-top:6px}@media(max-width:600px){.slide{grid-template-columns:1fr}}
+.offerbox{border:2px solid #FFE2B3;background:#FFFBF3}
 </style>
-<script src="config.js?v=7"></script>
+<script src="config.js?v=13"></script>
 <script src="models.js?v=7"></script>
 </head>
 <body>
@@ -309,8 +310,19 @@ textarea{min-height:70px;resize:vertical}
     <label class="chk"><input type="checkbox" id="s_cod" checked> الدفع عند الاستلام متاح (للمنتجات العادية)</label>
   </div>
 
-  <div class="box">
-    <h3>🎁 عروض الجرابات</h3>
+  <div class="box offerbox">
+    <h3>🏷️ الخصم على المنتجات</h3>
+    <small style="margin-bottom:8px">اكتب نسبة الخصم ودوس «طبّق الخصم». السعر القديم بيظهر مشطوب جنب السعر الجديد وعليه علامة «خصم X%». اكتب 0 عشان تلغي الخصم وترجع السعر الأصلي.</small>
+    <div class="two">
+      <div class="fld"><label for="d_cases">جرابات الموبايل: خصم %</label><input type="number" min="0" max="90" id="d_cases"><small id="d_casesEx"></small></div>
+      <div class="fld"><label for="d_frames">براويز ولوحات: خصم %</label><input type="number" min="0" max="90" id="d_frames"><small id="d_framesEx"></small></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="d_custom"> الخصم يشمل المنتجات المخصوصة كمان (بصورتك / باسمك)</label>
+    <button type="button" class="btn p" id="d_apply">طبّق الخصم</button>
+  </div>
+
+  <div class="box offerbox">
+    <h3>🎁 عروض الكمية في الجرابات (اشتري أكتر وادفع أقل)</h3>
     <small style="margin-bottom:8px">لما العميل يشتري كذا جراب (أي تصميمات)، بيدفع السعر ده بدل سعر القطع لوحدها. سيب الخانة فاضية لو مش عايز العرض ده.</small>
     <div class="shipg" id="bundleg"></div>
     <label style="display:block;margin-top:10px">🚚 شحن مجاني لو الطلب (بعد الخصم) أكتر من أو يساوي: <input type="number" min="0" id="s_free" style="max-width:140px"> ج <small>(اكتب 0 عشان تقفل العرض)</small></label>
@@ -397,6 +409,7 @@ function listen() {
   }, denied));
   subs.push(onSnapshot(collection(db, 'products'), (snap) => {
     products = snap.docs.map((s) => Object.assign({ id: s.id }, s.data())).sort((a, b) => (a.order || 0) - (b.order || 0));
+    try { fillSale(); } catch (e) {}
     renderProducts(); fillPF(); rebuild();
   }, () => {}));
   subs.push(onSnapshot(collection(db, 'costs'), (snap) => { costs = {}; snap.docs.forEach((s) => { costs[s.id] = s.data(); }); rebuild(); }, () => {}));
@@ -870,6 +883,52 @@ $('sl_file').onchange = async function () {
 };
 $('b_url').onclick = () => { const u = askUrl(); if (u) { bannerImg = u; settingsDirty = true; paintBanner(); } };
 $('b_rm').onclick = () => { bannerImg = ''; settingsDirty = true; paintBanner(); };
+/* ===== الخصم على المنتجات ===== */
+const r5 = (x) => Math.max(5, Math.round(x / 5) * 5);
+const baseOf = (v) => (Number(v.was) > Number(v.price) ? Number(v.was) : Number(v.price));
+const isCaseP = (p) => p.category === (S.caseCat || 'جرابات الموبايل');
+const isCustomP = (p) => !!(p.allowUpload || p.allowCustom);
+function curSale(list) {
+  const v = list.map((p) => variantsOf(p)[0]).filter(Boolean);
+  if (!v.length) return 0;
+  const offs = v.map((x) => (Number(x.was) > Number(x.price) ? Math.round((1 - Number(x.price) / Number(x.was)) * 100) : 0));
+  return offs.sort((a, b) => offs.filter((o) => o === b).length - offs.filter((o) => o === a).length)[0];
+}
+function saleEx() {
+  [['d_cases', true], ['d_frames', false]].forEach(([id, c]) => {
+    const p = products.find((x) => isCaseP(x) === c && !isCustomP(x) && x.active !== false); const v = p && variantsOf(p)[0];
+    const pc = Math.max(0, Math.min(90, Math.round(Number($(id).value) || 0)));
+    $(id + 'Ex').textContent = v ? (pc ? 'مثال: ' + p.name + ' هيبقى ' + r5(baseOf(v) * (1 - pc / 100)) + ' ج بدل ' + baseOf(v) + ' ج' : 'مثال: ' + p.name + ' بسعره الأصلي ' + baseOf(v) + ' ج') : '';
+  });
+}
+function fillSale() {
+  if (document.activeElement === $('d_cases') || document.activeElement === $('d_frames')) return;
+  const act = products.filter((p) => p.active !== false && !isCustomP(p));
+  $('d_cases').value = curSale(act.filter(isCaseP)); $('d_frames').value = curSale(act.filter((p) => !isCaseP(p)));
+  saleEx();
+}
+['d_cases', 'd_frames'].forEach((id) => $(id).addEventListener('input', saleEx));
+$('d_apply').onclick = async () => {
+  const pc = { c: Math.max(0, Math.min(90, Math.round(Number($('d_cases').value) || 0))), f: Math.max(0, Math.min(90, Math.round(Number($('d_frames').value) || 0))) };
+  const inc = $('d_custom').checked;
+  const list = products.filter((p) => inc || !isCustomP(p));
+  if (!confirm('هيتطبّق خصم ' + pc.c + '% على الجرابات و' + pc.f + '% على البراويز (' + list.length + ' منتج). موافق؟')) return;
+  $('d_apply').disabled = true;
+  try {
+    for (let i = 0; i < list.length; i += 400) {
+      const b = writeBatch(db);
+      list.slice(i, i + 400).forEach((p) => {
+        const d = isCaseP(p) ? pc.c : pc.f;
+        const vs = variantsOf(p).map((v) => { const base = baseOf(v); return d ? { name: v.name || '', price: r5(base * (1 - d / 100)), was: base } : { name: v.name || '', price: base, was: 0 }; });
+        b.update(doc(db, 'products', p.id), { variants: vs, updatedAt: serverTimestamp() });
+      });
+      await b.commit();
+    }
+    toast('الخصم اتطبّق على ' + list.length + ' منتج ✓', 5000);
+  } catch (e) { toast('ماتطبّقش: ' + (e.code || e.message)); }
+  $('d_apply').disabled = false;
+};
+
 $('s_save').onclick = async () => {
   const shipping = {};
   [].forEach.call($('shipg').querySelectorAll('input'), (i) => { const n = Math.round(Number(i.value)); if (i.value !== '' && n >= 0) shipping[i.dataset.g] = n; });
