@@ -39,7 +39,7 @@
   /* ---------- الكروت ---------- */
   function paintSubs() {
     var subs = []; prods.forEach(function (p) { if (p.sub && subs.indexOf(p.sub) < 0) subs.push(p.sub); });
-    if (sub && subs.indexOf(sub) < 0) sub = '';
+    if (sub && subs.indexOf(sub) < 0) subs.push(sub);
     $('subs').innerHTML = ['<button data-s="" class="' + (!sub ? 'on' : '') + '">الكل <b>' + prods.length + '</b></button>'].concat(subs.map(function (s) {
       return '<button data-s="' + esc(s) + '" class="' + (s === sub ? 'on' : '') + '">' + esc(s) + ' <b>' + prods.filter(function (p) { return p.sub === s; }).length + '</b></button>';
     })).join('');
