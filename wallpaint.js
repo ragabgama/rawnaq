@@ -62,7 +62,19 @@
         var cx = cv.getContext('2d'); cx.drawImage(im, 0, 0);
         var base = cx.getImageData(0, 0, W, H), M = buildMask(base.data, W, H, seeds, box, inc, exc);
         var out = cx.createImageData(W, H);
-        ok(function paint(color) {
+        // طبقة الأثاث اللي قدام الحيطة (عشان البراويز تبان وراه)
+        var fgUrl = '';
+        function fg() {
+          if (fgUrl) return fgUrl;
+          var f = cx.createImageData(W, H), a = base.data, o = f.data, mk = M.mask, b = box;
+          for (var y = b[1]; y < b[3]; y++) for (var x = b[0]; x < b[2]; x++) {
+            var p = y * W + x, i = p * 4, al = 255 - mk[p];
+            if (al > 8) { o[i] = a[i]; o[i + 1] = a[i + 1]; o[i + 2] = a[i + 2]; o[i + 3] = al; }
+          }
+          var c2 = document.createElement('canvas'); c2.width = W; c2.height = H; c2.getContext('2d').putImageData(f, 0, 0);
+          fgUrl = c2.toDataURL('image/png'); return fgUrl;
+        }
+        ok({ fg: fg, paint: function paint(color) {
           var t = hex(color); if (!t) return src;
           var a = base.data, o = out.data, mk = M.mask, ref = M.ref;
           for (var p = 0, i = 0; p < W * H; p++, i += 4) {
@@ -74,7 +86,7 @@
           }
           cx.putImageData(out, 0, 0);
           return cv.toDataURL('image/jpeg', 0.9);
-        });
+        } });
       };
       im.onerror = bad;
       im.src = src;
