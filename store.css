@@ -539,7 +539,7 @@ header .cartbtn{background:transparent!important;border:0!important;color:#fff!i
 @media (max-width:600px){.harr{width:32px;height:32px;top:auto;bottom:6px;transform:none}.harr svg{width:16px;height:16px}.harr.l{left:8px}.harr.r{right:8px}}
 
 /* v10: صفحة البراويز = اختار وشوف على الحيطة */
-.bld{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:26px;align-items:start;padding-top:18px}
+.bld{display:grid;grid-template-columns:minmax(0,1fr) 480px;gap:26px;align-items:start;padding-top:18px}
 .bl-main .finfo{margin-bottom:6px}
 .bld>*{min-width:0}
 .wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px;margin-top:12px}
@@ -630,3 +630,15 @@ body.sb-on .wa{bottom:110px}
 .pp .wallbtn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;background:#FBF7F0;border:1.5px dashed #D9A55A;color:var(--pet);border-radius:12px;padding:10px;font-weight:800;text-decoration:none}
 .wwarn{position:absolute;left:8px;right:8px;bottom:8px;background:#7A2E0Ee6;color:#fff;border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:700;text-align:center}
 #wall{scroll-margin-top:118px}
+.sw button.orig{background:#fff;color:var(--pet);font:800 15px/24px sans-serif}
+.wv{background:#EDE6DC}
+.wbig{position:absolute;top:8px;left:8px;z-index:2;border:0;border-radius:999px;background:#10252Acc;color:#fff;font-weight:800;font-size:13px;padding:4px 11px;cursor:pointer}
+.wv.big{position:fixed;inset:0;z-index:60;border-radius:0;background:#0C1C20;display:flex;align-items:center;justify-content:center;padding:12px}
+.wv.big svg{width:auto;height:auto;max-width:100%;max-height:100%;border-radius:10px}
+.wv.big .wbig{top:14px;left:14px;background:#fff;color:var(--ink)}
+.wv.big .wempty,.wv.big .wwarn{display:none}
+body.wbig .bl-side{z-index:55}
+body.wbig .setbar{z-index:61}
+body.wbig.sb-on .wv.big{padding-bottom:104px}
+@media (max-width:860px){body.wbig.sb-on .wv.big{padding-bottom:186px}}
+body.wbig .wa{display:none}

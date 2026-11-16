@@ -4,18 +4,24 @@
   var NS = 'http://www.w3.org/2000/svg';
   var SW = 270, SH = 202.5;            // المشهد: حيطة عرضها 2.7 متر وارتفاعها 2 متر (بالسنتي)
   var MAXP = 6, MAXPIECES = 9;
+  // صور أوض حقيقية: px = عدد البيكسل في السنتي على الحيطة، cx = نص الأثاث، top = أعلى نقطة في الأثاث، gap = المسافة فوقه بالسنتي
   var ROOMS = [
-    { k: 'living', t: 'الصالة', wall: '#EDE6DC', top: 86 },
-    { k: 'bed', t: 'أوضة النوم', wall: '#E3E8E4', top: 112 },
-    { k: 'office', t: 'المكتب', wall: '#E9E4DA', top: 76 },
-    { k: 'entry', t: 'المدخل', wall: '#E6DED3', top: 82 },
-    { k: 'mine', t: '📷 حيطتك', wall: '#EDE6DC', top: 0 }
+    { k: 'living', t: 'الانتريه', src: 'img/room-living.jpg', W: 1280, H: 952, px: 3.25, cx: 636, top: 550, gap: 22, wallTop: 24,
+      seeds: [[640, 200], [300, 300], [1000, 250], [150, 600], [130, 760], [1100, 760], [1000, 520], [640, 500]], box: [56, 20, 1242, 800],
+      inc: [[60, 25, 1235, 380], [60, 380, 1055, 540], [60, 380, 200, 790]], exc: [], note: 'الكنبة عرضها حوالي 2.6 متر، والبراويز متحطّة بمقاسها التقريبي جنبها.' },
+    { k: 'bed', t: 'أوضة النوم', src: 'img/room-bed.jpg', W: 1280, H: 952, px: 2.46, cx: 652, top: 465, gap: 20, wallTop: 58,
+      seeds: [[640, 200], [300, 350], [1000, 300], [220, 560], [220, 690], [1100, 560], [1100, 690], [400, 560], [900, 560], [650, 440]], box: [165, 56, 1192, 722],
+      inc: [[170, 60, 1188, 460], [170, 460, 305, 600], [1010, 460, 1188, 600], [385, 460, 425, 600], [880, 460, 930, 600]], exc: [[428, 462, 876, 600]], note: 'السرير عرضه حوالي 1.8 متر، والبراويز متحطّة بمقاسها التقريبي جنبه.' },
+    { k: 'dining', t: 'السفرة', src: 'img/room-dining.jpg', W: 1280, H: 952, px: 2.49, cx: 652, top: 398, gap: 14, wallTop: 84,
+      seeds: [[640, 200], [300, 350], [1000, 350], [640, 640], [250, 700], [1100, 700], [480, 520], [850, 520]], box: [168, 80, 1172, 752],
+      inc: [[172, 84, 1168, 395], [172, 395, 545, 545], [765, 395, 1168, 545]], exc: [], note: 'ترابيزة السفرة لـ 6 أفراد، والبراويز متحطّة بمقاسها التقريبي.' },
+    { k: 'mine', t: '📷 حيطتك', W: SW, H: SH }
   ];
-  var WALLS = ['#EDE6DC', '#F6F3EE', '#D8D5CF', '#CFDCD5', '#E9D2C1', '#BFCAD4', '#2E3B40'];
-
+  var WALLS = ['', '#F3EEE6', '#E6D3BF', '#CFDCD5', '#9DB8A4', '#BFCAD4', '#7E93A8', '#C9876B', '#2E3B40'];
+  var painters = {}, painted = {};
   var all = [], prods = [], sub = '', sel = [], room = 'living', wall = '', type = 'برواز', size = '30×40', color = 'أسود';
   var mine = { url: '', scale: 1, dx: 0, dy: 0 };
-  try { var saved = JSON.parse(localStorage.getItem('rq_wall') || '{}'); if (saved.wall) wall = saved.wall; if (saved.room && saved.room !== 'mine') room = saved.room; } catch (e) {}
+  try { var saved = JSON.parse(localStorage.getItem('rq_wall') || '{}'); if (saved.wall) wall = saved.wall; if (saved.room && saved.room !== 'mine' && ROOMS.some(function (r) { return r.k === saved.room; })) room = saved.room; } catch (e) {}
   var q = new URLSearchParams(location.search), wantAdd = q.get('add'), wantSize = q.get('size');
   if (wantSize) size = wantSize.replace('x', '×');
 
@@ -89,33 +95,6 @@
 
   /* ---------- الرسم على الحيطة ---------- */
   function el(n, a, kids) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); (kids || []).forEach(function (c) { e.appendChild(c); }); return e; }
-  function furniture(k) {
-    var g = el('g', { 'class': 'furn', transform: 'translate(-25 0)' });
-    function r(x, y, w, h, f, rx) { g.appendChild(el('rect', { x: x, y: SH - y - h, width: w, height: h, fill: f, rx: rx || 0 })); }
-    if (k === 'living') {
-      r(52, 0, 4, 9, '#5B4636'); r(264, 0, 4, 9, '#5B4636');
-      r(50, 8, 220, 32, '#8E9B8F', 6); r(50, 8, 18, 56, '#7F8C80', 8); r(252, 8, 18, 56, '#7F8C80', 8);
-      r(64, 36, 192, 50, '#9AA79B', 9);
-      r(70, 38, 58, 24, '#A9B5A9', 6); r(131, 38, 58, 24, '#A9B5A9', 6); r(192, 38, 58, 24, '#A9B5A9', 6);
-      r(84, 44, 30, 26, '#D9B26F', 7); r(206, 44, 30, 26, '#C6CEC6', 7);
-      r(286, 0, 22, 34, '#C9A27A', 4); r(294, 34, 6, 46, '#5B4636'); g.appendChild(el('ellipse', { cx: 297, cy: SH - 92, rx: 20, ry: 24, fill: '#6E8F6A' }));
-    } else if (k === 'bed') {
-      r(70, 0, 180, 112, '#B49A80', 8); r(76, 0, 168, 50, '#F1ECE4', 6); r(76, 36, 168, 18, '#DCCFBF', 5);
-      r(88, 52, 66, 22, '#FFFFFF', 9); r(166, 52, 66, 22, '#FFFFFF', 9);
-      r(18, 0, 44, 52, '#9C8167', 4); r(258, 0, 44, 52, '#9C8167', 4);
-      r(30, 52, 18, 28, '#E8D6B8', 6); r(272, 52, 18, 28, '#E8D6B8', 6);
-    } else if (k === 'office') {
-      r(90, 0, 4, 72, '#4A3B30'); r(226, 0, 4, 72, '#4A3B30'); r(86, 72, 148, 5, '#7A5E47', 2);
-      r(140, 77, 50, 30, '#2B2F33', 3); r(162, 77, 6, 4, '#2B2F33');
-      r(150, 0, 30, 6, '#33383C'); r(160, 6, 10, 38, '#33383C'); r(146, 44, 38, 8, '#3D4348', 4); r(150, 52, 30, 40, '#3D4348', 6);
-      r(104, 77, 10, 18, '#6E8F6A', 3); r(208, 77, 14, 10, '#D9B26F', 2);
-    } else if (k === 'entry') {
-      r(104, 0, 4, 78, '#4A3B30'); r(212, 0, 4, 78, '#4A3B30'); r(100, 76, 120, 6, '#6B5140', 2); r(108, 22, 104, 4, '#6B5140');
-      r(118, 82, 14, 26, '#C7B49B', 6); g.appendChild(el('ellipse', { cx: 125, cy: SH - 118, rx: 10, ry: 14, fill: '#6E8F6A' }));
-      r(190, 82, 18, 6, '#D9B26F', 2); r(150, 26, 22, 14, '#B79E84', 3);
-    }
-    return g;
-  }
   function layout(list) {
     // نرصّ البراويز في صفوف، بين كل برواز والتاني 6 سم، وأقصى عرض 250 سم
     var d = dims(size), gap = 6, maxW = 230, rows = [[]], rw = 0;
@@ -131,48 +110,53 @@
     });
     return { items: out, w: totW, h: totH };
   }
+  function photoUrl(R) {
+    if (!wall) return R.src;
+    var key = R.k + wall;
+    if (painted[key]) return painted[key];
+    if (!painters[R.k]) painters[R.k] = window.RQpaintRoom ? RQpaintRoom(R.src, R.seeds, R.box, R.inc, R.exc) : Promise.reject();
+    painters[R.k].then(function (paint) {
+      var k2 = R.k + wall; if (!painted[k2]) painted[k2] = paint(wall);
+      var bg = $('wbg'); if (bg && room === R.k) bg.setAttribute('href', painted[R.k + wall] || R.src);
+    }).catch(function () {});
+    return painted[R.k + wall] || R.src;
+  }
   function render() {
     var R = ROOMS.filter(function (x) { return x.k === room; })[0], svg = $('wsvg');
-    var wc = wall || R.wall, dark = isDark(wc);
+    var dark = isDark(wall), W = R.W, H = R.H;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     svg.innerHTML = '';
     var defs = el('defs');
-    defs.innerHTML = '<filter id="fsh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0.6" dy="1.6" stdDeviation="1.4" flood-color="#000" flood-opacity="' + (dark ? .55 : .28) + '"/></filter>' +
-      '<linearGradient id="wl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".10"/><stop offset="1" stop-color="#000" stop-opacity=".07"/></linearGradient>' +
+    defs.innerHTML = '<filter id="fsh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0.7" dy="1.8" stdDeviation="1.5" flood-color="#2a1a08" flood-opacity="' + (dark ? .6 : .32) + '"/></filter>' +
       '<linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>';
     svg.appendChild(defs);
     if (room === 'mine') {
-      if (mine.url) svg.appendChild(el('image', { href: mine.url, x: 0, y: 0, width: SW, height: SH, preserveAspectRatio: 'xMidYMid slice' }));
-      else svg.appendChild(el('rect', { x: 0, y: 0, width: SW, height: SH, fill: '#E9E4DC' }));
+      if (mine.url) svg.appendChild(el('image', { href: mine.url, x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'xMidYMid slice' }));
+      else svg.appendChild(el('rect', { x: 0, y: 0, width: W, height: H, fill: '#E9E4DC' }));
     } else {
-      svg.appendChild(el('rect', { x: 0, y: 0, width: SW, height: SH, fill: wc }));
-      svg.appendChild(el('rect', { x: 0, y: 0, width: SW, height: SH, fill: 'url(#wl)' }));
-      svg.appendChild(el('rect', { x: 0, y: SH - 10, width: SW, height: 10, fill: dark ? '#1F2629' : '#CDBFAE' }));
-      svg.appendChild(el('rect', { x: 0, y: SH - 11, width: SW, height: 1.2, fill: dark ? '#3A464B' : '#F6F1EA' }));
-      svg.appendChild(furniture(room));
+      svg.appendChild(el('image', { id: 'wbg', href: photoUrl(R), x: 0, y: 0, width: W, height: H, preserveAspectRatio: 'xMidYMid slice' }));
     }
     var list = [];
     sel.forEach(function (id) { var p = byId(id); if (p) (p.art && p.art.length ? p.art : [p.images[0]]).forEach(function (a) { list.push({ p: p, src: a }); }); });
     $('wempty').hidden = !!list.length;
     if (!list.length) { $('wdim').textContent = ''; $('wwarn').hidden = true; return; }
-    var L = layout(list), top = room === 'mine' ? 0 : R.top;
-    var cy = Math.max(145, top + 24 + L.h / 2);              // نص البراويز على ارتفاع النظر تقريبًا، وفوق الكنبة بـ 24 سم على الأقل
-    if (cy + L.h / 2 > SH - 12) cy = SH - 12 - L.h / 2;
-    var g = el('g', { id: 'wfr' }), ox = SW / 2, oy = SH - cy - L.h / 2;
+    var L = layout(list);
+    // البراويز بتترسم بالسنتي حوالين نقطة (0,0) = نص أعلى المجموعة، وبعدين نكبّرها على الصورة
+    var g = el('g', { id: 'wfr' });
     var fw = frameType() ? 1.8 : 0, fc = color === 'أبيض' ? '#F7F6F3' : '#161616';
     L.items.forEach(function (b, i) {
-      var x = ox + b.x, y = oy + b.y, cid = 'c' + i;
+      var x = b.x, y = b.y, cid = 'c' + i, ax, ay, aw, ah;
       var fr = el('g', { filter: 'url(#fsh)' });
       if (frameType()) {
         var mat = Math.max(1.5, b.w * 0.08);
         fr.appendChild(el('rect', { x: x, y: y, width: b.w, height: b.h, fill: fc }));
         fr.appendChild(el('rect', { x: x + fw, y: y + fw, width: b.w - 2 * fw, height: b.h - 2 * fw, fill: '#FBFAF7' }));
-        var ax = x + fw + mat, ay = y + fw + mat, aw = b.w - 2 * (fw + mat), ah = b.h - 2 * (fw + mat);
+        ax = x + fw + mat; ay = y + fw + mat; aw = b.w - 2 * (fw + mat); ah = b.h - 2 * (fw + mat);
       } else {
         fr.appendChild(el('rect', { x: x + .8, y: y + .8, width: b.w, height: b.h, fill: '#8B6B3E' }));
         ax = x; ay = y; aw = b.w; ah = b.h;
       }
-      var cp = el('clipPath', { id: cid }, [el('rect', { x: ax, y: ay, width: aw, height: ah })]);
-      defs.appendChild(cp);
+      defs.appendChild(el('clipPath', { id: cid }, [el('rect', { x: ax, y: ay, width: aw, height: ah })]));
       var im = el('image', { x: ax, y: ay, width: aw, height: ah, preserveAspectRatio: 'xMidYMid slice', 'clip-path': 'url(#' + cid + ')' });
       RQ.img(b.it.src).then(function (u) { if (u) im.setAttribute('href', u); });
       fr.appendChild(im);
@@ -180,35 +164,52 @@
       g.appendChild(fr);
     });
     // خط المقاس فوق البراويز
-    var my = oy - 7, mx1 = ox - L.w / 2, mx2 = ox + L.w / 2, lc = room === 'mine' ? '#fff' : (dark ? '#E8E2D8' : '#5C4A35');
-    var dim = el('g', { 'class': 'wdimln' });
-    dim.appendChild(el('line', { x1: mx1, y1: my, x2: mx2, y2: my, stroke: lc, 'stroke-width': .5 }));
-    dim.appendChild(el('line', { x1: mx1, y1: my - 2, x2: mx1, y2: my + 2, stroke: lc, 'stroke-width': .5 }));
-    dim.appendChild(el('line', { x1: mx2, y1: my - 2, x2: mx2, y2: my + 2, stroke: lc, 'stroke-width': .5 }));
-    var tx = el('text', { x: ox, y: my - 2.2, 'text-anchor': 'middle', 'font-size': 6, fill: lc, 'font-weight': 700 }); tx.textContent = '≈ ' + Math.round(L.w) + ' سم';
-    var bgw = 26; dim.insertBefore(el('rect', { x: ox - bgw / 2, y: my - 8.5, width: bgw, height: 8, rx: 4, fill: room === 'mine' ? '#0008' : (dark ? '#0006' : '#fffc') }), dim.firstChild);
+    var my = -7, lc = room === 'mine' ? '#fff' : (dark ? '#F1ECE4' : '#4A3A28');
+    var dim = el('g');
+    dim.appendChild(el('rect', { x: -14, y: my - 8.5, width: 28, height: 8, rx: 4, fill: room === 'mine' ? '#0008' : (dark ? '#0007' : '#ffffffd9') }));
+    dim.appendChild(el('line', { x1: -L.w / 2, y1: my, x2: L.w / 2, y2: my, stroke: lc, 'stroke-width': .5 }));
+    dim.appendChild(el('line', { x1: -L.w / 2, y1: my - 2, x2: -L.w / 2, y2: my + 2, stroke: lc, 'stroke-width': .5 }));
+    dim.appendChild(el('line', { x1: L.w / 2, y1: my - 2, x2: L.w / 2, y2: my + 2, stroke: lc, 'stroke-width': .5 }));
+    var tx = el('text', { x: 0, y: my - 2.4, 'text-anchor': 'middle', 'font-size': 5.6, fill: lc, 'font-weight': 700 }); tx.textContent = '≈ ' + Math.round(L.w) + ' سم';
     dim.appendChild(tx); g.appendChild(dim);
-    if (room === 'mine') g.setAttribute('transform', 'translate(' + mine.dx + ' ' + mine.dy + ') translate(' + SW / 2 + ' ' + SH / 2 + ') scale(' + mine.scale + ') translate(' + (-SW / 2) + ' ' + (-SH / 2) + ')');
+    var tooBig = false;
+    if (room === 'mine') {
+      g.setAttribute('transform', mineT(L));
+    } else {
+      var hpx = L.h * R.px, bottom = R.top - R.gap * R.px, topY = bottom - hpx;
+      if (topY < R.wallTop + 18) { tooBig = true; topY = R.wallTop + 18; }
+      if (L.w * R.px > W - 40) tooBig = true;
+      g.setAttribute('transform', 'translate(' + R.cx + ' ' + topY + ') scale(' + R.px + ')');
+    }
     svg.appendChild(g);
-    $('wdim').textContent = list.length + (list.length === 1 ? ' لوحة' : ' لوحات') + ' · \u2066' + size + '\u2069 سم · ' + (frameType() ? 'برواز ' + color : 'تابلوه من غير برواز');
-    var tooBig = room !== 'mine' && (cy - L.h / 2 < top + 4 || L.w > SW - 10);
+    lastL = L;
+    $('wdim').textContent = list.length + (list.length === 1 ? ' لوحة' : ' لوحات') + ' · ⁦' + size + '⁩ سم · ' + (frameType() ? 'برواز ' + color : 'تابلوه من غير برواز');
     $('wwarn').hidden = !tooBig;
   }
+  var lastL = null;
+  function mineT(L) { return 'translate(' + (SW / 2 + mine.dx) + ' ' + (SH / 2 + mine.dy) + ') scale(' + mine.scale + ') translate(0 ' + (-L.h / 2) + ')'; }
   function isDark(c) { var m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(c || ''); if (!m) return false; return (parseInt(m[1], 16) * 299 + parseInt(m[2], 16) * 587 + parseInt(m[3], 16) * 114) / 1000 < 110; }
 
   /* ---------- الغرف والألوان ---------- */
   function paintRooms() {
     $('rooms').innerHTML = ROOMS.map(function (r) { return '<button type="button" data-r="' + r.k + '" class="' + (r.k === room ? 'on' : '') + '">' + r.t + '</button>'; }).join('');
-    var R = ROOMS.filter(function (x) { return x.k === room; })[0], cur = wall || R.wall;
-    $('swatches').innerHTML = WALLS.map(function (c) { return '<button type="button" data-c="' + c + '" style="background:' + c + '" class="' + (c.toLowerCase() === cur.toLowerCase() ? 'on' : '') + '" aria-label="لون الحيطة"></button>'; }).join('');
-    $('wcolor').value = cur;
+    var R = ROOMS.filter(function (x) { return x.k === room; })[0];
+    $('swatches').innerHTML = WALLS.map(function (c) {
+      return c ? '<button type="button" data-c="' + c + '" style="background:' + c + '" class="' + (c.toLowerCase() === wall.toLowerCase() ? 'on' : '') + '" aria-label="لون الحيطة"></button>'
+        : '<button type="button" data-c="" class="orig' + (!wall ? ' on' : '') + '" aria-label="اللون الأصلي" title="اللون الأصلي">↺</button>';
+    }).join('');
+    $('wcolor').value = wall || '#EDE6DC';
     $('wcolBox').hidden = room === 'mine'; $('mineBox').hidden = room !== 'mine';
-    $('wvNote').textContent = room === 'mine' ? 'صوّر حيطتك من قدام وبعيد شوية، وحرّك البراويز بصباعك أو بالماوس.' : ({ living: 'الكنبة عرضها حوالي 2.2 متر، عشان تتخيل المقاس.', bed: 'السرير عرضه 1.8 متر، عشان تتخيل المقاس.', office: 'المكتب عرضه 1.5 متر تقريبًا.', entry: 'الكونسول عرضه 1.2 متر تقريبًا.' })[room];
+    $('wvNote').textContent = room === 'mine' ? 'صوّر حيطتك من قدام وبعيد شوية، وحرّك البراويز بصباعك أو بالماوس.' : R.note;
   }
   function saveWall() { try { localStorage.setItem('rq_wall', JSON.stringify({ wall: wall, room: room })); } catch (e) {} }
   $('rooms').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; room = b.dataset.r; paintRooms(); render(); saveWall(); });
   $('swatches').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; wall = b.dataset.c; paintRooms(); render(); saveWall(); });
-  $('wcolor').addEventListener('input', function () { wall = this.value; render(); [].forEach.call($('swatches').children, function (b) { b.className = ''; }); });
+  var rafC = 0;
+  $('wcolor').addEventListener('input', function () {
+    wall = this.value; [].forEach.call($('swatches').children, function (b) { b.classList.remove('on'); });
+    if (!rafC) rafC = requestAnimationFrame(function () { rafC = 0; render(); });
+  });
   $('wcolor').addEventListener('change', saveWall);
   $('mineFile').addEventListener('change', function () {
     var f = this.files && this.files[0]; if (!f) return;
@@ -221,10 +222,16 @@
     var svg = $('wsvg'), st = null;
     function pt(e) { var r = svg.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * SW, y: (e.clientY - r.top) / r.height * SH }; }
     svg.addEventListener('pointerdown', function (e) { if (room !== 'mine' || !sel.length) return; st = { p: pt(e), dx: mine.dx, dy: mine.dy }; svg.setPointerCapture(e.pointerId); });
-    svg.addEventListener('pointermove', function (e) { if (!st) return; var p = pt(e); mine.dx = st.dx + p.x - st.p.x; mine.dy = st.dy + p.y - st.p.y; var g = $('wfr'); if (g) g.setAttribute('transform', 'translate(' + mine.dx + ' ' + mine.dy + ') translate(' + SW / 2 + ' ' + SH / 2 + ') scale(' + mine.scale + ') translate(' + (-SW / 2) + ' ' + (-SH / 2) + ')'); });
+    svg.addEventListener('pointermove', function (e) { if (!st) return; var p = pt(e); mine.dx = st.dx + p.x - st.p.x; mine.dy = st.dy + p.y - st.p.y; var g = $('wfr'); if (g && lastL) g.setAttribute('transform', mineT(lastL)); });
     svg.addEventListener('pointerup', function () { st = null; });
     svg.addEventListener('pointercancel', function () { st = null; });
   })();
+
+  $('wbig').addEventListener('click', function () {
+    var w = this.parentElement, on = !w.classList.contains('big');
+    w.classList.toggle('big', on); this.textContent = on ? '✕ اقفل' : '⤢ كبّر'; document.body.style.overflow = on ? 'hidden' : ''; document.body.classList.toggle('wbig', on);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('wbig').parentElement.classList.contains('big')) $('wbig').click(); });
 
   /* ---------- الشريط اللي تحت: المقاس واللون والسعر ---------- */
   function total() { return sel.reduce(function (a, id) { var p = byId(id), v = p && variantFor(p, type, size); return a + (v ? v.price : 0); }, 0); }

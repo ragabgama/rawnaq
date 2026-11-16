@@ -29,7 +29,7 @@
 <section class="phero fr"><div class="wrap">
   <div class="crumbs"><a href="./">الرئيسية</a> ‹ <span>براويز ولوحات</span></div>
   <h1>اعمل حيطتك</h1>
-  <p>دوس + على اللوحات اللي عاجباك، وشوفها على الحيطة بمقاسها الحقيقي. غيّر المقاس ولون البرواز ولون الحيطة لحد ما تعجبك، وبعدين اطلبها كلها مرة واحدة.</p>
+  <p>دوس + على اللوحات اللي عاجباك، وشوفها على حيطة أوضة حقيقية بمقاسها. غيّر المقاس ولون البرواز ولون الحيطة لحد ما تعجبك، وبعدين اطلبها كلها مرة واحدة.</p>
 </div></section>
 <section class="wrap sec bld">
   <div class="bl-main">
@@ -45,7 +45,7 @@
   <aside class="bl-side" id="wall">
     <div class="wv-head"><b>معاينة على الحيطة</b><small id="wdim"></small></div>
     <div class="rooms" id="rooms"></div>
-    <div class="wv"><svg id="wsvg" viewBox="0 0 270 202.5" role="img" aria-label="معاينة اللوحات على الحيطة"></svg><div class="wwarn" id="wwarn" hidden>المجموعة دي أكبر من الحيطة بالمقاس ده، جرّب مقاس أصغر أو قلّل اللوحات</div><div class="wempty" id="wempty">دوس <b>+</b> على أي لوحة<br>وهتظهر هنا بمقاسها الحقيقي</div></div>
+    <div class="wv"><button type="button" class="wbig" id="wbig" aria-label="كبّر الصورة">⤢ كبّر</button><svg id="wsvg" viewBox="0 0 270 202.5" role="img" aria-label="معاينة اللوحات على الحيطة"></svg><div class="wwarn" id="wwarn" hidden>المجموعة دي أكبر من الحيطة بالمقاس ده، جرّب مقاس أصغر أو قلّل اللوحات</div><div class="wempty" id="wempty">دوس <b>+</b> على أي لوحة<br>وهتظهر هنا بمقاسها الحقيقي</div></div>
     <div class="wcol" id="wcolBox"><span>لون الحيطة</span><div class="sw" id="swatches"></div><label class="wpick" title="لون تاني"><input type="color" id="wcolor" aria-label="اختار لون الحيطة"><span>🎨</span></label></div>
     <div class="mine" id="mineBox" hidden>
       <label class="btn ghostd mpick"><input type="file" id="mineFile" accept="image/*" hidden>📷 <span id="mineLbl">صوّر حيطتك أو ارفع صورتها</span></label>
@@ -79,7 +79,8 @@
 <script src="models.js?v=15"></script>
 <script src="order.js?v=15"></script>
 <script src="shop.js?v=15"></script>
-<script src="wall.js?v=151"></script>
+<script src="wallpaint.js?v=152"></script>
+<script src="wall.js?v=152"></script>
 <script>document.getElementById('footWa').href=RQ.waLink('أهلًا');</script>
 </body>
 </html>
