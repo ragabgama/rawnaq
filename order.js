@@ -159,6 +159,7 @@
     return {
       raw: s,
       instapay: s.instapay || S.instapay, vodafone: s.vodafone || S.vodafoneCash,
+      instapayLink: /^https:\/\/ipn\.eg\/[\w\/-]+$/.test(s.instapayLink || '') ? s.instapayLink : (s.instapayLink === '' ? '' : (S.instapayLink || '')),
       shipping: ship, codOn: s.codOff !== true,
       freeShip: s.freeShipOver != null && s.freeShipOver !== '' ? Math.max(0, Math.round(Number(s.freeShipOver)) || 0) : (S.freeShipOver || 0),
       bundles: (Array.isArray(s.caseBundles) && s.caseBundles.length ? s.caseBundles : S.caseBundles || [])

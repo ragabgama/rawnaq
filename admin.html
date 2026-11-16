@@ -134,7 +134,7 @@ textarea{min-height:70px;resize:vertical}
 .slides{display:grid;gap:10px}.slide{display:grid;grid-template-columns:240px 1fr;gap:10px;align-items:center;background:#F5F8F7;border-radius:12px;padding:8px}.slide img{width:100%;aspect-ratio:1400/600;object-fit:cover;border-radius:8px;background:#ddd}.sbtns{display:flex;gap:6px;margin-top:6px}@media(max-width:600px){.slide{grid-template-columns:1fr}}
 .offerbox{border:2px solid #FFE2B3;background:#FFFBF3}
 </style>
-<script src="config.js?v=13"></script>
+<script src="config.js?v=14"></script>
 <script src="models.js?v=7"></script>
 </head>
 <body>
@@ -304,7 +304,8 @@ textarea{min-height:70px;resize:vertical}
   <div class="box">
     <h3>الدفع</h3>
     <div class="two">
-      <div class="fld"><label for="s_ip">رقم إنستاباي</label><input type="text" id="s_ip" dir="ltr" maxlength="40"></div>
+      <div class="fld"><label for="s_ip">حساب إنستاباي (أو رقمه)</label><input type="text" id="s_ip" dir="ltr" maxlength="40"></div>
+      <div class="fld"><label for="s_iplink">لينك الدفع بإنستاباي (من الأبلكيشن)</label><input type="url" id="s_iplink" dir="ltr" maxlength="200" placeholder="https://ipn.eg/S/..."></div>
       <div class="fld"><label for="s_vf">رقم فودافون كاش</label><input type="text" id="s_vf" dir="ltr" maxlength="20"></div>
     </div>
     <label class="chk"><input type="checkbox" id="s_cod" checked> الدفع عند الاستلام متاح (للمنتجات العادية)</label>
@@ -527,7 +528,7 @@ function waConfirm(o) {
   let t = 'أهلًا يا ' + first + ' 👋 معاك رونق.\nبنأكد طلبك رقم ' + o.id + ':\n' + o.items.map((i) => '- ' + itemLine(i)).join('\n') +
     '\nالإجمالي ' + fmt(o.total) + ' ج (شامل شحن ' + fmt(o.shipping) + ' ج)\nالعنوان: ' + o.gov + '، ' + o.address;
   if (o.pay === 'cod') t += '\nوالدفع عند الاستلام. نأكد الطلب؟';
-  else t += '\nالدفع ' + PAY[o.pay] + ': حوّل ' + fmt(o.total) + ' ج على ' + (o.pay === 'instapay' ? (settings.instapay || S.instapay) : (settings.vodafone || S.vodafoneCash)) + ' وابعتلنا صورة التحويل هنا 🙏';
+  else t += '\nالدفع ' + PAY[o.pay] + ': حوّل ' + fmt(o.total) + ' ج على ' + (o.pay === 'instapay' ? (settings.instapay || S.instapay) : (settings.vodafone || S.vodafoneCash)) + (o.pay === 'instapay' && (settings.instapayLink != null ? settings.instapayLink : S.instapayLink) ? '\nأو ادفع من اللينك ده: ' + (settings.instapayLink != null ? settings.instapayLink : S.instapayLink) : '') + ' وابعتلنا صورة التحويل هنا 🙏';
   if (o.custom) t += '\nوابعتلنا صور أو تفاصيل التصميم الخاص.';
   return 'https://wa.me/2' + o.phone + '?text=' + encodeURIComponent(t);
 }
@@ -838,6 +839,7 @@ function fillSettings() {
   renderSlides();
   $('b_kick').value = s.bannerKick || ''; $('b_title').value = s.bannerTitle || ''; $('b_sub').value = s.bannerSub || '';
   $('b_btn').value = s.bannerBtn || ''; $('b_top').value = s.topbar || ''; $('b_off').checked = !!s.bannerTextOff;
+  $('s_iplink').value = s.instapayLink != null ? s.instapayLink : (S.instapayLink || '');
   $('s_ip').value = s.instapay || S.instapay; $('s_vf').value = s.vodafone || S.vodafoneCash; $('s_cod').checked = s.codOff !== true;
   const sh = ship0(); [].forEach.call($('shipg').querySelectorAll('input'), (i) => { i.value = sh[i.dataset.g]; });
   $('s_free').value = settings.freeShipOver != null && settings.freeShipOver !== '' ? settings.freeShipOver : (S.freeShipOver || 0);
@@ -942,6 +944,7 @@ $('s_save').onclick = async () => {
     caseBundles: [].map.call($('bundleg').querySelectorAll('input'), (i) => ({ qty: +i.dataset.q, total: Math.round(+i.value) || 0 })).filter((b) => b.total > 0),
     freeShipOver: Math.max(0, Math.round(Number($('s_free').value)) || 0),
     reviews: $('s_rev').value.split('\n').map((l) => l.split('|').map((x) => x.trim())).filter((a) => a.length >= 3 && a[0] && a[2]).map((a) => ({ name: a[0].slice(0, 40), gov: a[1].slice(0, 30), text: a.slice(2).join(' | ').slice(0, 300) })),
+    instapayLink: /^https:\/\/ipn\.eg\/[\w\/-]+$/.test($('s_iplink').value.trim()) ? $('s_iplink').value.trim() : '',
     instapay: $('s_ip').value.trim(), vodafone: $('s_vf').value.trim(), codOff: !$('s_cod').checked, shipping, updatedAt: serverTimestamp() };
   $('s_save').disabled = true;
   try { await setDoc(doc(db, 'settings', 'store'), data); settingsDirty = false; toast('الإعدادات اتحفظت ✓'); }

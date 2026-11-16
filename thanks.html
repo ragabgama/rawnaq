@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="pages.css?v=13">
-<script src="config.js?v=13"></script>
+<link rel="stylesheet" href="pages.css?v=14">
+<script src="config.js?v=14"></script>
 <meta name="robots" content="noindex">
 <title>شكرًا لطلبك | رونق</title>
 <style>
@@ -18,6 +18,8 @@
 .it{padding:6px 0;border-bottom:1px dashed var(--card)}
 .it:last-child{border:0}
 .it small{display:block;color:var(--muted)}
+.ipbtn{display:flex;margin:12px 0 4px;background:#4B1E78;color:#fff;box-shadow:0 4px 0 #2E0F4D;text-decoration:none}
+.ipqr{display:flex;flex-direction:column;align-items:center;gap:6px;margin:10px 0}.ipqr #ipQR{background:#fff;padding:10px;border-radius:12px}.ipqr small{color:var(--muted)}
 </style>
 </head><body>
 <header><div class="wrap"><a class="logo" href="./"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FFB547" d="M12 0c.9 6.4 5.6 11.1 12 12-6.4.9-11.1 5.6-12 12-.9-6.4-5.6-11.1-12-12C6.4 11.1 11.1 6.4 12 0z"/></svg>رونق</a><a href="./" class="muted" style="font-size:14px">الرئيسية</a></div></header>
@@ -31,7 +33,9 @@
 
 <div class="paybox" id="payBox" hidden>
   <b class="big">⏳ آخر خطوة: حوّل المبلغ عشان نبدأ نجهّز طلبك</b>
-  <span>حوّل <b id="payAmt"></b> على الرقم ده، وبعدين ابعتلنا صورة التحويل على واتساب.</span>
+  <span>حوّل <b id="payAmt"></b> <span id="payTo">على الرقم ده</span>، وبعدين ابعتلنا صورة التحويل على واتساب.</span>
+  <a class="btn ipbtn" id="ipLink" href="#" target="_blank" rel="noopener" hidden>ادفع بإنستاباي دلوقتي ←</a>
+  <div class="ipqr" id="ipQRBox" hidden><div id="ipQR"></div><small>أو صوّر الكود ده من أبلكيشن إنستاباي</small></div>
   <div class="num"><span id="payLabel"></span><span dir="ltr" id="payNum"></span><button type="button" id="copyNum">نسخ</button></div>
   <a class="btn wa" id="waPaid" href="#" target="_blank" rel="noopener" style="margin-top:12px">ابعت صورة التحويل على واتساب</a>
 </div>
@@ -44,7 +48,7 @@
 <p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js?v=13"></script>
+<script src="order.js?v=14"></script>
 <script>
 (function(){
   var o = RQ.store.get('rq_order'), $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
@@ -76,6 +80,15 @@
     $('payBox').hidden = false; $('okMsg').textContent = 'أول ما التحويل يوصل، هنأكد معاك ونبدأ نجهّز الطلب';
     $('payAmt').textContent = fmt(o.total) + ' ج';
     $('payLabel').textContent = PAY[o.pay]; $('payNum').textContent = num;
+    if (o.pay === 'instapay' && CFG.instapayLink) {
+      $('payTo').textContent = 'بإنستاباي (دوس الزرار وحط المبلغ)';
+      $('ipLink').hidden = false; $('ipLink').href = CFG.instapayLink;
+      $('ipQRBox').hidden = false;
+      var qs = document.createElement('script'); qs.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      qs.onload = function () { try { new QRCode($('ipQR'), { text: CFG.instapayLink, width: 180, height: 180, colorDark: '#10252A', colorLight: '#ffffff' }); } catch (e) { $('ipQRBox').hidden = true; } };
+      qs.onerror = function () { $('ipQRBox').hidden = true; };
+      document.head.appendChild(qs);
+    } else if (o.pay === 'instapay') $('payTo').textContent = 'على حساب إنستاباي ده';
     $('waPaid').href = waLink('حوّلت ' + fmt(o.total) + ' ج على ' + PAY[o.pay] + ' لطلب رقم ' + o.id + '، ودي صورة التحويل:');
     $('copyNum').onclick = function () {
       var b = this;

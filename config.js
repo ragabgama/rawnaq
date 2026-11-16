@@ -12,7 +12,8 @@ window.STORE = {
   whatsappDisplay: '01029516690',
 
   // الدفع أونلاين
-  instapay: '01119864321',
+  instapay: 'rgsaber@instapay',
+  instapayLink: 'https://ipn.eg/S/rgsaber/instapay/1HtAmp',
   vodafoneCash: '01029516690',
 
   // قاعدة البيانات ولوحة التحكم (Firebase، ببلاش)
