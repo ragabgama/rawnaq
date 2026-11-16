@@ -30,6 +30,7 @@
     $('pName').textContent = p.name;
     $('pShort').textContent = p.short || ''; $('pShort').hidden = !p.short;
     $('waBtn').href = RQ.waLink('أهلًا، عندي سؤال عن ' + p.name);
+    $('wallBtn').hidden = isC0 || !!p.allowUpload; $('wallBtn').href = 'frames.html?add=' + encodeURIComponent(p.id) + '#wall';
 
     /* الصور */
     var thumbs = $('thumbs'), main = $('mainImg');
@@ -157,6 +158,7 @@
   function sizeOf(n) { n = String(n || ''); var k = n.indexOf(' · '); return k > 0 ? n.slice(k + 3) : n; }
   function typesOf(p) { var t = []; p.variants.forEach(function (v) { var x = typeOf(v.name); if (x && t.indexOf(x) < 0) t.push(x); }); return t.length && p.variants.every(function (v) { return typeOf(v.name); }) ? t : []; }
   function noFrame() { return !!tSel && !/برواز/.test(tSel.replace(/من غير برواز|بدون برواز/, '')) ; }
+  function sizeHtml(s) { var m = /^(\d+\s*×\s*\d+)(.*)$/.exec(s || ''); return m ? '<bdi dir="ltr">' + esc(m[1]) + '</bdi>' + esc(m[2]) : esc(s || 'عادي'); }
   function renderSizes() {
     if (tSel && typeOf(P.variants[vSel].name) !== tSel) {
       var want = sizeOf(P.variants[vSel].name), j = -1;
@@ -166,7 +168,7 @@
     }
     $('vPills').innerHTML = P.variants.map(function (v, i) {
       if (tSel && typeOf(v.name) !== tSel) return '';
-      return '<button type="button" data-i="' + i + '" class="' + (i === vSel ? 'on' : '') + '">' + esc(sizeOf(v.name) || 'عادي') + '<small>' + fmt(v.price) + ' ج</small></button>';
+      return '<button type="button" data-i="' + i + '" class="' + (i === vSel ? 'on' : '') + '">' + sizeHtml(sizeOf(v.name)) + '<small>' + fmt(v.price) + ' ج</small></button>';
     }).join('');
     [].forEach.call($('tPills').children, function (b) { b.className = b.dataset.t === tSel ? 'on' : ''; });
     var nf = noFrame();
