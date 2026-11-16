@@ -130,7 +130,8 @@
       if (!u) { u = byP[it.p.id] = { pcs: [], w: 0, h: d[1], pw: d[0] }; units.push(u); }
       u.pcs.push(it); u.w = u.pcs.length * d[0] + (u.pcs.length - 1) * G;
     });
-    var n = list.length, rowsN = 1, rows;
+    // لحد 3 جنب بعض، 4 = 2+2، 5 = 3+2، 6 = 3+3، 7 و8 = 4 فوق والباقي تحت، أكتر = 3 صفوف
+    var n = list.length, rowsN = n <= 3 ? 1 : n <= 8 ? 2 : 3, rows;
     function split(k) {
       var order = units.slice().sort(function (a, b) { return b.h - a.h || b.w - a.w; }), out = [], cap = Math.ceil(n / k), cur = [], cnt = 0;
       order.forEach(function (u) {
@@ -144,7 +145,7 @@
     while (true) {
       rows = split(rowsN);
       var mw = Math.max.apply(null, rows.map(rowW));
-      if (mw <= maxW || rowsN >= Math.min(4, units.length)) break;
+      if (mw <= maxW || rowsN >= Math.min(4, units.length) || rowsN >= n) break;
       rowsN++;
     }
     var out = [], y = 0, totW = 0;
