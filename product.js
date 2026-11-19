@@ -45,9 +45,15 @@
     main.alt = p.name; thumbs.innerHTML = '';
     main.parentElement.classList.toggle('casebg', p.category === STORE.caseCat);
     var bl = RQ.cfg(RQ.store.get('rq_settings')).bundles, isCase = p.category === STORE.caseCat;
-    var fso = RQ.cfg(RQ.store.get('rq_settings')).freeShip; if (fso > 0) $('shipNote').textContent = '🚚 الشحن مجاني للطلبات من ' + fmt(fso) + ' ج، وأقل من كده حسب محافظتك';
+    // الشحن قبل السلة: أقل وأعلى سعر فعلي من أسعار المحافظات
+    var cfg0 = RQ.cfg(RQ.store.get('rq_settings')), fso = cfg0.freeShip;
+    var shv = Object.keys(cfg0.shipping).map(function (k) { return Number(cfg0.shipping[k]) || 0; }).filter(function (x) { return x > 0; });
+    if (shv.length) {
+      var smin = Math.min.apply(null, shv), smax = Math.max.apply(null, shv);
+      $('shipNote').innerHTML = '🚚 <span style="white-space:nowrap">الشحن من ' + fmt(smin) + (smax > smin ? ' لـ ' + fmt(smax) : '') + ' ج</span> حسب المحافظة' + (fso > 0 ? ' · <span style="white-space:nowrap">مجاني من ' + fmt(fso) + ' ج</span>' : '');
+    } else if (fso > 0) $('shipNote').textContent = '🚚 الشحن مجاني للطلبات من ' + fmt(fso) + ' ج، وأقل من كده حسب محافظتك';
     $('bundleNote').hidden = !(isCase && bl.length);
-    if (isCase && bl.length) $('bundleNote').innerHTML = '🎁 عروض: ' + bl.map(function (b) { return b.qty + ' جرابات بـ ' + fmt(b.total) + ' ج'; }).join(' · ') + ' (أي تصميمات)';
+    if (isCase && bl.length) $('bundleNote').innerHTML = '<b>🎁 وفّر لما تاخد أكتر (أي تصميمات):</b><span class="bchips">' + bl.map(function (b) { return '<span>' + b.qty + ' بـ ' + fmt(b.total) + ' ج</span>'; }).join('') + '</span>';
     if (p.images[0]) RQ.setImg(main, p.images[0]);
     if (p.images.length > 1) p.images.forEach(function (src, i) {
       var b = document.createElement('button');
