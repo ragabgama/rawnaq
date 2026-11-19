@@ -12,12 +12,20 @@
 
   var cached = RQ.store.get('rq_products2');
   if (cached && cached.list) { var hit = cached.list.filter(function (p) { return p.id === pid; })[0]; if (hit) show(hit); }
-  RQ.fsGet('products/' + pid).then(function (p) {
-    if (!p || p.active === false) { if (!painted) missing(); else location.replace('./'); return; }
-    p = RQ.cleanProduct(p);
-    if (!p.variants.length) return missing();
-    if (!painted || JSON.stringify(p) !== JSON.stringify(P)) show(p);
-  }).catch(function () { missing('حصلت مشكلة في التحميل. <a href="">جرّب تاني</a>'); });
+  // المنتج من النسخة الثابتة على الموقع، ولو منتج جديد لسه مانزلش فيها نجيبه من قاعدة البيانات
+  function fromDb() {
+    return RQ.fsGet('products/' + pid).then(function (p) {
+      if (!p || p.active === false) { if (!painted) missing(); else location.replace('./'); return; }
+      p = RQ.cleanProduct(p);
+      if (!p.variants.length) return missing();
+      if (!painted || JSON.stringify(p) !== JSON.stringify(P)) show(p);
+    });
+  }
+  RQ.products(function (list, fromCache) {
+    var p = list.filter(function (x) { return x.id === pid; })[0];
+    if (p) { if (!painted || JSON.stringify(p) !== JSON.stringify(P)) show(p); }
+    else if (!fromCache) fromDb().catch(function () { missing('حصلت مشكلة في التحميل. <a href="">جرّب تاني</a>'); });
+  }).catch(function () { if (!painted) fromDb().catch(function () { missing('حصلت مشكلة في التحميل. <a href="">جرّب تاني</a>'); }); });
 
   function show(p) {
     var first = !painted;

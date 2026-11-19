@@ -101,8 +101,14 @@
   };
   RQ.fsList = function (col) {
     return getJSON('https://firestore.googleapis.com/v1/' + BASE + '/' + col + '?pageSize=300&key=' + F.apiKey).then(function (j) {
-      return ((j && j.documents) || []).map(function (d) { var o = decFields(d.fields || {}); o.id = d.name.split('/').pop(); return o; });
+      return ((j && j.documents) || []).map(function (d) { var o = decFields(d.fields || {}); o.id = d.name.split('/').pop(); o.created = d.createTime || ''; return o; });
     });
+  };
+  /* نسخة ثابتة من البيانات على الموقع نفسه (بتتحدّث لوحدها كل نص ساعة)
+     عشان الموقع مايقعش لو قاعدة البيانات زحمت أو خلصت الحد المجاني */
+  RQ.staticJSON = function (name) {
+    var t = Math.floor(Date.now() / 300000); // تتجدد كل 5 دقايق
+    return fetch('store-' + name + '.json?t=' + t).then(function (r) { if (!r.ok) throw new Error('static ' + r.status); return r.json(); });
   };
   // تحويل قيمة JS لصيغة Firestore (للكتابة)
   RQ.enc = function enc(v) {
@@ -142,7 +148,10 @@
   RQ.products = function (onData) {
     var cached = RQ.store.get('rq_products2');
     if (cached && cached.list) onData(cached.list, true);
-    return RQ.fsList('products').then(function (list) {
+    return RQ.staticJSON('products').then(function (j) {
+      if (!j || !Array.isArray(j.list) || !j.list.length) throw new Error('empty');
+      return j.list;
+    }).catch(function () { return RQ.fsList('products'); }).then(function (list) {
       list = list.map(RQ.cleanProduct).filter(function (p) { return p.active !== false && p.variants.length; })
         .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
       RQ.store.set('rq_products2', { t: Date.now(), list: list });
@@ -170,7 +179,7 @@
   RQ.settings = function (onData) {
     var cached = RQ.store.get('rq_settings');
     if (cached) onData(RQ.cfg(cached), true);
-    return RQ.fsGet('settings/store').then(function (s) {
+    return RQ.staticJSON('settings').catch(function () { return RQ.fsGet('settings/store'); }).then(function (s) {
       s = s || {}; RQ.store.set('rq_settings', s); onData(RQ.cfg(s), false); return RQ.cfg(s);
     }).catch(function () { if (!cached) onData(RQ.cfg({}), false); });
   };
@@ -184,7 +193,12 @@
     if (mediaMem[id]) return mediaMem[id];
     var key = 'rq_m_' + id;
     try { var hit = localStorage.getItem(key); if (hit) return (mediaMem[id] = Promise.resolve(hit)); } catch (e) {}
-    mediaMem[id] = RQ.fsGet('media/' + id).then(function (m) {
+    // الأول من الملف الثابت على الموقع، ولو مش موجود من قاعدة البيانات
+    mediaMem[id] = fetch('img/m-' + id + '.jpg', { method: 'HEAD' }).then(function (r) {
+      if (r.ok) return { data: 'img/m-' + id + '.jpg', file: 1 };
+      return RQ.fsGet('media/' + id);
+    }).catch(function () { return RQ.fsGet('media/' + id); }).then(function (m) {
+      if (m && m.file) return m.data;
       var data = (m && m.data) || '';
       if (data) { try { localStorage.setItem(key, data); } catch (e) { /* المساحة خلصت: عادي */ } }
       return data;
