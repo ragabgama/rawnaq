@@ -52,8 +52,11 @@
       var smin = Math.min.apply(null, shv), smax = Math.max.apply(null, shv);
       $('shipNote').innerHTML = '🚚 <span style="white-space:nowrap">الشحن من ' + fmt(smin) + (smax > smin ? ' لـ ' + fmt(smax) : '') + ' ج</span> حسب المحافظة' + (fso > 0 ? ' · <span style="white-space:nowrap">مجاني من ' + fmt(fso) + ' ج</span>' : '');
     } else if (fso > 0) $('shipNote').textContent = '🚚 الشحن مجاني للطلبات من ' + fmt(fso) + ' ج، وأقل من كده حسب محافظتك';
-    $('bundleNote').hidden = !(isCase && bl.length);
-    if (isCase && bl.length) $('bundleNote').innerHTML = '<b>🎁 وفّر لما تاخد أكتر (أي تصميمات):</b><span class="bchips">' + bl.map(function (b) { return '<span>' + b.qty + ' بـ ' + fmt(b.total) + ' ج</span>'; }).join('') + '</span>';
+    // العروض: الجرابات بالكمية، والبراويز اشتري 2 والتالت ببلاش
+    var showB = isCase ? bl.length > 0 : !p.allowUpload;
+    $('bundleNote').hidden = !showB;
+    if (isCase && bl.length) $('bundleNote').innerHTML = '<b>🎁 وفّر لما تاخد أكتر (أي تصميمات):</b><span class="bchips">' + bl.map(function (b) { return '<span>' + b.qty + ' جرابات بـ ' + fmt(b.total) + ' ج</span>'; }).join('') + '</span>';
+    else if (showB) $('bundleNote').innerHTML = '<b>🎁 عرض البراويز:</b><span class="bchips"><span>اشتري 2 والتالت ببلاش</span></span><small style="display:block;margin-top:6px">اختار أي 3 براويز أو تابلوهات، والأرخص فيهم عليك ببلاش.</small>';
     if (p.images[0]) RQ.setImg(main, p.images[0]);
     if (p.images.length > 1) p.images.forEach(function (src, i) {
       var b = document.createElement('button');

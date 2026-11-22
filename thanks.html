@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="pages.css?v=19">
-<script src="config.js?v=19"></script>
+<link rel="stylesheet" href="pages.css?v=20">
+<script src="config.js?v=20"></script>
 <meta name="robots" content="noindex">
 <title>شكرًا لطلبك | رونق</title>
 <style>
@@ -48,7 +48,7 @@
 <p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js?v=19"></script>
+<script src="order.js?v=20"></script>
 <script>
 (function(){
   var o = RQ.store.get('rq_order'), $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
@@ -63,8 +63,9 @@
       return '<div class="it"><b>' + esc(i.name) + ' × ' + i.qty + '</b>' +
         '<small>' + [i.variant, i.choice].filter(Boolean).map(esc).join(' · ') + (i.custom ? ' · تصميم خاص: ' + esc(i.custom) : '') + '</small></div>';
     }).join('') +
-    (o.discount ? '<div class="row"><span>🎁 خصم عرض الجرابات</span><b>− ' + fmt(o.discount) + ' ج</b></div>' : '') +
+    (o.discount ? '<div class="row"><span>🎁 الخصم</span><b>− ' + fmt(o.discount) + ' ج</b></div>' : '') +
     (o.shipping != null ? '<div class="row"><span>الشحن</span><b>' + fmt(o.shipping) + ' ج</b></div>' : '') +
+    (o.codFee ? '<div class="row"><span>رسوم الدفع عند الاستلام</span><b>' + fmt(o.codFee) + ' ج</b></div>' : '') +
     '<div class="row"><span>الإجمالي</span><b>' + fmt(o.total || o.price) + ' ج</b></div>' +
     '<div class="row"><span>الدفع</span><b>' + esc(PAY[o.pay] || PAY.cod) + '</b></div>' +
     '<div class="row"><span>الموبايل</span><b dir="ltr">' + esc(o.phone) + '</b></div>' +

@@ -170,6 +170,7 @@
       instapay: s.instapay || S.instapay, vodafone: s.vodafone || S.vodafoneCash,
       instapayLink: /^https:\/\/ipn\.eg\/[\w\/-]+$/.test(s.instapayLink || '') ? s.instapayLink : (s.instapayLink === '' ? '' : (S.instapayLink || '')),
       shipping: ship, codOn: s.codOff !== true,
+      codFee: s.codFee != null && s.codFee !== '' ? Math.max(0, Math.round(Number(s.codFee)) || 0) : (S.codFee || 0),
       freeShip: s.freeShipOver != null && s.freeShipOver !== '' ? Math.max(0, Math.round(Number(s.freeShipOver)) || 0) : (S.freeShipOver || 0),
       bundles: (Array.isArray(s.caseBundles) && s.caseBundles.length ? s.caseBundles : S.caseBundles || [])
         .map(function (b) { return { qty: Math.round(Number(b.qty)), total: Math.round(Number(b.total)) }; })
@@ -226,6 +227,15 @@
     }
   };
   RQ.cart.badge();
+
+  /* ---------- عرض البراويز: اشتري 2 والتالت ببلاش (الأرخص في كل 3 مجاني) ---------- */
+  RQ.frameDiscount = function (items) {
+    var units = [];
+    (items || []).forEach(function (i) { if (i.cat && i.cat !== S.caseCat) for (var q = 0; q < i.qty; q++) units.push(Number(i.price) || 0); });
+    units.sort(function (a, b) { return b - a; });
+    var disc = 0; for (var k = 2; k < units.length; k += 3) disc += units[k];
+    return { discount: Math.round(disc), count: units.length };
+  };
 
   /* ---------- خصم عروض الجرابات (اشتري أكتر ووفّر) ---------- */
   RQ.bundleDiscount = function (items, bundles) {
