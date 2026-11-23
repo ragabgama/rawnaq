@@ -707,3 +707,5 @@ body.wbig.sb-on .wv.big{padding-bottom:150px}
 .mconf small{color:var(--muted)}
 .mtag.out{background:#FDE7DF;color:var(--red)}
 .pres button.out{opacity:.6;cursor:not-allowed}.pres button.out b{color:var(--red)}
+.whypre{background:#F0FAF7;border-radius:10px;padding:8px 10px;color:var(--pet);font-size:13.5px;margin-bottom:8px;font-weight:600}
+.payopt.off{opacity:.45;cursor:not-allowed}

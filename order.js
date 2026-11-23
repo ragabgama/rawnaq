@@ -74,6 +74,22 @@
   var BASE = 'projects/' + F.projectId + '/databases/(default)/documents';
   RQ.BASE = BASE;
   /* الموديلات الخلصانة عند المورد (بتتقري على طول عشان تبان فورًا من لوحة التحكم) */
+  /* القايمة السودا: أرقام رفضت الاستلام قبل كده (محفوظة كبصمة مختصرة مش الرقم نفسه) */
+  var blkP = null;
+  RQ.blockedHashes = function () {
+    if (!blkP) blkP = fetch('https://firestore.googleapis.com/v1/' + BASE + '/settings/blocked?key=' + F.apiKey, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (d) { var v = d && d.fields && d.fields.h && d.fields.h.arrayValue && d.fields.h.arrayValue.values || []; return v.map(function (x) { return x.stringValue; }).filter(Boolean); })
+      .catch(function () { return []; });
+    return blkP;
+  };
+  RQ.phoneHash = function (phone) {
+    try {
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode('rawnaq:' + phone)).then(function (b) {
+        return Array.prototype.map.call(new Uint8Array(b).slice(0, 3), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+      }).catch(function () { return ''; });
+    } catch (e) { return Promise.resolve(''); }
+  };
   var outP = null;
   RQ.outModels = function () {
     if (!outP) outP = fetch('https://firestore.googleapis.com/v1/' + BASE + '/settings/stock?key=' + F.apiKey, { cache: 'no-store' })
