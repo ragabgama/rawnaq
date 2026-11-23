@@ -859,8 +859,9 @@ function renderStock() {
   $('stockList').innerHTML = q ? (list.slice(0, 30).map((m) => '<label style="display:flex;gap:8px;align-items:center;padding:6px 8px;background:#F5F8F7;border-radius:8px"><input type="checkbox" data-m="' + esc(m) + '"' + (outModels.includes(m) ? ' checked' : '') + '> ' + esc(m) + (outModels.includes(m) ? ' <b style="color:var(--red)">خلصان</b>' : '') + '</label>').join('') || '<small>مفيش موديل بالاسم ده</small>') : '';
 }
 async function saveStock(next) {
+  const prev = outModels; outModels = next; renderStock(); // نحدّث القايمة فورًا عشان الضغطات ورا بعض ماتتلخبطش
   try { await setDoc(doc(db, 'settings', 'stock'), { out: next, updatedAt: serverTimestamp() }); toast('اتحفظ ✓ الموقع اتحدّث'); }
-  catch (e) { toast('ماتحفظش: ' + (e.code || e.message)); renderStock(); }
+  catch (e) { outModels = prev; toast('ماتحفظش: ' + (e.code || e.message)); renderStock(); }
 }
 $('stockQ').addEventListener('input', renderStock);
 $('stockList').addEventListener('change', (e) => { const m = e.target.dataset.m; if (!m) return; saveStock(e.target.checked ? [...new Set([...outModels, m])] : outModels.filter((x) => x !== m)); });
