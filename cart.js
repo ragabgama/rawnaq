@@ -31,7 +31,7 @@
       return '<div class="ci" data-k="' + k + '"><img alt="" data-src="' + esc(i.img) + '">' +
         '<div><div class="n">' + esc(i.name) + '</div>' +
         '<div class="m">' + [i.variant, i.choice && /جراب/.test(i.cat || i.name || '') ? '' : i.choice].filter(Boolean).map(esc).join(' · ') + '</div>' +
-        (i.choice && /جراب/.test(i.cat || i.name || '') ? '<span class="mtag">📱 لموبايل ' + esc(i.choice) + '</span>' : '') +
+        (i.choice && /جراب/.test(i.cat || i.name || '') ? ((RQ._out || []).indexOf(i.choice) >= 0 ? '<span class="mtag out">⛔ ' + esc(i.choice) + ' خلص مؤقتًا</span>' : '<span class="mtag">📱 لموبايل ' + esc(i.choice) + '</span>') : '') +
         (i.custom ? '<span class="c">' + esc(i.custom) + '</span>' : '') +
         (i.thumbs && i.thumbs.length ? '<div class="ups">' + i.thumbs.map(function (t) { return '<img alt="" src="' + esc(t) + '">'; }).join('') + '<span class="c">صورتك ✓</span></div>' : '') + '</div>' +
         '<div class="r"><b>' + fmt(i.price * i.qty) + ' ج</b>' +
@@ -42,9 +42,10 @@
     renderSum();
   }
   function renderModels() {
-    var ms = phoneModels(); $('modelBox').hidden = !ms.length;
-    $('modelList').innerHTML = ms.map(function (m) { return '<span class="mtag">' + esc(m) + '</span>'; }).join(' ');
+    var ms = phoneModels(), out = RQ._out || []; $('modelBox').hidden = !ms.length;
+    $('modelList').innerHTML = ms.map(function (m) { return out.indexOf(m) >= 0 ? '<span class="mtag out">⛔ ' + esc(m) + ' · خلص مؤقتًا، شيله من السلة</span>' : '<span class="mtag">' + esc(m) + '</span>'; }).join(' ');
   }
+  RQ.outModels().then(function (o) { RQ._out = o; if (o.length && items().length) renderItems(); });
   function renderSum() {
     renderModels();
     var sub = subtotal(), sh = shipping(), bd = RQ.bundleDiscount(items(), CFG.bundles), fd = RQ.frameDiscount(items()), ds = bd.discount;
@@ -225,6 +226,8 @@
     e.preventDefault();
     if (busy || !items().length) return;
     var msg = $('formMsg'); msg.style.display = 'none';
+    var outNow = (RQ._out || []).filter(function (m) { return phoneModels().indexOf(m) >= 0; });
+    if (outNow.length) { msg.innerHTML = '⛔ جرابات ' + outNow.map(esc).join(' و ') + ' خلصت مؤقتًا عند المصنع. شيل الجراب ده من السلة أو اختار موديل تاني.'; msg.style.display = 'block'; msg.scrollIntoView({ block: 'center' }); return; }
     if (rc.busy) { msg.textContent = 'استنى ثانية، صورة التحويل لسه بتترفع.'; msg.style.display = 'block'; return; }
     var d = validate(); if (!d) return;
     if (pay === 'cod' && hasCustom()) { msg.textContent = 'المنتجات المخصوصة (صورتك أو اسمك) بتتدفع مقدم. اختار إنستاباي أو فودافون كاش.'; msg.style.display = 'block'; return; }

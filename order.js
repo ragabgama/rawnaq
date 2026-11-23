@@ -73,6 +73,15 @@
   var F = S.firebase;
   var BASE = 'projects/' + F.projectId + '/databases/(default)/documents';
   RQ.BASE = BASE;
+  /* الموديلات الخلصانة عند المورد (بتتقري على طول عشان تبان فورًا من لوحة التحكم) */
+  var outP = null;
+  RQ.outModels = function () {
+    if (!outP) outP = fetch('https://firestore.googleapis.com/v1/' + BASE + '/settings/stock?key=' + F.apiKey, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (d) { var v = d && d.fields && d.fields.out && d.fields.out.arrayValue && d.fields.out.arrayValue.values || []; return v.map(function (x) { return x.stringValue; }).filter(Boolean); })
+      .catch(function () { return []; });
+    return outP;
+  };
   function dec(v) {
     if (!v) return null;
     if ('stringValue' in v) return v.stringValue;
@@ -309,7 +318,8 @@
   RQ.phonePicker = function (box, models, onChange) {
     var esc = RQ.esc, brands = [];
     models.forEach(function (m) { var b = RQ.brandOf(m); if (brands.indexOf(b) < 0) brands.push(b); });
-    var cur = models.indexOf(RQ.myPhone()) >= 0 ? RQ.myPhone() : '';
+    var cur = models.indexOf(RQ.myPhone()) >= 0 ? RQ.myPhone() : '', OUT = [];
+    var isOut = function (m) { return OUT.indexOf(m) >= 0; };
     var brand = cur ? RQ.brandOf(cur) : '';
     box.innerHTML = '<div class="psearch"><input type="search" class="pq" placeholder="🔍 اكتب اسم موبايلك… مثلًا A54 أو iPhone 13" autocomplete="off" aria-label="دوّر على موبايلك"><div class="pres" hidden></div></div>' +
       '<div class="brands"></div><select class="pmodel"></select>' +
@@ -319,7 +329,7 @@
       bb.innerHTML = brands.map(function (b) { return '<button type="button" data-b="' + esc(b) + '" class="' + (b === brand ? 'on' : '') + '">' + esc(b) + '</button>'; }).join('');
       var list = models.filter(function (m) { return RQ.brandOf(m) === brand; });
       sel.innerHTML = '<option value="">' + (brand ? 'اختار الموديل' : 'اختار الماركة الأول') + '</option>' +
-        list.map(function (m) { return '<option' + (m === cur ? ' selected' : '') + '>' + esc(m) + '</option>'; }).join('');
+        list.map(function (m) { return isOut(m) ? '<option value="" disabled>' + esc(m) + ' · خلص مؤقتًا</option>' : '<option value="' + esc(m) + '"' + (m === cur ? ' selected' : '') + '>' + esc(m) + '</option>'; }).join('');
       sel.disabled = !brand;
     }
     bb.addEventListener('click', function (e) {
@@ -344,7 +354,7 @@
       var tail = toks[toks.length - 1];
       hits.sort(function (a, b) { var ea = norm(a).replace(/[^a-z0-9]/g, ''), eb = norm(b).replace(/[^a-z0-9]/g, ''); return (eb.slice(-tail.length) === tail) - (ea.slice(-tail.length) === tail) || ea.length - eb.length; });
       pres.hidden = false;
-      pres.innerHTML = hits.length ? hits.slice(0, 8).map(function (m) { return '<button type="button" data-m="' + esc(m) + '">' + esc(m) + ' <b>✓ متاح</b></button>'; }).join('') +
+      pres.innerHTML = hits.length ? hits.slice(0, 8).map(function (m) { return isOut(m) ? '<button type="button" disabled class="out">' + esc(m) + ' <b>⛔ خلص مؤقتًا</b></button>' : '<button type="button" data-m="' + esc(m) + '">' + esc(m) + ' <b>✓ متاح</b></button>'; }).join('') +
         (hits.length > 8 ? '<small>و' + (hits.length - 8) + ' موديل تاني… كمّل الاسم</small>' : '')
         : '<div class="pnone">مش لاقيين الموديل ده. اكتبه بطريقة تانية، أو <a href="' + RQ.waLink('موبايلي ' + pq.value + '، عندكم جراب ليه؟') + '" target="_blank" rel="noopener">اسألنا على واتساب</a></div>';
     }
@@ -353,11 +363,24 @@
       search(); clearTimeout(missT);
       if (pres.querySelector('.pnone') && pq.value.trim().length >= 3) missT = setTimeout(function () { RQ.trackMissing(pq.value); }, 1800);
     });
-    if (!cur) RQ.detectPhone().then(function (raw) {
+    var outNote = function () {
+      var n = box.querySelector('.pout'); if (n) n.remove();
+      if (!box.dataset.wasOut) return;
+      n = document.createElement('div'); n.className = 'pdetect no pout';
+      n.innerHTML = '⛔ جرابات <b>' + esc(box.dataset.wasOut) + '</b> خلصت مؤقتًا عند المصنع. اختار موديل تاني أو <a href="' + RQ.waLink('عايز جراب لموبايل ' + box.dataset.wasOut + ' لما يرجع') + '" target="_blank" rel="noopener">قولّنا على واتساب نبلغك لما يرجع</a>';
+      box.insertBefore(n, box.firstChild);
+    };
+    RQ.outModels().then(function (o) {
+      OUT = o; if (!OUT.length) return;
+      if (cur && isOut(cur)) { box.dataset.wasOut = cur; cur = ''; if (onChange) onChange(''); outNote(); }
+      paint(); if (pq.value) search();
+    });
+    if (!cur) Promise.all([RQ.detectPhone(), RQ.outModels()]).then(function (x) { var raw = x[0]; OUT = x[1];
       var g = RQ.guessPhone(raw, models); if (!g || cur) return;
+      if (g.model && isOut(g.model)) { g = { name: g.model, model: '', out: true }; }
       var d = document.createElement('div'); d.className = 'pdetect';
       if (g.model) d.innerHTML = '📱 شكلك بتستخدم <b>' + esc(g.model) + '</b> · <span class="ok">✓ متاح</span><button type="button" data-m="' + esc(g.model) + '">أيوة، ده موبايلي</button>';
-      else { d.className += ' no'; d.innerHTML = '📱 شكل موبايلك <b>' + esc(g.name) + '</b>، ولسه مفيش جرابات ليه 😔<small>لو ده مش موبايلك، دوّر على موديلك هنا. ولو عايز جراب لموبايلك <a href="' + RQ.waLink('عايز جراب لموبايل ' + g.name) + '" target="_blank" rel="noopener">قولّنا على واتساب</a></small>'; RQ.trackMissing('auto: ' + g.name); }
+      else { d.className += ' no'; d.innerHTML = '📱 شكل موبايلك <b>' + esc(g.name) + '</b>، ' + (g.out ? 'وجرابات الموديل ده خلصت مؤقتًا 😔' : 'ولسه مفيش جرابات ليه 😔') + '<small>لو ده مش موبايلك، دوّر على موديلك هنا. ولو عايز جراب لموبايلك <a href="' + RQ.waLink('عايز جراب لموبايل ' + g.name) + '" target="_blank" rel="noopener">قولّنا على واتساب</a></small>'; RQ.trackMissing('auto: ' + g.name); }
       box.insertBefore(d, box.firstChild);
       d.addEventListener('click', function (e) {
         var b = e.target.closest('[data-m]'); if (!b) return;

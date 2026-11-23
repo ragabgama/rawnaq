@@ -705,3 +705,5 @@ body.wbig.sb-on .wv.big{padding-bottom:150px}
 .mconf label{display:flex;gap:8px;align-items:center;font-weight:800}
 .mconf input{width:18px;height:18px;margin:0}
 .mconf small{color:var(--muted)}
+.mtag.out{background:#FDE7DF;color:var(--red)}
+.pres button.out{opacity:.6;cursor:not-allowed}.pres button.out b{color:var(--red)}

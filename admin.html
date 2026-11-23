@@ -134,7 +134,7 @@ textarea{min-height:70px;resize:vertical}
 .slides{display:grid;gap:10px}.slide{display:grid;grid-template-columns:240px 1fr;gap:10px;align-items:center;background:#F5F8F7;border-radius:12px;padding:8px}.slide img{width:100%;aspect-ratio:1400/600;object-fit:cover;border-radius:8px;background:#ddd}.sbtns{display:flex;gap:6px;margin-top:6px}@media(max-width:600px){.slide{grid-template-columns:1fr}}
 .offerbox{border:2px solid #FFE2B3;background:#FFFBF3}
 </style>
-<script src="config.js?v=23"></script>
+<script src="config.js?v=24"></script>
 <script src="models.js?v=7"></script>
 </head>
 <body>
@@ -184,6 +184,13 @@ textarea{min-height:70px;resize:vertical}
 <div class="wrap" id="v-products" hidden>
   <div id="plistView">
     <div class="bar"><h2>المنتجات</h2><button class="btn" id="newP">+ منتج جديد</button></div>
+    <div class="box" id="stockBox">
+      <h3>📱 موديلات الموبايل الخلصانة عند المورد</h3>
+      <small>علّم على أي موديل خلص عند Zink، وهيتقفل في الموقع على طول: العميل مش هيقدر يختاره ولا يطلبه، ولو في السلة هيطلبوا منه يغيّره. شيل العلامة لما يرجع.</small>
+      <div id="stockOut" style="margin:8px 0"></div>
+      <input type="search" id="stockQ" placeholder="دوّر على موديل… مثلًا iPhone 17 أو A54" style="width:100%;padding:9px;border:1px solid #ccc;border-radius:10px;font:inherit">
+      <div id="stockList" style="display:grid;gap:4px;margin-top:8px;max-height:260px;overflow:auto"></div>
+    </div>
     <div class="plist" id="plist"></div>
   </div>
 
@@ -414,6 +421,7 @@ function listen() {
     renderProducts(); fillPF(); rebuild();
   }, () => {}));
   subs.push(onSnapshot(collection(db, 'costs'), (snap) => { costs = {}; snap.docs.forEach((s) => { costs[s.id] = s.data(); }); rebuild(); }, () => {}));
+  subs.push(onSnapshot(doc(db, 'settings', 'stock'), (s) => { outModels = s.exists() && Array.isArray(s.data().out) ? s.data().out : []; renderStock(); }, () => {}));
   subs.push(onSnapshot(doc(db, 'settings', 'store'), (s) => { settings = s.exists() ? s.data() : {}; fillSettings(); rebuild(); }, () => {}));
 }
 
@@ -841,6 +849,23 @@ let bannerImg = null, settingsDirty = false, slides = [];
 const ship0 = () => Object.assign({}, S.shipping, settings.shipping || {});
 $('shipg').innerHTML = S.governorates.map((g) => '<label>' + esc(g) + '<input type="number" min="0" data-g="' + esc(g) + '"></label>').join('');
 $('v-settings').addEventListener('input', () => { settingsDirty = true; });
+/* ---------- موديلات خلصانة عند المورد ---------- */
+let outModels = [];
+function renderStock() {
+  const q = ($('stockQ').value || '').toLowerCase().replace(/\s+/g, '');
+  $('stockOut').innerHTML = outModels.length ? '<b>متقفل دلوقتي:</b> ' + outModels.map((m) => '<span class="chip bad" style="margin:2px">' + esc(m) + ' <a href="#" data-back="' + esc(m) + '">رجّعه ✓</a></span>').join('') : '<span class="chip pr">كل الموديلات متاحة ✓</span>';
+  const all = window.ZINK_MODELS || [];
+  const list = q ? all.filter((m) => m.toLowerCase().replace(/\s+/g, '').includes(q)) : [];
+  $('stockList').innerHTML = q ? (list.slice(0, 30).map((m) => '<label style="display:flex;gap:8px;align-items:center;padding:6px 8px;background:#F5F8F7;border-radius:8px"><input type="checkbox" data-m="' + esc(m) + '"' + (outModels.includes(m) ? ' checked' : '') + '> ' + esc(m) + (outModels.includes(m) ? ' <b style="color:var(--red)">خلصان</b>' : '') + '</label>').join('') || '<small>مفيش موديل بالاسم ده</small>') : '';
+}
+async function saveStock(next) {
+  try { await setDoc(doc(db, 'settings', 'stock'), { out: next, updatedAt: serverTimestamp() }); toast('اتحفظ ✓ الموقع اتحدّث'); }
+  catch (e) { toast('ماتحفظش: ' + (e.code || e.message)); renderStock(); }
+}
+$('stockQ').addEventListener('input', renderStock);
+$('stockList').addEventListener('change', (e) => { const m = e.target.dataset.m; if (!m) return; saveStock(e.target.checked ? [...new Set([...outModels, m])] : outModels.filter((x) => x !== m)); });
+$('stockOut').addEventListener('click', (e) => { const a = e.target.closest('[data-back]'); if (!a) return; e.preventDefault(); saveStock(outModels.filter((x) => x !== a.dataset.back)); });
+
 function fillSettings() {
   if (settingsDirty) return;
   const s = settings;
