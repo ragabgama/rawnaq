@@ -80,7 +80,7 @@
     // خانة العربون
     var bigOrCustom = hasCustom() || sub - ds > BIG, shipTxt = gov.value ? fmt(shipping()) + ' ج' : 'مصاريف الشحن';
     var depTot = sub - ds + sh + (CFG.codFee || 0);
-    $('depTitle').textContent = bigOrCustom ? 'ادفع نص المبلغ دلوقتي، والباقي عند الاستلام' : 'ادفع الشحن بس دلوقتي، والباقي عند الاستلام';
+    $('depTitle').textContent = bigOrCustom ? 'عربون نص المبلغ دلوقتي، والباقي عند الاستلام' : 'عربون الشحن بس دلوقتي، والباقي عند الاستلام';
     $('depNote').textContent = bigOrCustom ? 'تحوّل ' + fmt(Math.ceil(depTot / 2)) + ' ج، والباقي ' + fmt(depTot - Math.ceil(depTot / 2)) + ' ج للمندوب' + (CFG.codFee ? ' (شامل ' + fmt(CFG.codFee) + ' ج رسوم تحصيل)' : '')
       : (gov.value ? (freeShip() ? 'الشحن عليك مجاني، تدفع كله للمندوب' : 'تحوّل ' + shipTxt + ' بس، والباقي ' + fmt(sub - ds + (CFG.codFee || 0)) + ' ج للمندوب' + (CFG.codFee ? ' (شامل ' + fmt(CFG.codFee) + ' ج رسوم تحصيل)' : '')) : 'اختار المحافظة عشان نحسبلك مصاريف الشحن');
     var fullTot = sub - ds - Math.round((sub - ds) * 0.05) + sh;
@@ -93,7 +93,7 @@
     $('prepayBox').hidden = !(dep > 0);
     var num = pay === 'instapay' ? CFG.instapay : CFG.vodafone;
     $('ppAmt').textContent = fmt(dep) + ' ج';
-    $('ppWhy').textContent = k === 'full' ? 'حوّل المبلغ كله وارفع صورة التحويل، وبعدها أكّد الطلب.' : k === 'half' ? 'حوّل نص المبلغ وارفع صورة التحويل، والباقي ' + fmt(later) + ' ج تدفعه للمندوب.' : 'حوّل مصاريف الشحن وارفع صورة التحويل، والباقي ' + fmt(later) + ' ج تدفعه للمندوب.';
+    $('ppWhy').textContent = k === 'full' ? 'حوّل المبلغ كله وارفع صورة التحويل، وبعدها أكّد الطلب.' : k === 'half' ? 'حوّل العربون (نص المبلغ) وارفع صورة التحويل، والباقي ' + fmt(later) + ' ج تدفعه للمندوب.' : 'حوّل العربون (مصاريف الشحن) وارفع صورة التحويل، والباقي ' + fmt(later) + ' ج تدفعه للمندوب.';
     $('ppLabel').textContent = pay === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
     $('ppNum').textContent = num || '';
     var ipl = pay === 'instapay' && CFG.instapayLink;
