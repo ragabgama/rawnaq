@@ -679,3 +679,17 @@ body.wbig.sb-on .wv.big{padding-bottom:150px}
 .f.bad .rcpt{border-color:var(--red)}
 #rcptPrev{display:block;max-height:140px;margin:8px auto 0;border-radius:10px}
 .paystep .num{flex-wrap:wrap}.paystep .num span{min-width:0;overflow-wrap:anywhere}
+/* البحث عن موديل الموبايل */
+.psearch{position:relative;margin-bottom:10px}
+.pq{width:100%;border:2px solid var(--pet2);border-radius:12px;padding:11px 12px;font:inherit;font-weight:700;background:#fff}
+.pres{display:grid;gap:6px;margin-top:6px}
+.pres button{display:flex;justify-content:space-between;align-items:center;border:2px solid var(--card);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;font-weight:800;color:var(--ink);cursor:pointer;text-align:start}
+.pres button b{color:var(--green);font-size:12.5px}
+.pres button:hover{border-color:var(--pet)}
+.pres small,.pnone{color:var(--muted);font-size:13px;padding:4px 2px}
+.pnone a{color:var(--pet);font-weight:800}
+.rcpt.warn{border-style:solid;border-color:#D97706;color:#92400E;background:#FFF7E6}
+.rwarn{background:#FFF1EC;border:2px solid #F6C9B5;border-radius:12px;padding:10px 12px;margin:8px 0;color:#7C2D12;display:grid;gap:6px;font-size:14px}
+.rwarn.bad{border-color:var(--red)}
+.rwarn label{display:flex;gap:8px;align-items:center;font-weight:800}
+.rwarn input{width:18px;height:18px;margin:0}

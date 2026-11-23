@@ -272,7 +272,8 @@
     models.forEach(function (m) { var b = RQ.brandOf(m); if (brands.indexOf(b) < 0) brands.push(b); });
     var cur = models.indexOf(RQ.myPhone()) >= 0 ? RQ.myPhone() : '';
     var brand = cur ? RQ.brandOf(cur) : '';
-    box.innerHTML = '<div class="brands"></div><select class="pmodel"></select>' +
+    box.innerHTML = '<div class="psearch"><input type="search" class="pq" placeholder="🔍 اكتب اسم موبايلك… مثلًا A54 أو iPhone 13" autocomplete="off" aria-label="دوّر على موبايلك"><div class="pres" hidden></div></div>' +
+      '<div class="brands"></div><select class="pmodel"></select>' +
       (cur ? '' : '') + '<div class="phint">مش متأكد من الموديل؟ افتح الإعدادات ← حول الهاتف، والاسم مكتوب هناك.</div>';
     var bb = box.querySelector('.brands'), sel = box.querySelector('.pmodel');
     function paint() {
@@ -287,6 +288,33 @@
       brand = b.dataset.b; cur = ''; paint(); sel.focus(); if (onChange) onChange('');
     });
     sel.addEventListener('change', function () { cur = sel.value; if (cur) RQ.myPhone(cur); if (onChange) onChange(cur); });
+    /* البحث: العميل يكتب اسم موبايله ويطلعله على طول من كل الماركات */
+    var pq = box.querySelector('.pq'), pres = box.querySelector('.pres');
+    var AR = [[/سامسو?نج|سامسونغ|جالكسي|جلاكسي|galaxy/g, 'samsung'], [/آ?ا?يفون|أيفون|ابل|آبل/g, 'iphone'], [/شاومي|شياومي/g, 'xiaomi'], [/ريدمي|ردمي/g, 'redmi'],
+      [/اوبو|أوبو/g, 'oppo'], [/ريلمي|ريل مي/g, 'realme'], [/هواوي/g, 'huawei'], [/هونر|هونور|اونر/g, 'honor'], [/انفنكس|انفينكس|إنفنكس/g, 'infinix'],
+      [/تكنو|تيكنو/g, 'tecno'], [/فيفو/g, 'vivo'], [/برو/g, 'pro'], [/ماكس/g, 'max'], [/بلس/g, 'plus'], [/ميني/g, 'mini'], [/نوت/g, 'note'], [/الترا|ألترا/g, 'ultra'],
+      [/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }]];
+    var norm = function (t) { t = String(t).toLowerCase(); AR.forEach(function (r) { t = t.replace(r[0], r[1]); }); return t.replace(/galaxy/g, 'samsung'); };
+    var flat = models.map(function (m) { return [m, norm(m).replace(/[^a-z0-9]/g, '')]; });
+    function search() {
+      var q = norm(pq.value).replace(/[^a-z0-9 ]/g, ' ').trim();
+      if (!q) { pres.hidden = true; return; }
+      var toks = q.split(/\s+/).filter(Boolean);
+      var hits = flat.filter(function (x) { return toks.every(function (t) { return x[1].indexOf(t) >= 0; }); }).map(function (x) { return x[0]; });
+      // الأقرب الأول: اللي بيخلص بالكلام اللي اتكتب
+      var tail = toks[toks.length - 1];
+      hits.sort(function (a, b) { var ea = norm(a).replace(/[^a-z0-9]/g, ''), eb = norm(b).replace(/[^a-z0-9]/g, ''); return (eb.slice(-tail.length) === tail) - (ea.slice(-tail.length) === tail) || ea.length - eb.length; });
+      pres.hidden = false;
+      pres.innerHTML = hits.length ? hits.slice(0, 8).map(function (m) { return '<button type="button" data-m="' + esc(m) + '">' + esc(m) + ' <b>✓ متاح</b></button>'; }).join('') +
+        (hits.length > 8 ? '<small>و' + (hits.length - 8) + ' موديل تاني… كمّل الاسم</small>' : '')
+        : '<div class="pnone">مش لاقيين الموديل ده. اكتبه بطريقة تانية، أو <a href="' + RQ.waLink('موبايلي ' + pq.value + '، عندكم جراب ليه؟') + '" target="_blank" rel="noopener">اسألنا على واتساب</a></div>';
+    }
+    pq.addEventListener('input', search);
+    pres.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-m]'); if (!b) return;
+      cur = b.dataset.m; brand = RQ.brandOf(cur); RQ.myPhone(cur); paint();
+      pq.value = ''; pres.hidden = true; if (onChange) onChange(cur);
+    });
     paint();
     return function () { return cur; };
   };

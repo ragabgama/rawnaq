@@ -134,7 +134,7 @@ textarea{min-height:70px;resize:vertical}
 .slides{display:grid;gap:10px}.slide{display:grid;grid-template-columns:240px 1fr;gap:10px;align-items:center;background:#F5F8F7;border-radius:12px;padding:8px}.slide img{width:100%;aspect-ratio:1400/600;object-fit:cover;border-radius:8px;background:#ddd}.sbtns{display:flex;gap:6px;margin-top:6px}@media(max-width:600px){.slide{grid-template-columns:1fr}}
 .offerbox{border:2px solid #FFE2B3;background:#FFFBF3}
 </style>
-<script src="config.js?v=21"></script>
+<script src="config.js?v=22"></script>
 <script src="models.js?v=7"></script>
 </head>
 <body>
@@ -551,6 +551,9 @@ function renderList(list) {
       (i.uploads && i.uploads.length ? '<div class="ups">' + i.uploads.map((u, k) => '<a href="#" data-up="' + esc(u) + '" data-nm="' + esc(o.id + '-' + (k + 1)) + '" title="دوس عشان تحمّل الصورة"><img data-upimg="' + esc(u) + '" alt="صورة العميل"><span>⬇️ تحميل</span></a>').join('') + '</div>' : '') + '</div>').join('') + '</div>' +
     '<div class="ad"><b dir="ltr">' + esc(o.phone) + '</b> · ' + esc(o.gov) + '<br>' + esc(o.address) + (o.custNote ? '<br><small>📝 ' + esc(o.custNote) + '</small>' : '') + '</div>' +
     (ppOf(o) ? '<div class="ups" style="margin:6px 0"><span class="chip pay">💳 ' + (ppOf(o).plan === 'half' ? 'دفع نص المبلغ' : 'دفع المبلغ كامل') + ' مقدم: <b>' + fmt(ppOf(o).paid) + ' ج</b> · يتحصّل عند الاستلام: <b>' + fmt(collectAmount(o)) + ' ج</b></span>' +
+      (ppOf(o).check === 'ok' ? '<span class="chip pr">✓ المبلغ ظاهر في الإيصال</span>' : '<span class="chip bad">⚠️ المبلغ مش ظاهر في الإيصال، راجعه كويس</span>') +
+      (ppOf(o).sender ? '<span class="chip">حوّل من: <b>' + esc(ppOf(o).sender) + '</b>' + (ppOf(o).ref ? ' · عملية ' + esc(ppOf(o).ref) : '') + '</span>' : '') +
+      '<span class="chip wn">اتأكد إن التحويل نزل في حسابك قبل ما تبعته للمورد</span>' +
       (ppOf(o).receipt ? '<a href="#" data-up="' + esc(ppOf(o).receipt) + '" data-nm="' + esc(o.id + '-receipt') + '" title="صورة التحويل"><img data-upimg="' + esc(ppOf(o).receipt) + '" alt="صورة التحويل"><span>🧾 صورة التحويل</span></a>' : '') + '</div>' : '') +
     '<div class="money"><span class="chip pay">' + esc(PAY[o.pay] || o.pay) + '</span><span class="chip">الإجمالي <b>' + fmt(o.total) + ' ج</b></span><span class="chip">شحن ' + fmt(o.shipping) + '</span>' + (o.discount ? '<span class="chip pr">🎁 خصم عرض ' + fmt(o.discount) + '</span>' : '') +
     (o.legacy ? '<span class="chip">سعر القطعة في تاجر: <b>' + o.perPiece + '</b></span>' : '') +

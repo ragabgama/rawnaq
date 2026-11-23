@@ -1,7 +1,7 @@
 (function () {
   var $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
   var CFG = RQ.cfg(RQ.store.get('rq_settings'));
-  var pay = '', plan = 'full', rc = { id: '', busy: false };
+  var pay = '', plan = 'full', rc = { id: '', busy: false, nums: null };
 
   /* المحافظات */
   var gov = $('gov');
@@ -80,6 +80,7 @@
       var ipl = pay === 'instapay' && CFG.instapayLink;
       $('ppIpLink').hidden = !ipl; if (ipl) $('ppIpLink').href = CFG.instapayLink;
     }
+    if (typeof paintRcpt === 'function') paintRcpt();
     $('submitBtn').textContent = isPre() ? 'حوّلت ' + fmt(dep) + ' ج · أكّد الطلب' : 'تأكيد الطلب · ' + fmt(tot) + ' ج';
   }
   function setPay(p, quiet) {
@@ -97,19 +98,45 @@
     (navigator.clipboard ? navigator.clipboard.writeText(num) : Promise.reject()).then(function () { b.textContent = 'اتنسخ ✓'; }, function () { prompt('انسخ الرقم:', num); });
   });
   /* صورة التحويل: بتترفع أول ما العميل يختارها */
+  /* قراية الأرقام من صورة التحويل (بتتحمّل بس لما العميل يرفع صورة) */
+  var ocrLib = null;
+  function readNums(dataUrl) {
+    if (!ocrLib) ocrLib = new Promise(function (res, rej) {
+      var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+      sc.onload = function () { res(window.Tesseract); }; sc.onerror = rej; document.head.appendChild(sc);
+    });
+    var job = ocrLib.then(function (T) { return T.recognize(dataUrl, 'eng'); }).then(function (r) {
+      var t = String(r && r.data && r.data.text || '').replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }).replace(/(\d),(\d{3})/g, '$1$2');
+      return (t.match(/\d+(?:\.\d{1,2})?/g) || []).map(function (n) { return Math.round(Number(n)); });
+    });
+    var timeout = new Promise(function (res) { setTimeout(function () { res(null); }, 30000); });
+    return Promise.race([job, timeout]).catch(function () { return null; });
+  }
+  var depNow = function () { var t = subtotal() - discount() + shipping() + codFee(); return isHalf() ? Math.ceil(t / 2) : t; };
+  // ok = المبلغ ظاهر في الصورة، unclear = مش ظاهر، unknown = ماعرفناش نقرا الصورة
+  var rcptState = function () { if (!rc.id) return ''; if (!rc.nums) return 'unknown'; return rc.nums.indexOf(depNow()) >= 0 ? 'ok' : 'unclear'; };
+  function paintRcpt() {
+    var st = rcptState(), txt = $('rcptTxt'), lab = document.querySelector('.rcpt');
+    if (!rc.id || rc.busy) { $('rcptWarn').hidden = true; return; }
+    lab.classList.toggle('done', st !== 'unclear'); lab.classList.toggle('warn', st === 'unclear');
+    txt.textContent = st === 'ok' ? '✓ صورة التحويل اترفعت ولقينا فيها مبلغ ' + fmt(depNow()) + ' ج' : st === 'unclear' ? '⚠️ صورة التحويل مش واضحة (دوس عشان تغيّرها)' : '✓ صورة التحويل اترفعت (دوس لو عايز تغيّرها)';
+    $('rcptWarn').hidden = st !== 'unclear'; $('rwAmt').textContent = fmt(depNow()) + ' ج';
+  }
   $('rcpt').addEventListener('change', function () {
     var f = this.files && this.files[0]; if (!f) return;
     var lab = document.querySelector('.rcpt'), txt = $('rcptTxt');
-    rc.id = ''; rc.busy = true; lab.classList.remove('done'); txt.textContent = '⏳ بنرفع الصورة…'; $('f-rcpt').classList.remove('bad');
-    RQ.compress(f, 1400, 900000).then(function (r) {
+    rc.id = ''; rc.nums = null; rc.busy = true; lab.classList.remove('done', 'warn'); $('rcptWarn').hidden = true; $('rcptSure').checked = false;
+    txt.textContent = '⏳ بنرفع الصورة ونراجعها…'; $('f-rcpt').classList.remove('bad');
+    RQ.compress(f, 1600, 900000).then(function (r) {
       $('rcptPrev').src = r.data; $('rcptPrev').hidden = false;
-      return RQ.uploadPhoto(r.data);
-    }).then(function (id) {
-      rc.id = id; rc.busy = false; lab.classList.add('done'); txt.textContent = '✓ صورة التحويل اترفعت (دوس لو عايز تغيّرها)';
+      return Promise.all([RQ.uploadPhoto(r.data), readNums(r.data)]);
+    }).then(function (x) {
+      rc.id = x[0]; rc.nums = x[1]; rc.busy = false; paintRcpt();
     }).catch(function () {
       rc.busy = false; txt.textContent = '⚠️ الصورة ماترفعتش، جرّب تاني'; $('f-rcpt').classList.add('bad');
     });
   });
+  $('rcptSure').addEventListener('change', function () { $('rcptWarn').classList.remove('bad'); });
   gov.addEventListener('change', function () { RQ.store.set('rq_gov', gov.value); renderSum(); });
 
   $('items').addEventListener('click', function (e) {
@@ -162,10 +189,13 @@
     });
     if (!pay) { ok = false; $('payErr').style.display = 'block'; }
     if (isPre() && !rc.id) { ok = false; $('f-rcpt').classList.add('bad'); if (!first) $('prepayBox').scrollIntoView({ block: 'center' }); }
+    else if (isPre() && rcptState() === 'unclear' && !$('rcptSure').checked) { ok = false; $('rcptWarn').classList.add('bad'); if (!first) $('rcptWarn').scrollIntoView({ block: 'center' }); }
+    var sender = $('sender').value.trim();
+    if (isPre() && sender.length < 3) { ok = false; $('f-sender').classList.add('bad'); if (!first && rc.id) $('sender').focus(); }
     if (first) $(first).focus();
     return ok ? { name: name, phone: phone, gov: gov.value, address: address } : null;
   }
-  ['name', 'phone', 'gov', 'address'].forEach(function (id) { $(id).addEventListener('input', function () { $('f-' + id).classList.remove('bad'); }); });
+  ['name', 'phone', 'gov', 'address', 'sender'].forEach(function (id) { $(id).addEventListener('input', function () { $('f-' + id).classList.remove('bad'); }); });
 
   var cairoDay = function () {
     var d = new Date();
@@ -200,9 +230,10 @@
     });
     var paid = isPre() ? (isHalf() ? Math.ceil(tot / 2) : tot) : 0;
     // بيانات الدفع المقدم بتتسجل مع أول منتج (قواعد قاعدة البيانات مابتقبلش حقول جديدة للطلب)
-    if (paid) lineItems[0].pp = { paid: paid, plan: isHalf() ? 'half' : 'full', receipt: rc.id };
-    var payTag = paid ? (isHalf() ? '💳 دفع نص المبلغ مقدم ' + paid + ' ج والباقي ' + (tot - paid) + ' ج عند الاستلام' : '💳 دفع المبلغ كامل مقدم ' + paid + ' ج') + ' (صورة التحويل مرفوعة)' : '';
-    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, codFee: cf, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status, paid: paid, plan: paid ? lineItems[0].pp.plan : '', receipt: rc.id };
+    var rst = rcptState(), snd = $('sender').value.trim().slice(0, 40), ref = $('ref').value.trim().slice(0, 30);
+    if (paid) lineItems[0].pp = { paid: paid, plan: isHalf() ? 'half' : 'full', receipt: rc.id, check: rst, sender: snd, ref: ref };
+    var payTag = paid ? (isHalf() ? '💳 دفع نص المبلغ مقدم ' + paid + ' ج والباقي ' + (tot - paid) + ' ج عند الاستلام' : '💳 دفع المبلغ كامل مقدم ' + paid + ' ج') + (rst === 'ok' ? ' ✓ المبلغ ظاهر في الإيصال' : ' ⚠️ راجع الإيصال') + ' | من: ' + snd + (ref ? ' | عملية: ' + ref : '') : '';
+    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, codFee: cf, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status, paid: paid, plan: paid ? lineItems[0].pp.plan : '', receipt: rc.id, rcheck: rst };
 
     function done(state) {
       order.state = state;
