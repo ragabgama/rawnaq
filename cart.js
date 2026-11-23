@@ -9,6 +9,8 @@
   var lastGov = RQ.store.get('rq_gov'); if (lastGov && STORE.governorates.indexOf(lastGov) >= 0) gov.value = lastGov;
 
   var items = function () { return RQ.cart.all(); };
+  // الجرابات اللي ليها موديل موبايل
+  var phoneModels = function () { var o = []; items().forEach(function (i) { if (i.choice && /جراب/.test(i.cat || i.name || '') && o.indexOf(i.choice) < 0) o.push(i.choice); }); return o; };
   var hasCustom = function () { return items().some(function (i) { return !!i.custom || !!(i.uploads && i.uploads.length); }); };
   var subtotal = function () { return items().reduce(function (a, i) { return a + i.price * i.qty; }, 0); };
   var caseDisc = function () { return RQ.bundleDiscount(items(), CFG.bundles).discount; };
@@ -28,7 +30,8 @@
     $('items').innerHTML = c.map(function (i, k) {
       return '<div class="ci" data-k="' + k + '"><img alt="" data-src="' + esc(i.img) + '">' +
         '<div><div class="n">' + esc(i.name) + '</div>' +
-        '<div class="m">' + [i.variant, i.choice].filter(Boolean).map(esc).join(' · ') + '</div>' +
+        '<div class="m">' + [i.variant, i.choice && /جراب/.test(i.cat || i.name || '') ? '' : i.choice].filter(Boolean).map(esc).join(' · ') + '</div>' +
+        (i.choice && /جراب/.test(i.cat || i.name || '') ? '<span class="mtag">📱 لموبايل ' + esc(i.choice) + '</span>' : '') +
         (i.custom ? '<span class="c">' + esc(i.custom) + '</span>' : '') +
         (i.thumbs && i.thumbs.length ? '<div class="ups">' + i.thumbs.map(function (t) { return '<img alt="" src="' + esc(t) + '">'; }).join('') + '<span class="c">صورتك ✓</span></div>' : '') + '</div>' +
         '<div class="r"><b>' + fmt(i.price * i.qty) + ' ج</b>' +
@@ -38,7 +41,12 @@
     [].forEach.call($('items').querySelectorAll('img[data-src]'), function (im) { if (im.dataset.src) RQ.setImg(im, im.dataset.src); });
     renderSum();
   }
+  function renderModels() {
+    var ms = phoneModels(); $('modelBox').hidden = !ms.length;
+    $('modelList').innerHTML = ms.map(function (m) { return '<span class="mtag">' + esc(m) + '</span>'; }).join(' ');
+  }
   function renderSum() {
+    renderModels();
     var sub = subtotal(), sh = shipping(), bd = RQ.bundleDiscount(items(), CFG.bundles), fd = RQ.frameDiscount(items()), ds = bd.discount;
     $('sSub').textContent = fmt(sub) + ' ج';
     $('sDiscRow').hidden = !ds; $('sDisc').textContent = '− ' + fmt(ds) + ' ج';
@@ -136,6 +144,7 @@
       rc.busy = false; txt.textContent = '⚠️ الصورة ماترفعتش، جرّب تاني'; $('f-rcpt').classList.add('bad');
     });
   });
+  $('modelOk').addEventListener('change', function () { $('modelBox').classList.remove('bad'); });
   $('rcptSure').addEventListener('change', function () { $('rcptWarn').classList.remove('bad'); });
   gov.addEventListener('change', function () { RQ.store.set('rq_gov', gov.value); renderSum(); });
 
@@ -187,6 +196,7 @@
      ['gov', !!gov.value], ['address', address.length >= 10]].forEach(function (c) {
       if (!setBad(c[0], !c[1])) { ok = false; first = first || c[0]; }
     });
+    if (phoneModels().length && !$('modelOk').checked) { ok = false; $('modelBox').classList.add('bad'); if (!first) $('modelBox').scrollIntoView({ block: 'center' }); }
     if (!pay) { ok = false; $('payErr').style.display = 'block'; }
     if (isPre() && !rc.id) { ok = false; $('f-rcpt').classList.add('bad'); if (!first) $('prepayBox').scrollIntoView({ block: 'center' }); }
     else if (isPre() && rcptState() === 'unclear' && !$('rcptSure').checked) { ok = false; $('rcptWarn').classList.add('bad'); if (!first) $('rcptWarn').scrollIntoView({ block: 'center' }); }

@@ -265,6 +265,45 @@
     var n = list.filter(function (m) { return RQ.brandOf(m) !== 'أخرى'; }).length;
     return n / list.length > 0.6;
   };
+  /* ---------- معرفة موديل الموبايل من المتصفح (أندرويد بس) ---------- */
+  var SAM_S = { G960: 'S9', G965: 'S9 Plus', G970: 'S10e', G973: 'S10', G975: 'S10 Plus', G770: 'S10 Lite', G980: 'S20', G981: 'S20', G985: 'S20 Plus', G986: 'S20 Plus',
+    G988: 'S20 Ultra', G780: 'S20 FE', G781: 'S20 FE', G990: 'S21 FE', G991: 'S21', G996: 'S21 Plus', G998: 'S21 Ultra', S901: 'S22', S906: 'S22 Plus', S908: 'S22 Ultra',
+    S911: 'S23', S916: 'S23 Plus', S918: 'S23 Ultra', S711: 'S23 FE', S921: 'S24', S926: 'S24 Plus', S928: 'S24 Ultra', S721: 'S24 FE', S931: 'S25', S936: 'S25 Plus', S938: 'S25 Ultra',
+    N910: 'Note 4', N960: 'Note 9', N970: 'Note 10', N975: 'Note 10 Plus', N770: 'Note 10 Lite', N980: 'Note 20', N981: 'Note 20', N985: 'Note 20 Ultra', N986: 'Note 20 Ultra' };
+  var altsOf = function (m) { return String(m).split('/').map(function (a, k) { a = a.trim(); return (k && !/^(samsung|oppo|redmi|xiaomi|realme|huawei|honor)/i.test(a) ? m.split(' ')[0] + ' ' : '') + a; }); };
+  // بيرجّع { name: الاسم اللي هنقوله للعميل, model: الموديل من القايمة لو متاح }
+  RQ.guessPhone = function (raw, models) {
+    raw = String(raw || '').trim(); if (!raw || raw === 'K') return null;
+    var norm = function (t) { return String(t).toLowerCase().replace(/[^a-z0-9]/g, ''); };
+    var find = function (names) {
+      for (var i = 0; i < names.length; i++) for (var j = 0; j < models.length; j++)
+        if (altsOf(models[j]).some(function (a) { return norm(a) === norm(names[i]); })) return models[j];
+      return '';
+    };
+    var m = raw.toUpperCase().match(/SM-([A-Z])(\d{2})(\d)/);
+    if (m) {
+      var code = m[1] + m[2] + m[3], base;
+      if (SAM_S[code]) base = SAM_S[code];
+      else if (m[1] === 'A' || m[1] === 'M') base = m[1] + m[2];
+      else return { name: 'Samsung ' + raw.replace(/^SM-/i, ''), model: '' };
+      var tries = SAM_S[code] ? [base] : m[3] === '6' ? [base + ' 5G', base] : m[3] === '7' ? [base + 's', base] : [base + ' 4G', base];
+      return { name: 'Samsung ' + tries[tries.length > 1 && m[3] === '7' ? 0 : tries.length - 1], model: find(tries.map(function (t) { return 'Samsung ' + t; })) };
+    }
+    if (/infinix|tecno|itel|vivo|nokia|motorola|moto |lenovo|zte|google|pixel|oneplus/i.test(raw)) return { name: raw, model: '' };
+    var direct = find([raw]); if (direct) return { name: raw, model: direct };
+    return null;
+  };
+  RQ.detectPhone = function () {
+    var uad = navigator.userAgentData;
+    var fromUA = function () { var x = navigator.userAgent.match(/Android[^;)]*;\s*([^;)]+?)(?:\s+Build|\))/); return x ? x[1].trim() : ''; };
+    if (uad && uad.getHighEntropyValues) return uad.getHighEntropyValues(['model']).then(function (v) { return v.model || fromUA(); }).catch(fromUA);
+    return Promise.resolve(fromUA());
+  };
+  RQ.miss = {};
+  RQ.trackMissing = function (q) {
+    q = String(q || '').trim().slice(0, 60); if (!q || RQ.miss[q]) return; RQ.miss[q] = 1;
+    try { if (window.fbq) fbq('trackCustom', 'ModelNotFound', { search_string: q }); } catch (e) {}
+  };
   RQ.myPhone = function (v) { if (v !== undefined) RQ.store.set('rq_phone', v); return RQ.store.get('rq_phone') || ''; };
   // بيرسم أزرار الماركات + قايمة الموديلات، وبيرجّع function تجيب الاختيار
   RQ.phonePicker = function (box, models, onChange) {
@@ -309,7 +348,22 @@
         (hits.length > 8 ? '<small>و' + (hits.length - 8) + ' موديل تاني… كمّل الاسم</small>' : '')
         : '<div class="pnone">مش لاقيين الموديل ده. اكتبه بطريقة تانية، أو <a href="' + RQ.waLink('موبايلي ' + pq.value + '، عندكم جراب ليه؟') + '" target="_blank" rel="noopener">اسألنا على واتساب</a></div>';
     }
-    pq.addEventListener('input', search);
+    var missT = null;
+    pq.addEventListener('input', function () {
+      search(); clearTimeout(missT);
+      if (pres.querySelector('.pnone') && pq.value.trim().length >= 3) missT = setTimeout(function () { RQ.trackMissing(pq.value); }, 1800);
+    });
+    if (!cur) RQ.detectPhone().then(function (raw) {
+      var g = RQ.guessPhone(raw, models); if (!g || cur) return;
+      var d = document.createElement('div'); d.className = 'pdetect';
+      if (g.model) d.innerHTML = '📱 شكلك بتستخدم <b>' + esc(g.model) + '</b> · <span class="ok">✓ متاح</span><button type="button" data-m="' + esc(g.model) + '">أيوة، ده موبايلي</button>';
+      else { d.className += ' no'; d.innerHTML = '📱 شكل موبايلك <b>' + esc(g.name) + '</b>، ولسه مفيش جرابات ليه 😔<small>لو ده مش موبايلك، دوّر على موديلك هنا. ولو عايز جراب لموبايلك <a href="' + RQ.waLink('عايز جراب لموبايل ' + g.name) + '" target="_blank" rel="noopener">قولّنا على واتساب</a></small>'; RQ.trackMissing('auto: ' + g.name); }
+      box.insertBefore(d, box.firstChild);
+      d.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-m]'); if (!b) return;
+        cur = b.dataset.m; brand = RQ.brandOf(cur); RQ.myPhone(cur); paint(); d.remove(); if (onChange) onChange(cur);
+      });
+    });
     pres.addEventListener('click', function (e) {
       var b = e.target.closest('[data-m]'); if (!b) return;
       cur = b.dataset.m; brand = RQ.brandOf(cur); RQ.myPhone(cur); paint();
