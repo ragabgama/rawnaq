@@ -6,8 +6,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="pages.css?v=20">
-<script src="config.js?v=20"></script>
+<link rel="stylesheet" href="pages.css?v=21">
+<script src="config.js?v=21"></script>
 <meta name="robots" content="noindex">
 <title>شكرًا لطلبك | رونق</title>
 <style>
@@ -48,7 +48,7 @@
 <p style="text-align:center;margin-top:16px"><a href="./" class="muted">رجوع للرئيسية</a></p>
 </div></main>
 <footer><div class="wrap"><nav><a href="shipping.html">الشحن والاستبدال</a><a href="contact.html">تواصل معنا</a></nav><div>© <span id="yr"></span> رونق · رجّع لحاجتك رونقها</div></div></footer>
-<script src="order.js?v=20"></script>
+<script src="order.js?v=21"></script>
 <script>
 (function(){
   var o = RQ.store.get('rq_order'), $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
@@ -68,6 +68,7 @@
     (o.codFee ? '<div class="row"><span>رسوم الدفع عند الاستلام</span><b>' + fmt(o.codFee) + ' ج</b></div>' : '') +
     '<div class="row"><span>الإجمالي</span><b>' + fmt(o.total || o.price) + ' ج</b></div>' +
     '<div class="row"><span>الدفع</span><b>' + esc(PAY[o.pay] || PAY.cod) + '</b></div>' +
+    (o.paid ? '<div class="row"><span>اتحوّل مقدم</span><b>' + fmt(o.paid) + ' ج</b></div>' + (o.total - o.paid > 0 ? '<div class="row"><span>الباقي عند الاستلام</span><b>' + fmt(o.total - o.paid) + ' ج</b></div>' : '') : '') +
     '<div class="row"><span>الموبايل</span><b dir="ltr">' + esc(o.phone) + '</b></div>' +
     '<div class="row"><span>العنوان</span><b>' + esc(o.gov + '، ' + o.address) + '</b></div>';
 
@@ -76,7 +77,9 @@
   $('waSend').href = waLink(txt);
   if (items.some(function (i) { return i.custom || (i.uploads && i.uploads.length); })) $('customNote').hidden = false;
 
-  if (o.pay === 'instapay' || o.pay === 'vodafone') {
+  if (o.receipt) {
+    $('okMsg').textContent = '✓ صورة التحويل وصلتنا. هنراجعها ونكلمك نأكد الطلب ونبدأ نجهّزه.';
+  } else if (o.pay === 'instapay' || o.pay === 'vodafone') {
     var num = o.pay === 'instapay' ? CFG.instapay : CFG.vodafone;
     $('payBox').hidden = false; $('okMsg').textContent = 'أول ما التحويل يوصل، هنأكد معاك ونبدأ نجهّز الطلب';
     $('payAmt').textContent = fmt(o.total) + ' ج';
@@ -100,7 +103,10 @@
 
   var fired = RQ.store.get('rq_fired') || [];
   if (fired.indexOf(o.id) < 0) {
-    track('Purchase', { value: o.total || o.price, currency: 'EGP', num_items: items.reduce(function (a, i) { return a + i.qty; }, 0), content_ids: items.map(function (i) { return i.pid || ''; }), content_type: 'product' }, o.id);
+    // «شراء» بيتبعت لفيسبوك بس للدفع عند الاستلام أو لما العميل يرفع صورة التحويل.
+    // الطلب اللي لسه مادفعش بيتبعت «عميل مهتم» عشان الإعلانات ماتتعلمش من طلبات وهمية.
+    if (o.pay !== 'cod' && !o.receipt) track('Lead', { value: o.total || o.price, currency: 'EGP' }, o.id);
+    else track('Purchase', { value: o.total || o.price, currency: 'EGP', num_items: items.reduce(function (a, i) { return a + i.qty; }, 0), content_ids: items.map(function (i) { return i.pid || ''; }), content_type: 'product' }, o.id);
     fired.push(o.id); RQ.store.set('rq_fired', fired.slice(-20));
   }
 })();

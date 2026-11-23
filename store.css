@@ -666,3 +666,16 @@ body.wbig.sb-on .wv.big{padding-bottom:150px}
 .bundlebox b{display:block;margin-bottom:7px}
 .bchips{display:flex;flex-wrap:wrap;gap:6px}
 .bchips span{background:#FFB547;color:#10252A;font-weight:800;border-radius:999px;padding:5px 12px;font-size:14px;white-space:nowrap}
+/* الدفع المقدم: عربون / المبلغ كامل + صورة التحويل */
+.paystep{background:#FFF8EA;border:2px solid #FFE2B3;border-radius:16px;padding:14px;margin-bottom:12px}
+.paystep .big{font-size:16.5px;display:block;margin-bottom:2px}
+.paystep>small{display:block;color:var(--muted);margin-bottom:6px}
+.paystep .num{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:9px 12px;margin:8px 0;font-weight:800;gap:10px}
+.paystep .num button{border:0;background:var(--pet);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-weight:700;font-family:inherit}
+.paystep .ipbtn{display:flex;margin:10px 0 4px;background:#4B1E78;color:#fff;box-shadow:0 4px 0 #2E0F4D;text-decoration:none}
+.rcpt{display:flex;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--pet2);background:#fff;border-radius:12px;padding:13px;font-weight:800;color:var(--pet);cursor:pointer;text-align:center}
+.rcpt input{position:absolute;width:1px;height:1px;opacity:0}
+.rcpt.done{border-style:solid;border-color:var(--green);color:var(--green);background:#E6F7F2}
+.f.bad .rcpt{border-color:var(--red)}
+#rcptPrev{display:block;max-height:140px;margin:8px auto 0;border-radius:10px}
+.paystep .num{flex-wrap:wrap}.paystep .num span{min-width:0;overflow-wrap:anywhere}

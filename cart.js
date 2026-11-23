@@ -1,7 +1,7 @@
 (function () {
   var $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
   var CFG = RQ.cfg(RQ.store.get('rq_settings'));
-  var pay = '';
+  var pay = '', plan = 'full', rc = { id: '', busy: false };
 
   /* المحافظات */
   var gov = $('gov');
@@ -14,7 +14,10 @@
   var caseDisc = function () { return RQ.bundleDiscount(items(), CFG.bundles).discount; };
   var frameDisc = function () { return RQ.frameDiscount(items()).discount; };
   var discount = function () { return caseDisc() + frameDisc(); };
-  var codFee = function () { return pay === 'cod' ? (CFG.codFee || 0) : 0; };
+  var isPre = function () { return pay === 'instapay' || pay === 'vodafone'; };
+  // التصميم الخاص: يا المبلغ كله مقدم، يا نصه مقدم والباقي عند الاستلام
+  var isHalf = function () { return isPre() && hasCustom() && plan === 'half'; };
+  var codFee = function () { return pay === 'cod' || isHalf() ? (CFG.codFee || 0) : 0; };
   var freeShip = function () { return CFG.freeShip > 0 && subtotal() - discount() >= CFG.freeShip; };
   var shipping = function () { return gov.value && !freeShip() ? (Number(CFG.shipping[gov.value]) || 0) : 0; };
 
@@ -63,7 +66,21 @@
     if (!codOk && pay === 'cod') { setPay('', true); cf = 0; }
     if (!pay && codOk) { setPay('cod', true); cf = codFee(); $('sCodRow').hidden = !cf; $('sCod').textContent = '+ ' + fmt(cf) + ' ج'; }
     $('sTot').textContent = fmt(sub - ds + sh + cf) + ' ج';
-    $('submitBtn').textContent = 'تأكيد الطلب · ' + fmt(sub - ds + sh + cf) + ' ج';
+    var tot = sub - ds + sh + cf, dep = isHalf() ? Math.ceil(tot / 2) : tot;
+    $('planBox').hidden = !(isPre() && hasCustom());
+    $('halfNote').textContent = 'تحوّل ' + fmt(Math.ceil(tot / 2)) + ' ج دلوقتي، والباقي ' + fmt(tot - Math.ceil(tot / 2)) + ' ج للمندوب' + (CFG.codFee ? ' (شامل ' + fmt(CFG.codFee) + ' ج رسوم الاستلام)' : '');
+    [].forEach.call(document.querySelectorAll('[data-plan]'), function (l) { var on = l.dataset.plan === plan; l.classList.toggle('on', on); l.querySelector('input').checked = on; });
+    $('prepayBox').hidden = !isPre();
+    if (isPre()) {
+      var num = pay === 'instapay' ? CFG.instapay : CFG.vodafone;
+      $('ppAmt').textContent = fmt(dep) + ' ج';
+      $('ppWhy').textContent = hasCustom() ? 'طلبك بيتطبع مخصوص ليك، عشان كده بيتدفع مقدم.' : 'حوّل المبلغ وارفع صورة التحويل، وبعدها أكّد الطلب.';
+      $('ppLabel').textContent = pay === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
+      $('ppNum').textContent = num || '';
+      var ipl = pay === 'instapay' && CFG.instapayLink;
+      $('ppIpLink').hidden = !ipl; if (ipl) $('ppIpLink').href = CFG.instapayLink;
+    }
+    $('submitBtn').textContent = isPre() ? 'حوّلت ' + fmt(dep) + ' ج · أكّد الطلب' : 'تأكيد الطلب · ' + fmt(tot) + ' ج';
   }
   function setPay(p, quiet) {
     pay = p;
@@ -74,6 +91,25 @@
     if (!quiet && items().length) renderSum();
   }
   $('payopts').addEventListener('change', function (e) { if (e.target.name === 'pay') setPay(e.target.value); });
+  $('planopts').addEventListener('change', function (e) { if (e.target.name === 'plan') { plan = e.target.value; renderSum(); } });
+  $('ppCopy').addEventListener('click', function () {
+    var b = this, num = $('ppNum').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(num) : Promise.reject()).then(function () { b.textContent = 'اتنسخ ✓'; }, function () { prompt('انسخ الرقم:', num); });
+  });
+  /* صورة التحويل: بتترفع أول ما العميل يختارها */
+  $('rcpt').addEventListener('change', function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    var lab = document.querySelector('.rcpt'), txt = $('rcptTxt');
+    rc.id = ''; rc.busy = true; lab.classList.remove('done'); txt.textContent = '⏳ بنرفع الصورة…'; $('f-rcpt').classList.remove('bad');
+    RQ.compress(f, 1400, 900000).then(function (r) {
+      $('rcptPrev').src = r.data; $('rcptPrev').hidden = false;
+      return RQ.uploadPhoto(r.data);
+    }).then(function (id) {
+      rc.id = id; rc.busy = false; lab.classList.add('done'); txt.textContent = '✓ صورة التحويل اترفعت (دوس لو عايز تغيّرها)';
+    }).catch(function () {
+      rc.busy = false; txt.textContent = '⚠️ الصورة ماترفعتش، جرّب تاني'; $('f-rcpt').classList.add('bad');
+    });
+  });
   gov.addEventListener('change', function () { RQ.store.set('rq_gov', gov.value); renderSum(); });
 
   $('items').addEventListener('click', function (e) {
@@ -125,6 +161,7 @@
       if (!setBad(c[0], !c[1])) { ok = false; first = first || c[0]; }
     });
     if (!pay) { ok = false; $('payErr').style.display = 'block'; }
+    if (isPre() && !rc.id) { ok = false; $('f-rcpt').classList.add('bad'); if (!first) $('prepayBox').scrollIntoView({ block: 'center' }); }
     if (first) $(first).focus();
     return ok ? { name: name, phone: phone, gov: gov.value, address: address } : null;
   }
@@ -148,6 +185,7 @@
     e.preventDefault();
     if (busy || !items().length) return;
     var msg = $('formMsg'); msg.style.display = 'none';
+    if (rc.busy) { msg.textContent = 'استنى ثانية، صورة التحويل لسه بتترفع.'; msg.style.display = 'block'; return; }
     var d = validate(); if (!d) return;
     if (pay === 'cod' && hasCustom()) { msg.textContent = 'المنتجات المخصوصة (صورتك أو اسمك) بتتدفع مقدم. اختار إنستاباي أو فودافون كاش.'; msg.style.display = 'block'; return; }
 
@@ -160,7 +198,11 @@
       return { pid: String(i.pid), name: String(i.name).slice(0, 90), variant: String(i.variant || '').slice(0, 40), choice: String(i.choice || '').slice(0, 60),
         qty: Math.round(i.qty), price: Math.round(i.price), custom: String(i.custom || '').slice(0, 300), uploads: (i.uploads || []).slice(0, 3).map(String) };
     });
-    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, codFee: cf, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status };
+    var paid = isPre() ? (isHalf() ? Math.ceil(tot / 2) : tot) : 0;
+    // بيانات الدفع المقدم بتتسجل مع أول منتج (قواعد قاعدة البيانات مابتقبلش حقول جديدة للطلب)
+    if (paid) lineItems[0].pp = { paid: paid, plan: isHalf() ? 'half' : 'full', receipt: rc.id };
+    var payTag = paid ? (isHalf() ? '💳 دفع نص المبلغ مقدم ' + paid + ' ج والباقي ' + (tot - paid) + ' ج عند الاستلام' : '💳 دفع المبلغ كامل مقدم ' + paid + ' ج') + ' (صورة التحويل مرفوعة)' : '';
+    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, codFee: cf, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status, paid: paid, plan: paid ? lineItems[0].pp.plan : '', receipt: rc.id };
 
     function done(state) {
       order.state = state;
@@ -174,7 +216,7 @@
     var fields = {
       // رسوم الدفع عند الاستلام بتتسجل مع الشحن (قواعد قاعدة البيانات بتقبل الحقول دي بس)
       id: id, items: lineItems, subtotal: sub, discount: ds, shipping: sh + cf, total: tot,
-      name: d.name.slice(0, 80), phone: d.phone, gov: d.gov, address: d.address.slice(0, 250), custNote: $('note').value.trim().slice(0, 200),
+      name: d.name.slice(0, 80), phone: d.phone, gov: d.gov, address: d.address.slice(0, 250), custNote: [payTag, $('note').value.trim()].filter(Boolean).join(' | ').slice(0, 200),
       pay: pay, src: String(RQ.src).slice(0, 60), status: status, notes: '', taagerNo: ''
     };
     var encFields = {}; for (var k in fields) encFields[k] = RQ.enc(fields[k]);
