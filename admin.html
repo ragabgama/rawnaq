@@ -473,7 +473,8 @@ function rebuild() {
       profit -= disc;
       const fso = settings.freeShipOver != null && settings.freeShipOver !== '' ? Number(settings.freeShipOver) : (S.freeShipOver || 0);
       // رسوم الدفع عند الاستلام (10 ج) بتتسجل مع الشحن
-      const expSh = fso > 0 && sub - disc >= fso ? 0 : shipOf(r.gov), codF = Number(settings.codFee != null ? settings.codFee : (S.codFee || 0)) || 0;
+      const isDrop = items.some((i) => { const p = prodById(i.pid); return p && p.category === 'دروب شيبينج'; });
+      const expSh = isDrop ? (TAAGER_SHIP[r.gov] || 100) : fso > 0 && sub - disc >= fso ? 0 : shipOf(r.gov), codF = Number(settings.codFee != null ? settings.codFee : (S.codFee || 0)) || 0;
       if (Number(r.shipping) !== expSh && Number(r.shipping) !== expSh + codF) bad = true;
       return Object.assign(base, { items, discount: disc, subtotal: Number(r.subtotal), shipping: Number(r.shipping), total: Number(r.total), profit: known ? profit : null, bad,
         custom: items.some((i) => i.custom || (i.uploads && i.uploads.length)), pids: items.map((i) => i.pid) });
