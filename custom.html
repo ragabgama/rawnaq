@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>اطبع صورتك على جراب أو برواز | رونق</title>
+<title>اعمل تصميمك بصورتك على جراب أو برواز | رونق</title>
 <meta name="description" content="ارفع صورتك ونطبعهالك على جراب موبايل أو في برواز للحيطة. توصيل لكل المحافظات.">
 <meta name="theme-color" content="#0E4A52">
 <link rel="icon" href="img/icon.svg" type="image/svg+xml">
@@ -14,21 +14,57 @@
 <link rel="stylesheet" href="store.css?v=25">
 <script src="config.js?v=25"></script>
 <style>
-.chero{background:linear-gradient(135deg,#0B3B42,#14636D);color:#fff;padding:30px 0 26px;text-align:center}
-.chero h1{font-size:32px;margin-bottom:6px}
-.chero p{opacity:.92;max-width:620px;margin:0 auto}
-.ttabs{display:flex;gap:8px;justify-content:center;margin-top:16px}
-.ttabs button{border:2px solid #ffffff55;background:transparent;color:#fff;border-radius:999px;padding:9px 20px;font-weight:800;cursor:pointer;font-size:16px}
-.ttabs button.on{background:var(--gold);border-color:var(--gold);color:var(--ink)}
-.info{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
-@media (max-width:760px){.info{grid-template-columns:1fr}}
-.info .card h2{font-size:20px;color:var(--pet);margin-bottom:8px}
-.info ul{list-style:none;display:grid;gap:7px}
-.info li{display:flex;gap:8px}
-.info li::before{content:"✓";color:var(--green);font-weight:800}
-.sizes{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:8px}
-.sizes div{background:var(--bg);border-radius:10px;padding:8px;text-align:center;font-weight:800}
-.sizes small{display:block;color:var(--muted);font-weight:600}
+.chero{background:linear-gradient(135deg,#0B3B42,#14636D);color:#fff;padding:28px 0 24px;text-align:center}
+.chero h1{font-size:30px;line-height:1.35;margin-bottom:6px}
+.chero h1 b{color:var(--gold)}
+.chero p{opacity:.92;max-width:640px;margin:0 auto}
+.badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.badges span{background:#ffffff1f;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13.5px}
+.lp{max-width:980px;margin:0 auto}
+.stepc{background:#fff;border-radius:18px;padding:16px;margin:14px 0;box-shadow:0 1px 0 var(--card)}
+.stepc h2{font-size:19px;color:var(--pet);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.stepc h2 i{font-style:normal;background:var(--gold);color:var(--ink);width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--pet2);border-radius:16px;padding:22px 14px;text-align:center;cursor:pointer;background:#F6FBFA;font-weight:800;color:var(--pet)}
+.drop small{color:var(--muted);font-weight:600}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.drop.has{padding:10px;flex-direction:row;justify-content:flex-start;text-align:start}
+.drop.has img{width:56px;height:56px;object-fit:cover;border-radius:10px}
+.uerr{display:none;color:var(--red);font-weight:700;margin-top:6px}
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick{position:relative;border:2px solid var(--card);border-radius:16px;padding:12px 10px;cursor:pointer;background:#fff;text-align:center}
+.pick.on{border-color:var(--pet);background:#F0FAF7}
+.pick input{position:absolute;top:10px;inset-inline-start:10px;width:20px;height:20px}
+.pick .pv{height:190px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.pick b{display:block;font-size:16px}
+.pick small{color:var(--muted);font-weight:700}
+/* معاينة الجراب */
+.mcase{position:relative;width:92px;height:190px;border-radius:20px;background:linear-gradient(135deg,#eef1f3,#d9dde1);box-shadow:0 10px 18px -8px rgba(0,0,0,.35)}
+.mcase .ph{position:absolute;inset:4px;border-radius:17px;overflow:hidden;background:#cfd8d6 center/cover no-repeat}
+.mcase .cam{position:absolute;left:4px;top:4px;width:42px;height:46px;border-radius:17px 8px 14px 8px;background:#eef1f3;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)}
+.mcase .cam::after{content:"";position:absolute;inset:5px;border-radius:12px 5px 10px 5px;background:#fff;box-shadow:inset 2px 3px 5px rgba(0,0,0,.18)}
+/* معاينة البرواز */
+.mframe{background:#151515;padding:7px;box-shadow:0 10px 18px -8px rgba(0,0,0,.4);border-radius:2px}
+.mframe.white{background:#fafafa;box-shadow:0 10px 18px -8px rgba(0,0,0,.4),inset 0 0 0 1px #ddd}
+.mframe.mdf{background:none;padding:0;box-shadow:5px 6px 0 -1px #8B6B3E,0 10px 18px -8px rgba(0,0,0,.4)}
+.mframe .ph{width:118px;height:168px;background:#cfd8d6 center/cover no-repeat;display:block}
+.opts{border-top:1px dashed var(--card);margin-top:12px;padding-top:12px}
+.opts h3{font-size:16px;margin-bottom:8px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pills button{border:2px solid var(--card);background:#fff;border-radius:12px;padding:7px 12px;font:inherit;font-weight:800;cursor:pointer;color:var(--ink)}
+.pills button small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.pills button.on{border-color:var(--pet);background:var(--pet);color:#fff}
+.pills button.on small{color:#cfe7e4}
+.cerr{display:none;color:var(--red);font-weight:700;font-size:14px}
+.sumbox{background:var(--bg);border-radius:12px;padding:10px 12px;margin:10px 0}
+.sumbox div{display:flex;justify-content:space-between;padding:3px 0}
+.sumbox .tot{font-weight:800;font-size:17px;border-top:1px dashed var(--card);margin-top:4px;padding-top:6px}
+.depo{background:#FFF8EA;border:2px solid #FFE2B3;border-radius:14px;padding:12px 14px;margin:10px 0;font-size:14.5px}
+.depo b{display:block;font-size:16px;margin-bottom:3px}
+.more{text-align:center;margin:8px 0 22px;color:var(--muted)}
+.more a{color:var(--pet);font-weight:800}
+.faq details{background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.faq summary{font-weight:800;cursor:pointer}
+.faq p{margin-top:6px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -46,57 +82,59 @@
 
 <main>
 <section class="chero"><div class="wrap">
-  <h1>اطبع صورتك 📸</h1>
-  <p>صورة العيلة، صورة الفرح، صورة ابنك، أو أي ذكرى بتحبها… ارفعها وإحنا نطبعهالك على جراب موبايلك أو في برواز يزيّن بيتك.</p>
-  <div class="ttabs"><button data-t="case">📱 على جراب</button><button data-t="frame">🖼️ في برواز</button></div>
+  <h1>اعمل تصميمك بنفسك 📸<br><b>على جراب موبايل أو في برواز</b></h1>
+  <p>صورة لحد عزيز عليك، لابنك، لعيلتك، أو ديكور لبيتك… ارفع الصورة، شوفها على الجراب والبرواز، واختار اللي عايزه أو الاتنين.</p>
+  <div class="badges"><span>👀 معاينة على واتساب قبل الطباعة</span><span>🖨️ طباعة UV ماتبهتش</span><span>🚚 لكل المحافظات</span></div>
 </div></section>
 
-<div class="wrap">
-  <div class="steps3">
-    <div><b>1</b><strong>ارفع صورتك</strong><br><span class="muted" style="color:var(--muted)">من الموبايل أو الكمبيوتر، في ثواني.</span></div>
-    <div><b>2</b><strong id="s2">اختار موبايلك</strong><br><span style="color:var(--muted)" id="s2t">الماركة وبعدين الموديل.</span></div>
-    <div><b>3</b><strong>ادفع واستلم</strong><br><span style="color:var(--muted)">بإنستاباي أو فودافون كاش، وهنراجع صورتك ونبعتلك الشكل قبل الطباعة.</span></div>
+<div class="wrap lp">
+  <div class="stepc" id="stUp">
+    <h2><i>1</i>ارفع صورتك</h2>
+    <label class="drop" id="drop" for="photo"><span id="dropTxt">📷 دوس هنا واختار الصورة</span><small id="dropSm">من الموبايل أو الكمبيوتر · يفضّل الصورة الأصلية من الكاميرا</small><input type="file" id="photo" accept="image/*"></label>
+    <div class="uerr" id="upErr"></div>
   </div>
 
-  <section class="sec" style="padding-top:6px">
-    <h2 id="pTitle">اختار المنتج</h2>
-    <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div></div>
-  </section>
-
-  <section class="sec" style="padding-top:0">
-    <div class="info">
-      <div class="card" id="infoCase">
-        <h2>📱 الجراب بصورتك</h2>
-        <ul>
-          <li>جراب شفاف مرن (TPU) والصورة مطبوعة على الضهر بطباعة UV ماتبهتش.</li>
-          <li>الجوانب شفافة، فلون موبايلك بيبان منها.</li>
-          <li>متاح لأكتر من 160 موديل: آيفون، وسامسونج، وأوبو، وشاومي، وريلمي، وهواوي.</li>
-          <li>بيشتغل مع الشحن المغناطيسي.</li>
-          <li>الكاميرا بتاخد الركن اللي فوق، فخلّي أهم حاجة في نص الصورة.</li>
-        </ul>
-      </div>
-      <div class="card" id="infoFrame">
-        <h2>🖼️ البرواز بصورتك</h2>
-        <ul>
-          <li>برواز أسود أو أبيض، وقدامه لوح أكريليك بدل الإزاز، فمش بيتكسر.</li>
-          <li>جاهز للتعليق، وبيوصلك في علبة تحميه.</li>
-          <li>كل ما المقاس أكبر، محتاج صورة أوضح (يفضّل الصورة الأصلية من الكاميرا).</li>
-          <li>ممكن تكتب اسم أو تاريخ أو جملة على الصورة.</li>
-        </ul>
-        <div class="sizes"><div>20×30<small>صغير</small></div><div>30×40<small>متوسط</small></div><div>40×50<small>كبير</small></div><div>50×70<small>كبير جدًا</small></div></div>
-      </div>
+  <div class="stepc" id="stPick">
+    <h2><i>2</i>عايز تطبعها على إيه؟ <small style="color:var(--muted);font-weight:700;font-size:13px">(تقدر تختار الاتنين)</small></h2>
+    <div class="picks">
+      <label class="pick" id="pkCase"><input type="checkbox" id="wCase"><div class="pv"><div class="mcase"><div class="ph" id="pvCase"></div><div class="cam"></div></div></div><b>📱 جراب موبايل</b><small id="prCase">225 ج</small></label>
+      <label class="pick" id="pkFrame"><input type="checkbox" id="wFrame"><div class="pv"><div class="mframe" id="mFrame"><span class="ph" id="pvFrame"></span></div></div><b>🖼️ برواز للحيطة</b><small id="prFrame">من 199 ج</small></label>
     </div>
-  </section>
+    <div class="cerr" id="pickErr" style="margin-top:8px">اختار جراب أو برواز (أو الاتنين)</div>
 
-  <section class="sec" style="padding-top:0">
-    <h2>أسئلة بتتسأل كتير</h2>
-    <div class="desc" style="max-width:none">
-      <details><summary>ليه بيتدفع مقدم؟</summary><p>عشان المنتج معمول ليك انت بس وبصورتك، فمش بيتباع لحد تاني. الدفع بإنستاباي أو فودافون كاش، وهنبعتلك الأرقام بعد الطلب.</p></details>
-      <details><summary>هشوف الشكل قبل الطباعة؟</summary><p>أيوه، هنراجع الصورة ونبعتلك الشكل على واتساب، ولو الصورة مش واضحة كفاية هنقولك.</p></details>
-      <details><summary>الطلب بيوصل امتى؟</summary><p>خلال 5 لـ 9 أيام عمل تقريبًا، لأن كل قطعة بتتطبع مخصوص.</p></details>
-      <details><summary>عندي أكتر من صورة أو فكرة معينة</summary><p>اكتبلنا الفكرة في خانة الملاحظات، أو ابعتلنا على واتساب ونساعدك تختار.</p></details>
+    <div class="opts" id="caseOpts" hidden>
+      <h3>📱 موبايلك إيه؟</h3>
+      <div id="phoneBox"></div>
+      <div class="cerr" id="phoneErr">اختار موديل موبايلك</div>
+      <div class="f" style="margin-top:8px"><label for="caseText" style="font-weight:700">اسم أو تاريخ يتكتب على الجراب (اختياري)</label><input type="text" id="caseText" maxlength="60" placeholder="مثلًا: محمد ❤️ 2026"></div>
     </div>
-    <p style="text-align:center;margin-top:14px"><a class="btn" style="display:inline-flex;width:auto" id="waAsk" href="#" target="_blank" rel="noopener">عندك سؤال؟ كلمنا على واتساب</a></p>
+
+    <div class="opts" id="frameOpts" hidden>
+      <h3>🖼️ نوع البرواز</h3>
+      <div class="pills" id="fType"></div>
+      <h3>المقاس</h3>
+      <div class="pills" id="fSize"></div>
+      <div id="fColorBox"><h3>لون البرواز</h3><div class="pills" id="fColor"></div></div>
+    </div>
+  </div>
+
+  <div class="stepc" id="stOrder">
+    <h2><i>3</i>أكّد طلبك</h2>
+    <div class="sumbox" id="sum"><div><span>اختار المنتج فوق</span><span></span></div></div>
+    <div class="depo"><b>💳 بتدفع عربون لتأكيد الطلب وبدء تنفيذ التصميم</b>تصميمك بيتطبع مخصوص ليك، عشان كده بتحوّل <b style="display:inline;font-size:inherit">نص المبلغ</b> مقدم بإنستاباي أو فودافون كاش (أو المبلغ كله لو تحب)، والباقي تدفعه للمندوب لما تستلم. وقبل الطباعة هنبعتلك شكل التصميم على واتساب توافق عليه.</div>
+    <div class="formmsg" id="msg"></div>
+    <button class="btn" type="button" id="go">كمّل الطلب</button>
+  </div>
+
+  <p class="more">عايز تصميم جاهز بدل صورتك؟ <a href="cases.html">شوف الجرابات</a> · <a href="frames.html">شوف البراويز</a></p>
+
+  <section class="faq" style="margin-bottom:26px">
+    <h2 style="font-size:20px;color:var(--pet);margin-bottom:10px">أسئلة بتتسأل كتير</h2>
+    <details><summary>ليه بدفع عربون؟</summary><p>لأن المنتج معمول ليك انت بس وبصورتك، ومش بيتباع لحد تاني. العربون (نص المبلغ) بيأكد طلبك وبيتخصم من الحساب، والباقي بتدفعه للمندوب لما تستلم.</p></details>
+    <details><summary>هشوف الشكل قبل الطباعة؟</summary><p>أيوه، هنبعتلك شكل التصميم على واتساب توافق عليه. ولو الصورة مش واضحة كفاية هنقولك قبل ما نطبع.</p></details>
+    <details><summary>الجراب هيبان شكله إزاي؟</summary><p>جراب شفاف مرن والصورة مطبوعة على الضهر، ومكان الكاميرا مفتوح فوق على الشمال. خلّي أهم حاجة في نص الصورة.</p></details>
+    <details><summary>البرواز معمول من إيه؟</summary><p>برواز خشب أسود أو أبيض قدامه أكريليك بدل الإزاز فمش بيتكسر، أو تابلوه MDF من غير برواز. جاهز للتعليق.</p></details>
+    <details><summary>الطلب بيوصل امتى؟</summary><p>خلال 5 لـ 9 أيام عمل تقريبًا، لأن كل قطعة بتتطبع مخصوص.</p></details>
   </section>
 </div>
 </main>
@@ -111,35 +149,105 @@
 <script>
 (function () {
   var $ = RQ.$, esc = RQ.esc, fmt = RQ.fmt;
-  var t = 'case';
-  try { t = new URLSearchParams(location.search).get('t') === 'frame' ? 'frame' : 'case'; } catch (e) {}
-  $('waAsk').href = RQ.waLink('أهلًا، عايز أطبع صورتي');
-  var all = [];
-  // جراب = منتج بيرفع صورة وفيه قايمة موبايلات، برواز = غير كده
-  var isCase = function (p) { return RQ.isPhoneList(p.choices) || /جراب/.test(p.category + p.name); };
-  function paint() {
-    [].forEach.call(document.querySelectorAll('.ttabs button'), function (b) { b.className = b.dataset.t === t ? 'on' : ''; });
-    $('s2').textContent = t === 'case' ? 'اختار موبايلك' : 'اختار المقاس';
-    $('s2t').textContent = t === 'case' ? 'الماركة وبعدين الموديل.' : 'من 20×30 لحد 50×70 سم.';
-    $('pTitle').textContent = t === 'case' ? 'اختار الجراب' : 'اختار البرواز';
-    $('infoCase').style.order = t === 'case' ? 0 : 1;
-    var list = all.filter(function (p) { return p.allowUpload && (t === 'case' ? isCase(p) : !isCase(p)); });
-    var g = $('grid');
-    if (!list.length) { g.innerHTML = '<div class="empty" style="grid-column:1/-1">قريب جدًا! لحد ما يتضاف، <a href="' + RQ.waLink('أهلًا، عايز أطبع صورتي على ' + (t === 'case' ? 'جراب' : 'برواز')) + '" target="_blank" rel="noopener">ابعتلنا صورتك على واتساب</a> ونعملهولك.</div>'; return; }
-    g.innerHTML = list.map(function (p) {
-      var price = RQ.fromPrice(p);
-      return '<a class="pc" href="product.html?id=' + encodeURIComponent(p.id) + '"><div class="ph"><img data-src="' + esc(p.images[0] || '') + '" alt="' + esc(p.name) + '" loading="lazy" width="400" height="400"></div>' +
-        '<div class="bd"><div class="nm">' + esc(p.name) + '</div><div class="pr"><b>' + (p.variants.length > 1 ? 'من ' : '') + fmt(price) + ' ج</b></div>' +
-        '<div class="inc">📸 ارفع صورتك</div><div class="go"><span>ابدأ</span></div></div></a>';
-    }).join('');
-    [].forEach.call(g.querySelectorAll('img[data-src]'), function (im) { if (im.dataset.src) RQ.setImg(im, im.dataset.src); });
-  }
-  document.querySelector('.ttabs').addEventListener('click', function (e) {
-    var b = e.target.closest('button'); if (!b) return; t = b.dataset.t; paint();
-    try { history.replaceState(null, '', '?t=' + t); } catch (er) {}
+  var PC = null, PF = null, photo = null, getPhone = null, fT = '', fV = -1, fC = '';
+  var want = { case: false, frame: false };
+  try { var t0 = new URLSearchParams(location.search).get('t'); if (t0 === 'frame') want.frame = true; else if (t0 === 'case') want.case = true; } catch (e) {}
+  var typeOf = function (n) { n = String(n || ''); var k = n.indexOf(' · '); return k > 0 ? n.slice(0, k) : ''; };
+  var sizeOf = function (n) { n = String(n || ''); var k = n.indexOf(' · '); return k > 0 ? n.slice(k + 3) : n; };
+  var isMDF = function () { return /MDF|من غير برواز/.test(fT); };
+
+  /* 1) الصورة */
+  $('photo').addEventListener('change', function () {
+    var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+    $('upErr').style.display = 'none'; $('dropTxt').textContent = '⏳ بنجهّز الصورة…';
+    RQ.compress(f, 2200, 950000).then(function (big) {
+      return RQ.compress(f, 220, 40000).then(function (small) {
+        photo = { data: big.data, thumb: small.data, w: big.w, h: big.h };
+        $('pvCase').style.backgroundImage = $('pvFrame').style.backgroundImage = 'url(' + big.data + ')';
+        var d = $('drop'); d.classList.add('has');
+        $('dropTxt').innerHTML = '<img src="' + small.data + '" alt=""> ✓ الصورة اترفعت · دوس لو عايز تغيّرها';
+        $('dropSm').textContent = big.w < 900 && big.h < 900 ? '⚠️ الصورة صغيرة، ممكن تطلع مش واضحة في البرواز الكبير' : '';
+        if (!want.case && !want.frame) { want.case = true; paint(); }
+        $('stPick').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }).catch(function () { $('dropTxt').textContent = '📷 دوس هنا واختار الصورة'; $('upErr').textContent = 'الصورة دي مش راضية تتفتح، جرّب صورة تانية'; $('upErr').style.display = 'block'; });
   });
+
+  /* 2) جراب / برواز / الاتنين */
+  $('wCase').addEventListener('change', function () { want.case = this.checked; paint(); });
+  $('wFrame').addEventListener('change', function () { want.frame = this.checked; paint(); });
+  function renderFrame() {
+    if (!PF) return;
+    var types = []; PF.variants.forEach(function (v) { var x = typeOf(v.name); if (x && types.indexOf(x) < 0) types.push(x); });
+    if (!fT) fT = types[0] || '';
+    $('fType').innerHTML = types.map(function (t) { return '<button type="button" data-t="' + esc(t) + '" class="' + (t === fT ? 'on' : '') + '">' + esc(t) + '<small>' + (/MDF/.test(t) ? 'لوحة خشب من غير برواز' : 'خشب + أكريليك') + '</small></button>'; }).join('');
+    if (fV < 0 || typeOf(PF.variants[fV].name) !== fT) {
+      var keep = fV >= 0 ? sizeOf(PF.variants[fV].name) : ''; fV = -1;
+      PF.variants.forEach(function (v, i) { if (fV < 0 && typeOf(v.name) === fT && sizeOf(v.name) === keep) fV = i; });
+      if (fV < 0) PF.variants.forEach(function (v, i) { if (fV < 0 && typeOf(v.name) === fT) fV = i; });
+    }
+    $('fSize').innerHTML = PF.variants.map(function (v, i) { return typeOf(v.name) !== fT ? '' : '<button type="button" data-i="' + i + '" class="' + (i === fV ? 'on' : '') + '"><bdi dir="ltr">' + esc(sizeOf(v.name)) + '</bdi><small>' + fmt(v.price) + ' ج</small></button>'; }).join('');
+    var colors = PF.choices || [];
+    $('fColorBox').hidden = !colors.length || isMDF();
+    if (!fC && colors.length) fC = colors[0];
+    $('fColor').innerHTML = colors.map(function (c) { return '<button type="button" data-c="' + esc(c) + '" class="' + (c === fC ? 'on' : '') + '">' + esc(c) + '</button>'; }).join('');
+    $('mFrame').className = 'mframe' + (isMDF() ? ' mdf' : /أبيض/.test(fC) ? ' white' : '');
+  }
+  $('fType').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; fT = b.dataset.t; renderFrame(); paint(); });
+  $('fSize').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; fV = Number(b.dataset.i); renderFrame(); paint(); });
+  $('fColor').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; fC = b.dataset.c; renderFrame(); paint(); });
+
+  function casePrice() { var m = getPhone ? getPhone() : ''; return (m && PC.choicePrice[m]) || PC.variants[0].price; }
+  function framePrice() { return PF && fV >= 0 ? ((!isMDF() && fC && PF.choicePrice[fC]) || PF.variants[fV].price) : 0; }
+  function paint() {
+    $('wCase').checked = want.case; $('wFrame').checked = want.frame;
+    $('pkCase').classList.toggle('on', want.case); $('pkFrame').classList.toggle('on', want.frame);
+    $('caseOpts').hidden = !want.case || !PC; $('frameOpts').hidden = !want.frame || !PF;
+    if (want.case || want.frame) $('pickErr').style.display = 'none';
+    var rows = [], tot = 0;
+    if (want.case && PC) { var m = getPhone ? getPhone() : ''; rows.push(['📱 جراب بصورتك' + (m ? ' · ' + m : ''), casePrice()]); }
+    if (want.frame && PF && fV >= 0) rows.push(['🖼️ ' + PF.variants[fV].name + (isMDF() || !fC ? '' : ' · ' + fC), framePrice()]);
+    rows.forEach(function (r) { tot += r[1]; });
+    var half = Math.ceil(tot / 2);
+    $('sum').innerHTML = rows.length ? rows.map(function (r) { return '<div><span>' + esc(r[0]) + '</span><span>' + fmt(r[1]) + ' ج</span></div>'; }).join('') +
+      '<div class="tot"><span>الإجمالي (من غير الشحن)</span><span>' + fmt(tot) + ' ج</span></div>' +
+      '<div style="color:var(--pet);font-weight:800"><span>العربون (نص المبلغ)</span><span>حوالي ' + fmt(half) + ' ج</span></div>'
+      : '<div><span>اختار جراب أو برواز فوق</span><span></span></div>';
+    $('go').textContent = rows.length ? 'كمّل الطلب · ' + fmt(tot) + ' ج' : 'كمّل الطلب';
+  }
+
+  RQ.products(function (list) {
+    var up = list.filter(function (p) { return p.allowUpload; });
+    PC = up.filter(function (p) { return RQ.isPhoneList(p.choices) || /جراب/.test(p.category + p.name); })[0] || null;
+    PF = up.filter(function (p) { return p !== PC && /برواز|لوح/.test(p.category + p.name); })[0] || null;
+    if (PC) { $('prCase').textContent = fmt(PC.variants[0].price) + ' ج'; if (!getPhone) getPhone = RQ.phonePicker($('phoneBox'), PC.choices, function () { $('phoneErr').style.display = 'none'; paint(); }); }
+    else $('pkCase').hidden = true;
+    if (PF) { $('prFrame').textContent = 'من ' + fmt(RQ.fromPrice(PF)) + ' ج'; renderFrame(); } else $('pkFrame').hidden = true;
+    paint();
+  }).catch(function () {});
   paint();
-  RQ.products(function (list) { all = list; paint(); }).catch(function () {});
+
+  /* 3) السلة */
+  var busy = false;
+  $('go').addEventListener('click', function () {
+    if (busy) return;
+    var msg = $('msg'); msg.style.display = 'none';
+    if (!photo) { $('upErr').textContent = 'ارفع الصورة الأول'; $('upErr').style.display = 'block'; $('stUp').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    if (!want.case && !want.frame) { $('pickErr').style.display = 'block'; $('stPick').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    if (want.case && (!getPhone || !getPhone())) { $('phoneErr').style.display = 'block'; $('caseOpts').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    busy = true; var btn = $('go'); btn.disabled = true; btn.textContent = 'بنرفع صورتك…';
+    RQ.uploadPhoto(photo.data).then(function (id) {
+      var items = [];
+      if (want.case) items.push({ pid: PC.id, name: PC.name, cat: PC.category || '', img: PC.images[0] || '', variant: PC.variants[0].name || '', choice: getPhone(), qty: 1, price: casePrice(), custom: $('caseText').value.trim().slice(0, 60) });
+      if (want.frame) items.push({ pid: PF.id, name: PF.name, cat: PF.category || '', img: PF.images[0] || '', variant: PF.variants[fV].name || '', choice: isMDF() ? '' : fC, qty: 1, price: framePrice(), custom: '' });
+      items.forEach(function (it) { it.uploads = [id]; it.thumbs = [photo.thumb]; if (!RQ.cart.add(it)) { delete it.thumbs; RQ.cart.add(it); }
+        track('AddToCart', { value: it.price, currency: 'EGP', content_ids: [it.pid], content_name: it.name, content_type: 'product' }); });
+      location.href = 'cart.html';
+    }).catch(function () {
+      busy = false; btn.disabled = false; paint();
+      msg.textContent = 'ماعرفناش نرفع الصورة. جرّب تاني، أو ابعتهالنا على واتساب.'; msg.style.display = 'block';
+    });
+  });
 })();
 </script>
 </body>
