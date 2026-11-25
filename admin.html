@@ -184,6 +184,11 @@ textarea{min-height:70px;resize:vertical}
 <div class="wrap" id="v-products" hidden>
   <div id="plistView">
     <div class="bar"><h2>المنتجات</h2><button class="btn" id="newP">+ منتج جديد</button></div>
+    <div class="views" id="pscope" style="padding:0 0 12px;max-width:none"><button type="button" data-s="main" class="on">🖼️ منتجات رونق (جرابات وبراويز)</button><button type="button" data-s="drop">🛒 متجر العربيات (دروب شيبينج)</button></div>
+    <div class="box" id="dropHint" hidden>
+      <h3>🛒 منتجات متجر العربيات</h3>
+      <small>المنتجات دي بتظهر في <a href="https://ragabgama.github.io/rawnaq-shop/" target="_blank" rel="noopener" dir="ltr">rawnaq-shop</a> بس، مش في موقع الجرابات. أي تعديل هنا (السعر، الصور، الكلام، العروض، الإخفاء) بيظهر في المتجر على طول من غير ما نعمل صفحة جديدة. علشان تضيف منتج جديد من تاجر: دوس «+ منتج جديد»، اكتب الاسم والكلام، ارفع الصور، اكتب الأسعار وتكلفة تاجر، واختار اسم للصفحة بالإنجليزي، وبعدين احفظ.</small>
+    </div>
     <div class="box" id="stockBox">
       <h3>📱 موديلات الموبايل الخلصانة عند المورد</h3>
       <small>علّم على أي موديل خلص عند Zink، وهيتقفل في الموقع على طول: العميل مش هيقدر يختاره ولا يطلبه، ولو في السلة هيطلبوا منه يغيّره. شيل العلامة لما يرجع.</small>
@@ -209,6 +214,17 @@ textarea{min-height:70px;resize:vertical}
         <small>اكتب السطر بـ <b>##</b> في أوله عشان يبقى عنوان، وبـ <b>-</b> في أوله عشان يبقى نقطة بعلامة ✓.</small></div>
     </div>
 
+    <div class="box" id="dropBox" hidden>
+      <h3>🛒 متجر العربيات</h3>
+      <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="f_shopOn" checked> ظاهر في متجر العربيات (شيل العلامة عشان توقف المنتج، زي لو خلص عند تاجر)</label>
+      <div class="two">
+        <div class="fld"><label for="f_slug">اسم الصفحة بالإنجليزي *</label><input type="text" id="f_slug" dir="ltr" maxlength="30" placeholder="مثلًا: rust"><small id="f_slugUrl">حروف إنجليزي صغيرة وأرقام وشَرطة (-) بس. ده اللي بيبقى في لينك الإعلان، فماتغيروش وإعلانه شغال.</small></div>
+        <div class="fld"><label for="f_tag">علامة على صورة المنتج (اختياري)</label><input type="text" id="f_tag" maxlength="25" placeholder="جديد / الأكثر طلبًا"></div>
+        <div class="fld"><label for="f_defvar">العرض اللي يبقى متعلّم أول ما الصفحة تفتح</label><select id="f_defvar"></select><small>لو المنتج له أكتر من عرض (زي قطعة / قطعتين).</small></div>
+      </div>
+      <small>في «الوصف»: كل سطر بيبدأ بـ <b>-</b> بيظهر كنقطة بعلامة ✓ في صفحة المنتج. لو كتبت «قبل الخصم» لعرض القطعتين، بيظهر للعميل «توفّر …». اكتبه بس لو حقيقي (زي سعر قطعتين لو اتشروا كل واحدة لوحدها). الفيديو: لينك mp4 أو يوتيوب.</small>
+    </div>
+
     <div class="box">
       <h3>الصور</h3>
       <div class="imgs" id="imgs"></div>
@@ -227,7 +243,7 @@ textarea{min-height:70px;resize:vertical}
       <button type="button" class="btn s" id="addV">+ مقاس / نوع تاني</button>
     </div>
 
-    <div class="box">
+    <div class="box mainOnly">
       <h3>اختيار من قايمة (زي موديل الموبايل)</h3>
       <div class="two">
         <div class="fld"><label for="f_clabel">اسم القايمة</label><input type="text" id="f_clabel" maxlength="30" placeholder="موديل الموبايل"></div>
@@ -236,13 +252,13 @@ textarea{min-height:70px;resize:vertical}
       <div class="fld"><label for="f_choices">الاختيارات (كل واحد في سطر)</label><textarea id="f_choices" rows="5" placeholder="iPhone 15&#10;iPhone 15 Pro&#10;Samsung A54"></textarea><small>سيبها فاضية لو المنتج مش محتاج قايمة. لو موديل معين سعره مختلف اكتبه كده: <b dir="ltr">iPhone 17 Pro Max | 279</b>. وللبراويز ممكن تستخدمها للون البرواز (أسود، أبيض).</small></div>
     </div>
 
-    <div class="box">
+    <div class="box mainOnly">
       <h3>📸 العميل يرفع صورته</h3>
       <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="f_upload"> العميل لازم يرفع صورة عشان يطلب المنتج ده (زي «جراب بصورتك» أو «برواز بصورتك»)</label>
       <div class="two"><div class="fld"><label for="f_maxup">أقصى عدد صور</label><select id="f_maxup"><option value="1">صورة واحدة</option><option value="2">صورتين</option><option value="3">3 صور</option></select><small>المنتج ده هيظهر في صفحة «اطبع صورتك»، وبيتدفع مقدم أوتوماتيك.</small></div></div>
     </div>
 
-    <div class="box">
+    <div class="box mainOnly">
       <h3>✍️ اسم أو كلام على التصميم</h3>
       <label class="chk" style="margin-bottom:10px"><input type="checkbox" id="f_custom"> العميل يقدر يكتب اسمه أو كلام على التصميم</label>
       <div class="two">
@@ -267,7 +283,7 @@ textarea{min-height:70px;resize:vertical}
     <div class="box">
       <h3>الظهور</h3>
       <div class="two">
-        <label class="chk"><input type="checkbox" id="f_active" checked> ظاهر في الموقع</label>
+        <label class="chk mainOnly"><input type="checkbox" id="f_active" checked> ظاهر في الموقع</label>
         <div class="fld"><label for="f_order">الترتيب (الأصغر يظهر الأول)</label><input type="number" id="f_order" value="1"></div>
       </div>
     </div>
@@ -686,20 +702,35 @@ function catOptions(cur) {
   const cats = [...new Set(S.categories.concat(products.map((p) => p.category).filter(Boolean)).concat(cur ? [cur] : []))];
   return '<option value="">من غير قسم</option>' + cats.map((c) => '<option>' + esc(c) + '</option>').join('');
 }
+const DROPCAT = 'دروب شيبينج', SHOP_URL = 'https://ragabgama.github.io/rawnaq-shop/';
+const isDropP = (p) => p.category === DROPCAT;
+const shopPage = (slug) => SHOP_URL + (['digital', 'camel', 'rust'].includes(slug) ? slug + '.html' : 'p.html?p=' + encodeURIComponent(slug));
+let pscope = 'main';
+$('pscope').onclick = (e) => {
+  const b = e.target.closest('[data-s]'); if (!b) return;
+  pscope = b.dataset.s;
+  [].forEach.call($('pscope').children, (x) => x.classList.toggle('on', x === b));
+  $('dropHint').hidden = pscope !== 'drop'; $('stockBox').hidden = pscope === 'drop';
+  renderProducts();
+};
 function lowest(p) { const v = variantsOf(p); return v.length ? Math.min.apply(null, v.map((x) => Number(x.price))) : 0; }
 function renderProducts() {
   const el = $('plist');
-  if (!products.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">لسه مفيش منتجات. دوس «+ منتج جديد».</div>'; return; }
-  el.innerHTML = products.map((p) => '<div class="pcard" data-id="' + esc(p.id) + '">' +
+  const nD = products.filter(isDropP).length;
+  $('pscope').children[0].textContent = '🖼️ منتجات رونق (' + (products.length - nD) + ')';
+  $('pscope').children[1].textContent = '🛒 متجر العربيات (' + nD + ')';
+  const list = products.filter((p) => (pscope === 'drop') === isDropP(p));
+  if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">لسه مفيش منتجات هنا. دوس «+ منتج جديد».</div>'; return; }
+  el.innerHTML = list.map((p) => { const d = isDropP(p), on = d ? p.shopOn === true : p.active !== false; return '<div class="pcard" data-id="' + esc(p.id) + '">' +
     '<div class="ph"><img data-src="' + esc((p.images || [])[0] || '') + '" alt=""></div>' +
     '<div class="bd"><div class="nm">' + esc(p.name) + '</div>' +
-    '<div><span class="tag ' + (p.active === false ? 'off">مخفي' : 'on">ظاهر في الموقع') + '</span> · ' + esc(p.category || 'من غير قسم') + '</div>' +
+    '<div><span class="tag ' + (on ? 'on">' + (d ? 'ظاهر في متجر العربيات' : 'ظاهر في الموقع') : 'off">مخفي') + '</span> · ' + (d ? (p.slug ? '<span dir="ltr">' + esc(p.slug) + '</span>' : '<span class="warn">محتاج اسم صفحة</span>') : esc(p.category || 'من غير قسم')) + '</div>' +
     '<div>من <b>' + fmt(lowest(p)) + ' ج</b> · ' + variantsOf(p).length + ' مقاس' + (p.allowUpload ? ' · 📸 بصورة العميل' : '') + (p.allowCustom ? ' · ✍️ اسم' : '') + (p.variants ? '' : ' · <span class="warn">محتاج تعديل</span>') + '</div>' +
     '<div class="acts"><button class="btn s p" data-a="edit">تعديل</button>' +
-    '<button class="btn s" data-a="toggle">' + (p.active === false ? 'إظهار' : 'إخفاء') + '</button>' +
+    '<button class="btn s" data-a="toggle">' + (on ? 'إخفاء' : 'إظهار') + '</button>' +
     '<button class="btn s" data-a="dup">نسخة</button>' +
-    '<a class="btn s" target="_blank" rel="noopener" href="product.html?id=' + encodeURIComponent(p.id) + '">فتح</a>' +
-    '<button class="btn s r" data-a="del">حذف</button></div></div></div>').join('');
+    '<a class="btn s" target="_blank" rel="noopener" href="' + (d ? (p.slug ? shopPage(p.slug) : SHOP_URL) : 'product.html?id=' + encodeURIComponent(p.id)) + '">فتح</a>' +
+    '<button class="btn s r" data-a="del">حذف</button></div></div></div>'; }).join('');
   [].forEach.call(el.querySelectorAll('img[data-src]'), (im) => { if (im.dataset.src) setImg(im, im.dataset.src); });
 }
 $('plist').addEventListener('click', async (e) => {
@@ -707,6 +738,13 @@ $('plist').addEventListener('click', async (e) => {
   const p = products.find((x) => x.id === a.closest('.pcard').dataset.id); if (!p) return;
   if (a.dataset.a === 'edit') openForm(p);
   if (a.dataset.a === 'dup') openForm(p, true);
+  if (a.dataset.a === 'toggle' && isDropP(p)) {
+    const on = p.shopOn !== true;
+    if (on && !p.slug) return toast('افتح «تعديل» واكتب اسم الصفحة الأول');
+    try { await updateDoc(doc(db, 'products', p.id), { shopOn: on }); toast(on ? 'المنتج ظهر في متجر العربيات ✓' : 'المنتج اتخفى من متجر العربيات ✓'); }
+    catch (err) { toast('ماتحفظش: ' + err.code); }
+    return;
+  }
   if (a.dataset.a === 'toggle') {
     try { await updateDoc(doc(db, 'products', p.id), { active: p.active === false }); toast(p.active === false ? 'المنتج ظهر في الموقع ✓' : 'المنتج اتخفى من الموقع ✓'); }
     catch (err) { toast('ماتحفظش: ' + err.code); }
@@ -724,7 +762,24 @@ $('plist').addEventListener('click', async (e) => {
 });
 
 let editId = null, imgs = [], dirty = false;
-$('newP').onclick = () => openForm(null);
+$('newP').onclick = () => { openForm(null); if (pscope === 'drop') { $('f_cat').value = DROPCAT; $('f_vlabel').value = $('f_vlabel').value || 'العرض'; syncDrop(); } };
+function defVarOpts(sel) {
+  const names = [].map.call($('vrows').children, (d, i) => d.querySelector('[data-k=name]').value.trim() || ('السعر ' + (i + 1)));
+  const cur = sel != null ? sel : Number($('f_defvar').value) || 0;
+  $('f_defvar').innerHTML = names.map((n, i) => '<option value="' + i + '">' + esc(n) + '</option>').join('');
+  $('f_defvar').value = String(Math.min(cur, names.length - 1));
+}
+function syncDrop() {
+  const d = $('f_cat').value === DROPCAT;
+  $('dropBox').hidden = !d;
+  [].forEach.call(document.querySelectorAll('#pform .mainOnly'), (x) => { x.hidden = d; });
+  const sl = $('f_slug').value.trim();
+  $('f_slugUrl').innerHTML = d && /^[a-z0-9-]{2,30}$/.test(sl) ? 'لينك الصفحة: <a dir="ltr" target="_blank" rel="noopener" href="' + esc(shopPage(sl)) + '">' + esc(shopPage(sl)) + '</a>' : 'حروف إنجليزي صغيرة وأرقام وشَرطة (-) بس. ده اللي بيبقى في لينك الإعلان، فماتغيروش وإعلانه شغال.';
+  if (d) defVarOpts();
+}
+$('f_cat').addEventListener('change', syncDrop);
+$('f_slug').addEventListener('input', syncDrop);
+$('vrows').addEventListener('input', (e) => { if (e.target.dataset.k === 'name' && !$('dropBox').hidden) defVarOpts(); });
 $('pfBack').onclick = $('pfCancel').onclick = () => { if (dirty && !confirm('في تعديلات ماتحفظتش. تخرج من غير حفظ؟')) return; closeForm(); };
 $('pform').addEventListener('input', () => { dirty = true; });
 function closeForm() { $('pform').hidden = true; $('plistView').hidden = false; editId = null; dirty = false; window.scrollTo(0, 0); }
@@ -750,6 +805,9 @@ function openForm(p, dup) {
   $('f_cfee').value = g('customFee', '') || '';
   $('f_chint').value = g('customHint', '');
   $('f_active').checked = p ? (dup ? false : p.active !== false) : true;
+  $('f_shopOn').checked = p ? (dup ? false : p.shopOn === true) : true;
+  $('f_slug').value = p && !dup ? g('slug', '') : '';
+  $('f_tag').value = g('tag', '');
   $('f_order').value = p ? (p.order != null ? p.order : 1) : (products.length ? Math.max.apply(null, products.map((x) => Number(x.order) || 0)) + 1 : 1);
   imgs = p ? (p.images || []).slice() : [];
   paintImgs();
@@ -757,6 +815,7 @@ function openForm(p, dup) {
   $('vrows').innerHTML = '';
   const vs = p ? variantsOf(p) : [];
   (vs.length ? vs : [{ name: '', price: '' }]).forEach((v) => addVRow(Object.assign({ cost: cm[vkey(v.name)] != null ? cm[vkey(v.name)] : '' }, v)));
+  defVarOpts(Number(g('defVar', 0)) || 0); syncDrop();
   $('plistView').hidden = true; $('pform').hidden = false; window.scrollTo(0, 0);
   if (!p) $('f_name').focus();
 }
@@ -799,7 +858,7 @@ function addVRow(v) {
     '<div><label>قبل الخصم</label><input type="number" data-k="was" min="0" inputmode="numeric" value="' + esc(v.was || '') + '"></div>' +
     '<div><label>تكلفة المورد</label><input type="number" data-k="cost" min="0" inputmode="numeric" value="' + esc(v.cost != null ? v.cost : '') + '"></div>' +
     '<div><button type="button" class="btn s r" data-x title="شيل">✕</button></div><div class="prof"></div>';
-  $('vrows').appendChild(d); calcV(d);
+  $('vrows').appendChild(d); calcV(d); if ($('dropBox') && !$('dropBox').hidden) defVarOpts();
 }
 function calcV(d) {
   const g = (k) => Number(d.querySelector('[data-k=' + k + ']').value) || 0;
@@ -850,6 +909,16 @@ $('pform').addEventListener('submit', async (e) => {
   };
   const prev = editId ? prodById(editId) : null;
   if (prev && Array.isArray(prev.art) && prev.art.length) data.art = prev.art; // صور المعاينة على الحيطة
+  const drop = data.category === DROPCAT;
+  if (drop) {
+    const slug = $('f_slug').value.trim();
+    if (!/^[a-z0-9-]{2,30}$/.test(slug)) { $('f_slug').focus(); return toast('اكتب اسم الصفحة بالإنجليزي (حروف صغيرة وأرقام و - بس)'); }
+    if (products.some((x) => x.id !== editId && isDropP(x) && x.slug === slug)) { $('f_slug').focus(); return toast('فيه منتج تاني بنفس اسم الصفحة'); }
+    if (!imgs.length) return toast('ارفع صورة واحدة على الأقل');
+    Object.assign(data, { active: false, shopOn: $('f_shopOn').checked, slug, tag: $('f_tag').value.trim(), defVar: Math.min(Number($('f_defvar').value) || 0, variants.length - 1) });
+  }
+  // نحافظ على أي بيانات تانية متسجلة للمنتج (زي رقم تاجر)
+  if (prev) Object.keys(prev).forEach((k) => { if (k !== 'id' && !(k in data)) data[k] = prev[k]; });
   const btn = $('pfSave'); btn.disabled = true; btn.textContent = 'بيحفظ…';
   try {
     const id = editId || doc(collection(db, 'products')).id;
@@ -857,7 +926,7 @@ $('pform').addEventListener('submit', async (e) => {
     b.set(doc(db, 'products', id), data);
     b.set(doc(db, 'costs', id), { v: costMap });
     await b.commit();
-    toast('اتحفظ ✓' + (data.active ? ' وظهر في الموقع' : ' (بس هو مخفي)'));
+    toast('اتحفظ ✓' + (drop ? (data.shopOn ? ' وظهر في متجر العربيات' : ' (بس هو مخفي من متجر العربيات)') : data.active ? ' وظهر في الموقع' : ' (بس هو مخفي)'));
     closeForm();
   } catch (er) { toast('ماتحفظش: ' + er.code, 4000); }
   btn.disabled = false; btn.textContent = 'حفظ المنتج';
