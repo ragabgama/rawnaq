@@ -16,17 +16,20 @@
   var caseDisc = function () { return RQ.bundleDiscount(items(), CFG.bundles).discount; };
   var frameDisc = function () { return RQ.frameDiscount(items()).discount; };
   var discount = function () { return caseDisc() + frameDisc(); };
-  // كل الطلبات بتتدفع جزء مقدم (المنتجات بتتطبع بعد الطلب)
-  var isPre = function () { return true; };
+  // الجرابات بالتصميمات الجاهزة: دفع عند الاستلام من غير عربون.
+  // التصميم الخاص (صورة العميل أو كلام) والبراويز والأرقام اللي في القايمة السودا: بعربون زي ما هو
+  var readyCase = function (i) { return !i.custom && !(i.uploads && i.uploads.length) && /جراب/.test(i.cat || i.name || ''); };
+  var codMode = function () { var c = items(); return !blocked && c.length > 0 && c.every(readyCase); };
+  var isPre = function () { return !codMode(); };
   var BIG = 500; // أكتر من كده (أو تصميم خاص) العربون نص المبلغ، وأقل منه الشحن بس
   var isFull = function () { return plan === 'full' || blocked; };
   // نوع العربون: full = المبلغ كله، half = النص، ship = الشحن بس
-  var depKind = function () { return isFull() ? 'full' : (hasCustom() || subtotal() - discount() > BIG) ? 'half' : 'ship'; };
+  var depKind = function () { return codMode() ? 'none' : isFull() ? 'full' : (hasCustom() || subtotal() - discount() > BIG) ? 'half' : 'ship'; };
   var isHalf = function () { return depKind() === 'half'; };
   var codFee = function () { return isFull() ? 0 : (CFG.codFee || 0); };
   var preDisc = function () { return isFull() ? Math.round((subtotal() - discount()) * 0.05) : 0; };
   var grand = function () { return subtotal() - discount() - preDisc() + shipping() + codFee(); };
-  var depAmt = function () { var k = depKind(), t = grand(); return k === 'full' ? t : k === 'half' ? Math.ceil(t / 2) : shipping(); };
+  var depAmt = function () { var k = depKind(), t = grand(); return k === 'none' ? 0 : k === 'full' ? t : k === 'half' ? Math.ceil(t / 2) : shipping(); };
   var freeShip = function () { return CFG.freeShip > 0 && subtotal() - discount() >= CFG.freeShip; };
   var shipping = function () { return gov.value && !freeShip() ? (Number(CFG.shipping[gov.value]) || 0) : 0; };
 
@@ -90,6 +93,9 @@
     $('blockNote').hidden = !blocked;
     [].forEach.call(document.querySelectorAll('[data-plan]'), function (l) { var on = l.dataset.plan === (isFull() ? 'full' : 'dep'); l.classList.toggle('on', on); l.querySelector('input').checked = on; });
     [].forEach.call(document.querySelectorAll('.payopt[data-p]'), function (l) { var on = l.dataset.p === pay; l.classList.toggle('on', on); l.querySelector('input').checked = on; });
+    var cm = codMode();
+    $('codBox').hidden = !cm; $('prePart').hidden = cm;
+    if (cm) $('codTxt').textContent = gov.value ? 'مش هتحوّل حاجة دلوقتي. هتدفع ' + fmt(tot) + ' ج للمندوب لما الطلب يوصلك.' : 'مش هتحوّل حاجة دلوقتي. هتدفع المبلغ للمندوب لما الطلب يوصلك.';
     $('prepayBox').hidden = !(dep > 0);
     var num = pay === 'instapay' ? CFG.instapay : CFG.vodafone;
     $('ppAmt').textContent = fmt(dep) + ' ج';
@@ -255,7 +261,8 @@
     var btn = $('submitBtn'); btn.disabled = true; btn.textContent = 'بنسجّل طلبك…';
     var c = items(), sub = subtotal(), sh = shipping(), ds = discount() + preDisc(), cf = codFee(), tot = sub - ds + sh + cf;
     var id = 'RQ' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 90 + 10);
-    var status = 'مستني الدفع';
+    var cm = codMode(), payNow = cm ? 'cod' : pay;
+    var status = cm ? 'جديد' : 'مستني الدفع';
     var lineItems = c.map(function (i) {
       return { pid: String(i.pid), name: String(i.name).slice(0, 90), variant: String(i.variant || '').slice(0, 40), choice: String(i.choice || '').slice(0, 60),
         qty: Math.round(i.qty), price: Math.round(i.price), custom: String(i.custom || '').slice(0, 300), uploads: (i.uploads || []).slice(0, 3).map(String) };
@@ -265,7 +272,7 @@
     var rst = rcptState(), snd = $('sender').value.trim().slice(0, 40), ref = $('ref').value.trim().slice(0, 30);
     if (paid) lineItems[0].pp = { paid: paid, plan: kind, receipt: rc.id, check: rst, sender: snd, ref: ref, pd: preDisc(), blocked: blocked };
     var payTag = paid ? (kind === 'full' ? '💳 دفع المبلغ كامل مقدم ' + paid + ' ج' : '💳 ' + (kind === 'half' ? 'دفع نص المبلغ' : 'دفع الشحن') + ' مقدم ' + paid + ' ج والباقي ' + (tot - paid) + ' ج عند الاستلام') + (rst === 'ok' ? ' ✓ المبلغ ظاهر في الإيصال' : ' ⚠️ راجع الإيصال') + ' | من: ' + snd + (ref ? ' | عملية: ' + ref : '') : '';
-    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, codFee: cf, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: pay, status: status, paid: paid, plan: paid ? kind : '', receipt: rc.id, rcheck: rst };
+    var order = { id: id, items: lineItems, subtotal: sub, discount: ds, codFee: cf, shipping: sh, total: tot, name: d.name, phone: d.phone, gov: d.gov, address: d.address, pay: payNow, status: status, paid: paid, plan: paid ? kind : '', receipt: rc.id, rcheck: rst };
 
     function done(state) {
       order.state = state;
@@ -280,7 +287,7 @@
       // رسوم الدفع عند الاستلام بتتسجل مع الشحن (قواعد قاعدة البيانات بتقبل الحقول دي بس)
       id: id, items: lineItems, subtotal: sub, discount: ds, shipping: sh + cf, total: tot,
       name: d.name.slice(0, 80), phone: d.phone, gov: d.gov, address: d.address.slice(0, 250), custNote: [payTag, $('note').value.trim()].filter(Boolean).join(' | ').slice(0, 200),
-      pay: pay, src: String(RQ.src).slice(0, 60), status: status, notes: '', taagerNo: ''
+      pay: payNow, src: String(RQ.src).slice(0, 60), status: status, notes: '', taagerNo: ''
     };
     var encFields = {}; for (var k in fields) encFields[k] = RQ.enc(fields[k]);
 

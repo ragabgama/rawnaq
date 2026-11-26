@@ -44,6 +44,11 @@
       <div class="f"><label for="note">ملاحظة (اختياري)</label><input type="text" id="note" maxlength="200" placeholder="مثلًا: كلّمني بعد الساعة 5"></div>
       <div class="hp" aria-hidden="true"><label>سيب الخانة دي فاضية<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
 
+      <div class="paystep" id="codBox" hidden style="background:#E6F7F2;border-radius:14px;padding:12px 14px;margin:6px 0 12px">
+        <b style="display:block;color:var(--green,#0B7A5C);font-size:16px">💵 الدفع عند الاستلام</b>
+        <span id="codTxt">مش هتحوّل حاجة دلوقتي. هتدفع المبلغ للمندوب لما الطلب يوصلك.</span>
+      </div>
+      <div id="prePart">
       <span class="lbl" style="display:block;font-weight:800;margin:6px 0">هتدفع إزاي؟</span>
       <div class="whypre"><b>🖨️ ليه بنطلب عربون؟</b>طلبك بيتنفّذ مخصوص ليك: الجراب أو البرواز بيتطبع بعد ما تطلب، مش جاهز في مخزن. العربون بيأكد طلبك وبيتخصم من الحساب، والباقي تدفعه للمندوب لما تستلم.</div>
       <div class="payopts" id="planopts">
@@ -58,6 +63,7 @@
         <label class="payopt" data-p="vodafone"><input type="radio" name="pay" value="vodafone"><span>فودافون كاش<small>أو أي محفظة موبايل</small></span></label>
       </div>
       <div class="err" id="payErr" style="margin-top:-6px;margin-bottom:8px">اختار هتحوّل منين</div>
+      </div>
 
       <div class="paystep" id="prepayBox" hidden>
         <b class="big">💳 حوّل <span id="ppAmt"></span> الأول، وبعدين أكّد الطلب</b>
@@ -112,6 +118,6 @@
 <a class="wa" id="waBtn" href="#" target="_blank" rel="noopener" aria-label="كلمنا واتساب"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg></a>
 
 <script src="order.js?v=26"></script>
-<script src="cart.js?v=26"></script>
+<script src="cart.js?v=27"></script>
 </body>
 </html>
