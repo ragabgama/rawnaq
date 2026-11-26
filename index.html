@@ -13,8 +13,8 @@
 <link rel="preconnect" href="https://firestore.googleapis.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@600;800&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="store.css?v=25">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=El+Messiri:wght@600;700&family=Reem+Kufi:wght@700&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="store.css?v=27">
 <script src="config.js?v=25"></script>
 </head>
 <body>
@@ -26,77 +26,95 @@
 </div></header>
 <div class="catbar"><div class="wrap"><a href="./" class="cur">الرئيسية</a><a href="cases.html" class="">جرابات الموبايل</a><a href="frames.html" class="">براويز ولوحات</a><a href="custom.html" class="hot">📸 اطبع صورتك</a><a href="contact.html" class="">تواصل معنا</a></div></div>
 <main>
-<section class="wrap" style="padding-top:16px">
+<section class="hx" id="banner"><div class="wrap">
+  <div>
+    <div class="kk" id="bKick">تصميمات خاصة · بتتطبع مخصوص ليك</div>
+    <h1 id="bTitle">لمسة فن<br>بتفرق في بيتك وموبايلك</h1>
+    <p id="bSub">لوحات وبراويز بروح مصرية، وجرابات بتصميمات مختارة أو بصورتك انت. بنطبعها مخصوص ليك ونوصلها لحد باب البيت.</p>
+    <div class="hbtns"><a class="hb1" id="bBtn" href="frames.html">تسوّق البراويز</a><a class="hb2" href="cases.html">تسوّق الجرابات</a></div>
+  </div>
+  <div class="scene" aria-hidden="true">
+    <div class="fr f2"><div class="mat"><img src="img/art-02_1.jpg" alt="" width="560" height="840"></div></div>
+    <div class="fr f1"><div class="mat"><img src="img/art-01_2.jpg" alt="" width="560" height="840"></div></div>
+    <div class="fr f3"><div class="mat"><img src="img/art-03_1.jpg" alt="" width="560" height="840"></div></div>
+    <div class="shelf"></div><div class="plant"></div>
+    <div class="case"><img src="img/c2-18.jpg" alt="" width="540" height="540"></div>
+  </div>
+</div></section>
+
+<div class="tx3"><div class="wrap">
+  <div><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg><span><b>توصيل لكل مصر</b><br>لحد باب البيت</span></div>
+  <div><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 17H4v-7h16v7h-2M7 14h10v7H7z"/></svg><span><b>طباعة مخصوص ليك</b><br>بعد ما تطلب</span></div>
+  <div><svg viewBox="0 0 24 24"><path d="M4 20l1.4-4A8 8 0 1 1 8 18.6L4 20z"/></svg><span><b>الجرابات كاش</b><br>عند الاستلام</span></div>
+</div></div>
+
+<section class="wrap" style="padding-top:18px" id="offers" hidden>
   <div class="hslider" id="hslider" hidden><div class="htrack" id="htrack" dir="ltr"></div><div class="hdots" id="hdots"></div><button type="button" class="harr l" id="hPrev" aria-label="الصورة اللي قبلها" hidden><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="harr r" id="hNext" aria-label="الصورة اللي بعدها" hidden><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
-  <div class="promo" id="banner">
-    <div class="ptx">
-      <span class="kick" id="bKick">تصميمات مصرية · مطبوعة مخصوص ليك</span>
-      <h1 id="bTitle">جرابات ولوحات <em>بروح مصرية</em></h1>
-      <p id="bSub">طباعة UV مابتبهتش على جرابات لأكتر من 190 موديل، ولوحات حيطة ببراويز جاهزة للتعليق.</p>
-      <div class="ctas"><a class="btn" id="bBtn" href="cases.html">تسوّق الجرابات</a><a class="btn ghost" href="frames.html">شوف البراويز</a></div>
-    </div>
-    <div class="pcases">
-      <div class="pc1"><img src="img/case-rnq-12.jpg" alt="جراب الحمد لله" width="540" height="540"></div>
-      <div class="pc2"><img src="img/case-rnq-10.jpg" alt="جراب فلوكة النيل" width="540" height="540"></div>
-      <div class="pc3"><img src="img/case-rnq-08.jpg" alt="جراب خيامية" width="540" height="540"></div>
-    </div>
-  </div>
-  <div class="trustbar">
-    <div><b>💵</b>الجرابات بالدفع عند الاستلام</div><div><b>🚚</b>شحن مجاني من 999 ج</div><div><b>🖨️</b>طباعة UV مابتبهتش</div><div><b>📱</b>لأكتر من 190 موبايل</div>
-  </div>
 </section>
 
-<section class="wrap sec">
-  <div class="sechead"><h2>أحدث الجرابات</h2><a class="more" href="cases.html">شوف الكل <span id="nCases"></span> ←</a></div>
+<section class="hsec"><div class="wrap">
+  <div class="sechead"><h2>تسوّق حسب القسم</h2></div>
+  <div class="hcats">
+    <a class="hcat" href="frames.html"><div class="c"><img src="img/f2-05_0.jpg" alt="" loading="lazy" width="540" height="540"></div>براويز ولوحات</a>
+    <a class="hcat" href="cases.html"><div class="c"><img src="img/c2-08.jpg" alt="" loading="lazy" width="540" height="540"></div>جرابات موبايل</a>
+    <a class="hcat" href="custom.html"><div class="c"><img src="img/frame-photo2.jpg" alt="" loading="lazy" width="540" height="540"></div>بصورتك</a>
+    <a class="hcat" href="cases.html?sub=%D8%B9%D8%B1%D8%A8%D9%8A"><div class="c"><img src="img/c2-12.jpg" alt="" loading="lazy" width="540" height="540"></div>خط عربي</a>
+  </div>
+</div></section>
+
+<section class="hsec hwhite"><div class="wrap">
+  <div class="sechead"><div><div class="kk2">لوحات بروح مصرية</div><h2>أحدث البراويز واللوحات</h2></div><a class="more" href="frames.html">شوف الكل <span id="nFrames"></span></a></div>
+  <div class="hrow" id="homeFrames"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+</div></section>
+
+<section class="hsec"><div class="wrap">
+  <div class="hcust">
+    <div class="t">
+      <div class="kk2">صمّم بنفسك</div>
+      <h2>صورتك… في برواز أو على جرابك</h2>
+      <p>ارفع أي صورة من موبايلك، اختار برواز أو جراب أو الاتنين، وإحنا نطبعهالك بجودة عالية.</p>
+      <div class="hsteps"><div><b>1</b>ارفع صورتك</div><div><b>2</b>اختار المنتج</div><div><b>3</b>توصلك لحد البيت</div></div>
+      <a class="hb1 gold" href="custom.html">ابدأ التصميم</a>
+    </div>
+    <div class="pics"><img src="img/frame-photo2.jpg" alt="برواز بصورتك" loading="lazy" width="540" height="540"><img src="img/case-photo2.jpg" alt="جراب بصورتك" loading="lazy" width="540" height="540"></div>
+  </div>
+</div></section>
+
+<section class="hsec" style="padding-top:0"><div class="wrap">
+  <div class="sechead"><div><div class="kk2">جرابات موبايل · كاش عند الاستلام</div><h2>أحدث الجرابات</h2></div><a class="more" href="cases.html">شوف الكل <span id="nCases"></span></a></div>
   <div class="grid pgrid" id="homeCases"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
-  <a class="btn allbtn" href="cases.html">شوف كل الجرابات</a>
-</section>
-
-<section class="framesec"><div class="wrap sec">
-  <div class="sechead"><h2>أحدث البراويز واللوحات</h2><a class="more" href="frames.html">شوف الكل <span id="nFrames"></span> ←</a></div>
-  <div class="grid pgrid" id="homeFrames"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
-  <a class="btn allbtn" href="frames.html">شوف كل البراويز</a>
 </div></section>
 
-<section class="wrap sec">
-  <h2>تسوّق حسب ستايلك</h2>
-  <p class="secsub">اختار الأجواء اللي شبهك، وهنوريك التصميمات اللي فيها.</p>
-  <div class="styles" id="styles"><a class="style" href="cases.html?sub=%D9%83%D9%88%D8%B1%D8%A9" data-sub="كورة"><img alt="" loading="lazy" width="300" height="300"><div><b>⚽ كورة</b><span>لفريقك ولاعبك</span></div></a><a class="style" href="cases.html?sub=%D8%A8%D9%86%D8%A7%D8%AA" data-sub="بنات"><img alt="" loading="lazy" width="300" height="300"><div><b>🌸 بنات</b><span>رقيقة وشيك</span></div></a><a class="style" href="cases.html?sub=%D9%81%D9%86%20%D9%85%D8%B5%D8%B1%D9%8A" data-sub="فن مصري"><img alt="" loading="lazy" width="300" height="300"><div><b>🏺 فن مصري</b><span>روح مصرية</span></div></a><a class="style" href="cases.html?sub=%D8%AD%D9%8A%D9%88%D8%A7%D9%86%D8%A7%D8%AA" data-sub="حيوانات"><img alt="" loading="lazy" width="300" height="300"><div><b>🐱 حيوانات</b><span>كيوت وظريفة</span></div></a><a class="style" href="cases.html?sub=%D9%86%D9%82%D8%B4%D8%A7%D8%AA" data-sub="نقشات"><img alt="" loading="lazy" width="300" height="300"><div><b>✨ نقشات</b><span>تمشي مع أي لبس</span></div></a><a class="style" href="cases.html?sub=%D8%AE%D9%8A%D9%88%D9%84" data-sub="خيول"><img alt="" loading="lazy" width="300" height="300"><div><b>🐎 خيول</b><span>للخيل الأصيل</span></div></a><a class="style" href="cases.html?sub=%D9%83%D9%84%D8%A7%D9%85%20%D9%85%D8%B5%D8%B1%D9%8A" data-sub="كلام مصري"><img alt="" loading="lazy" width="300" height="300"><div><b>💬 كلام مصري</b><span>بلدي وخفيف</span></div></a><a class="style" href="cases.html?sub=%D8%B9%D8%B1%D8%A8%D9%8A" data-sub="عربي"><img alt="" loading="lazy" width="300" height="300"><div><b>🖋️ عربي</b><span>خط عربي</span></div></a></div>
-</section>
-
-<section class="wrap sec" style="padding-top:0">
-  <h2>هدية لمناسبة؟</h2>
-  <p class="secsub">أفكار جاهزة لكل مناسبة.</p>
-  <div class="occs"><a class="occ" href="custom.html"><i>🎂</i><b>عيد ميلاد</b><span>جراب أو برواز بصورته هيفرّحه أكتر من أي هدية</span></a><a class="occ" href="custom.html"><i>💑</i><b>هدية للي بتحبه</b><span>صورتكم مع بعض على جراب أو في برواز</span></a><a class="occ" href="frames.html"><i>🌙</i><b>رمضان والعيد</b><span>لوحات إسلامية تنوّر البيت</span></a><a class="occ" href="frames.html?sub=%D8%B7%D9%82%D9%85%203%20%D8%A8%D8%B1%D8%A7%D9%88%D9%8A%D8%B2"><i>🏠</i><b>بيت جديد</b><span>طقم 3 براويز يكمّل الصالة</span></a><a class="occ" href="cases.html?sub=%D9%83%D9%88%D8%B1%D8%A9"><i>⚽</i><b>لعشاق الكورة</b><span>جراب فريقه أو لاعبه المفضل</span></a></div>
-</section>
-
-<section class="wrap sec" id="bundles" style="padding-top:0">
-  <h2>🎁 عروض الجرابات</h2>
-  <p class="secsub">اختار أي تصميمات مع بعض، والخصم بيتحسب لوحده في السلة.</p>
+<section class="hsec" id="bundles" style="padding-top:0"><div class="wrap">
+  <div class="sechead"><div><div class="kk2">اشتري أكتر وادفع أقل</div><h2>عروض الجرابات</h2></div></div>
   <div class="bundles" id="bundlesBox"></div>
-</section>
-<section class="wrap sec"><div class="havepic">
-  <div class="hpimg"><img src="img/case-photo2.jpg" alt="جراب بصورتك" loading="lazy" width="540" height="540"><img src="img/frame-05.jpg" alt="برواز بصورتك" loading="lazy" width="540" height="540"></div>
-  <div class="hptx"><span class="kick">📸 عندك صورة حلوة؟</span><h2>اعملها جراب أو برواز</h2><p>ارفع أي صورة من موبايلك، صورة العيلة أو صحابك أو حبيبك، واحنا نطبعهالك على جراب أو في برواز جاهز للتعليق. هدية مالهاش زي.</p>
-  <div class="ctas"><a class="btn" href="custom.html">ارفع صورتك دلوقتي</a></div></div>
 </div></section>
 
-<section class="wrap sec" id="reviews" hidden style="padding-top:0">
-  <h2>⭐ آراء عملائنا</h2>
+<section class="hsec hwhite"><div class="wrap">
+  <div class="sechead"><div><div class="kk2">لكل ذوق</div><h2>تسوّق حسب ستايلك</h2></div></div>
+  <div class="styles" id="styles"><a class="style" href="cases.html?sub=%D9%83%D9%88%D8%B1%D8%A9" data-sub="كورة"><img alt="" loading="lazy" width="300" height="300"><div><b>⚽ كورة</b><span>لفريقك ولاعبك</span></div></a><a class="style" href="cases.html?sub=%D8%A8%D9%86%D8%A7%D8%AA" data-sub="بنات"><img alt="" loading="lazy" width="300" height="300"><div><b>🌸 بنات</b><span>رقيقة وشيك</span></div></a><a class="style" href="cases.html?sub=%D9%81%D9%86%20%D9%85%D8%B5%D8%B1%D9%8A" data-sub="فن مصري"><img alt="" loading="lazy" width="300" height="300"><div><b>🏺 فن مصري</b><span>روح مصرية</span></div></a><a class="style" href="cases.html?sub=%D8%AD%D9%8A%D9%88%D8%A7%D9%86%D8%A7%D8%AA" data-sub="حيوانات"><img alt="" loading="lazy" width="300" height="300"><div><b>🐱 حيوانات</b><span>كيوت وظريفة</span></div></a><a class="style" href="cases.html?sub=%D9%86%D9%82%D8%B4%D8%A7%D8%AA" data-sub="نقشات"><img alt="" loading="lazy" width="300" height="300"><div><b>✨ نقشات</b><span>تمشي مع أي لبس</span></div></a><a class="style" href="cases.html?sub=%D8%AE%D9%8A%D9%88%D9%84" data-sub="خيول"><img alt="" loading="lazy" width="300" height="300"><div><b>🐎 خيول</b><span>للخيل الأصيل</span></div></a><a class="style" href="cases.html?sub=%D9%83%D9%84%D8%A7%D9%85%20%D9%85%D8%B5%D8%B1%D9%8A" data-sub="كلام مصري"><img alt="" loading="lazy" width="300" height="300"><div><b>💬 كلام مصري</b><span>بلدي وخفيف</span></div></a><a class="style" href="cases.html?sub=%D8%B9%D8%B1%D8%A8%D9%8A" data-sub="عربي"><img alt="" loading="lazy" width="300" height="300"><div><b>🖋️ عربي</b><span>خط عربي</span></div></a></div>
+</div></section>
+
+<section class="hsec" id="reviews" hidden><div class="wrap">
+  <div class="sechead"><div><div class="kk2">من عملائنا</div><h2>آراء عملائنا</h2></div></div>
   <div class="reviews" id="revBox"></div>
-</section>
+</div></section>
+
+<section class="hsec" style="padding-top:0"><div class="wrap">
+  <a class="hwa" id="helpWa" href="#" target="_blank" rel="noopener"><i><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg></i><div><b>محتار تختار إيه؟</b><span>ابعتلنا على واتساب، نساعدك تختار المقاس والتصميم المناسب لمكانك.</span></div></a>
+</div></section>
 
 <section class="aboutsec"><div class="wrap sec">
   <div class="about">
     <div><h2>عن رونق</h2>
-      <p>رونق براند مصري بيعمل جرابات موبايل ولوحات حيطة بتصميمات فيها روحنا: فن مصري، خط عربي، كورة، وكلام بلدي. كل قطعة بتتطبع مخصوص ليك بعد ما تطلبها، عشان كده بتوصلك جديدة وبجودة عالية.</p>
+      <p>رونق براند مصري بيعمل لوحات حيطة وجرابات موبايل بتصميمات فيها روحنا: فن مصري، خط عربي، كورة، وكلام بلدي. كل قطعة بتتطبع مخصوص ليك بعد ما تطلبها، عشان كده بتوصلك جديدة وبجودة عالية.</p>
       <ul class="aboutl"><li>✓ بنأكد طلبك بالتليفون قبل ما نجهّزه</li><li>✓ يوصلك من 5 لـ 9 أيام عمل لأي محافظة</li><li>✓ لو وصل مكسور أو فيه عيب طباعة، بنبعتلك واحد جديد</li></ul>
     </div>
     <div class="paybox"><b>طرق الدفع</b>
       <div><span>💵 الجرابات بالدفع عند الاستلام</span></div>
       <div><span>📲 إنستاباي</span><bdi id="ipNum">01119864321</bdi></div>
       <div><span>📱 فودافون كاش</span><bdi id="vfNum">01029516690</bdi></div>
-      <small>التصميم الخاص بصورتك بيتدفع مقدم.</small>
+      <small>البراويز والتصميم الخاص بصورتك بعربون بسيط مقدم.</small>
     </div>
   </div>
 </div></section>
@@ -125,7 +143,7 @@
   var slideKey = '', slideT = null;
   function paintSlides(list) {
     var k = JSON.stringify(list); if (k === slideKey) return; slideKey = k;
-    $('hslider').hidden = !list.length; $('banner').hidden = !!list.length;
+    $('hslider').hidden = !list.length; $('offers').hidden = !list.length;
     if (!list.length) return;
     var tr = $('htrack');
     tr.innerHTML = list.map(function (b, i) {
@@ -177,6 +195,6 @@
   });
 })();
 </script>
-<script>document.getElementById('footWa').href=RQ.waLink('أهلًا');</script>
+<script>document.getElementById('footWa').href=RQ.waLink('أهلًا');document.getElementById('helpWa').href=RQ.waLink('أهلًا، محتاج مساعدة أختار تصميم');</script>
 </body>
 </html>
