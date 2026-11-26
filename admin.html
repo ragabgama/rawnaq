@@ -187,6 +187,15 @@ body{background:var(--pg);font-family:'Cairo',system-ui,-apple-system,"Segoe UI"
 .cardx .ch small{color:var(--mu);font-size:12.5px}
 .lg{display:flex;gap:12px;font-size:12px;color:var(--mu)}.lg span:before{content:'';display:inline-block;width:9px;height:9px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px;background:var(--c)}
 #chart svg{width:100%;height:160px;display:block}
+.adt{width:100%;border-collapse:collapse;font-size:13.5px}
+.adt th{color:var(--mu);font-weight:600;text-align:right;padding:6px 6px;border-bottom:1px solid var(--ln);font-size:12.5px}
+.adt td{padding:7px 6px;border-bottom:1px solid var(--ln);vertical-align:middle}
+.adt td select{width:auto;padding:4px 8px;font-size:13px;border-radius:999px}
+.adt .num{white-space:nowrap;font-weight:700}
+.adsum{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.adsum span{background:var(--pg);border-radius:10px;padding:6px 10px;font-size:13.5px}
+.adsum b{color:var(--pr)}
+.adscroll{overflow-x:auto}
 .ads{background:var(--wh);border:1px solid var(--ln);border-radius:16px}
 .tabs button{border:1px solid var(--ln)!important}
 .o{background:var(--wh);border:1px solid var(--ln);border-inline-start-width:4px;border-radius:14px;box-shadow:0 1px 2px rgba(20,30,60,.03)}
@@ -256,6 +265,14 @@ body{background:var(--pg);font-family:'Cairo',system-ui,-apple-system,"Segoe UI"
   </details>
   <div class="periods" id="periods"></div>
   <div class="stats" id="stats"></div>
+  <div class="cardx" id="adsBox">
+    <div class="ch"><b>📊 إعلانات فيسبوك</b><small id="adsMeta"></small></div>
+    <div id="adsConnect" hidden>
+      <p style="font-size:14px;margin-bottom:8px">اربط حساب الإعلانات عشان الصرف يتسحب لوحده ونحسب تكلفة الطلب والربح الصافي الحقيقي. الصق هنا مفتاح الوصول (Access Token) اللي فيه صلاحية <b>ads_read</b> بس. بيتحفظ في مكان محمي محدش يقدر يقراه غير حسابك.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><input type="password" id="adsTok" autocomplete="off" placeholder="الصق مفتاح الوصول هنا" style="flex:1;min-width:220px"><button class="btn p" id="adsSave" type="button">حفظ وربط</button></div>
+    </div>
+    <div id="adsTable"></div>
+  </div>
   <div class="ads">
     <label for="spend"><b>صرفت على الإعلانات في الفترة دي:</b></label>
     <input type="number" id="spend" min="0" placeholder="بالجنيه"> <span>ج</span>
@@ -636,6 +653,74 @@ function fillPF() {
   $('subList').innerHTML = subs.map((c) => '<option value="' + esc(c) + '">').join('');
 }
 
+/* ---------- إعلانات فيسبوك ---------- */
+const ADS = { act: 'act_1154951217068952', v: 'v23.0' };
+let adsCfg = null, adsRows = null, adsKey = '', adsErr = '', adsBusy = false;
+const adsDoc = () => doc(db, 'costs', '_ads');
+async function loadAdsCfg() { try { const d = await getDoc(adsDoc()); adsCfg = d.exists() ? d.data() : {}; } catch (e) { adsCfg = {}; } renderAds(); }
+function periodRange() {
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
+  const d = new Date(today + 'T00:00:00Z');
+  if (period === 'all') return { since: '2026-10-01', until: today };
+  d.setUTCDate(d.getUTCDate() - (Number(period) - 1)); return { since: d.toISOString().slice(0, 10), until: today };
+}
+async function fetchAds() {
+  if (!adsCfg || !adsCfg.token || adsBusy) return;
+  const r = periodRange(), k = r.since + r.until; if (k === adsKey && adsRows) return;
+  adsBusy = true; adsErr = ''; renderAds();
+  try {
+    const u = 'https://graph.facebook.com/' + ADS.v + '/' + ADS.act + '/insights?level=campaign&limit=200&fields=campaign_id,campaign_name,spend,impressions,clicks,actions&time_range=' + encodeURIComponent(JSON.stringify(r)) + '&access_token=' + encodeURIComponent(adsCfg.token);
+    const j = await (await fetch(u)).json();
+    if (j.error) throw new Error(j.error.message || 'error');
+    adsRows = (j.data || []).map((x) => {
+      const a = (x.actions || []).find((y) => y.action_type === 'offsite_conversion.fb_pixel_purchase') || (x.actions || []).find((y) => y.action_type === 'purchase');
+      return { id: x.campaign_id, name: x.campaign_name, spend: Math.round(Number(x.spend) || 0), clicks: Number(x.clicks) || 0, fbBuy: a ? Number(a.value) || 0 : 0 };
+    }).sort((a, b) => b.spend - a.spend);
+    adsKey = k;
+  } catch (e) { adsErr = String(e.message || e); adsRows = null; }
+  adsBusy = false; renderAds(); renderStats(cur());
+}
+const siteOfCamp = (c) => ((adsCfg && adsCfg.map) || {})[c.id] || (/كمبروسر|صدأ|دروب|drop/i.test(c.name) ? 'drop' : 'main');
+function adsSpendFor(s) { return adsRows ? adsRows.filter((c) => siteOfCamp(c) === s).reduce((a, c) => a + c.spend, 0) : null; }
+function renderAds() {
+  if (!$('adsBox')) return;
+  const has = adsCfg && adsCfg.token;
+  $('adsConnect').hidden = !!has || adsCfg === null;
+  if (!has) { $('adsTable').innerHTML = ''; $('adsMeta').textContent = adsCfg === null ? 'بيحمّل…' : 'مش متربط لسه'; return; }
+  if (adsBusy) { $('adsMeta').textContent = 'بيسحب الأرقام من فيسبوك…'; return; }
+  if (adsErr) { $('adsMeta').textContent = ''; $('adsTable').innerHTML = '<div class="chip bad" style="display:block">ماقدرناش نسحب الأرقام: ' + esc(adsErr) + '</div><button class="btn s" type="button" data-adsre>اربط تاني بمفتاح جديد</button>'; return; }
+  if (!adsRows) { fetchAds(); return; }
+  const mine = adsRows.filter((c) => siteOfCamp(c) === site), tot = mine.reduce((a, c) => a + c.spend, 0);
+  const real = cur(), n = real.length, deliv = real.filter((o) => o.status === 'اتسلم').length, conf = real.filter((o) => CONFIRMED.includes(o.status) && o.status !== 'رفض الاستلام').length;
+  const r = periodRange();
+  $('adsMeta').textContent = 'من ' + r.since.slice(5).split('-').reverse().join('/') + ' لـ ' + r.until.slice(5).split('-').reverse().join('/') + ' · بيتحدّث لوحده';
+  $('adsTable').innerHTML = '<div class="adscroll"><table class="adt"><tr><th>الحملة</th><th>الصرف</th><th>شراء حسب فيسبوك</th><th>تبع</th></tr>' +
+    adsRows.map((c) => '<tr' + (siteOfCamp(c) === site ? '' : ' style="opacity:.45"') + '><td>' + esc(c.name) + '</td><td class="num">' + fmt(c.spend) + ' ج</td><td class="num">' + c.fbBuy + '</td><td><select data-camp="' + esc(c.id) + '">' +
+      [['main', 'رونق'], ['drop', 'رونق ستور'], ['none', 'تجاهل']].map((o) => '<option value="' + o[0] + '"' + (siteOfCamp(c) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select></td></tr>').join('') +
+    (adsRows.length ? '' : '<tr><td colspan="4" style="color:var(--mu)">مفيش صرف في الفترة دي</td></tr>') + '</table></div>' +
+    '<div class="adsum"><span>صرف ' + (site === 'drop' ? 'رونق ستور' : 'رونق') + ': <b>' + fmt(tot) + ' ج</b></span><span>تكلفة الطلب الحقيقي: <b>' + (n ? fmt(tot / n) : '—') + ' ج</b></span><span>تكلفة الطلب المتأكد: <b>' + (conf ? fmt(tot / conf) : '—') + ' ج</b></span><span>تكلفة الطلب المتسلّم: <b>' + (deliv ? fmt(tot / deliv) : '—') + ' ج</b></span></div>' +
+    '<small style="display:block;color:var(--mu);margin-top:6px">⚠️ فيسبوك بيعدّ عمليات شراء زيادة (الطلب من جوه أبلكيشن فيسبوك بيتحسب مرتين). اعتمد على تكلفة الطلب الحقيقي اللي فوق.</small>';
+}
+$('adsBox').addEventListener('change', async (e) => {
+  const sel = e.target.closest('[data-camp]'); if (!sel) return;
+  const map = Object.assign({}, (adsCfg && adsCfg.map) || {}); map[sel.dataset.camp] = sel.value;
+  try { await setDoc(adsDoc(), { map }, { merge: true }); adsCfg.map = map; toast('اتحفظ ✓'); renderAds(); renderStats(cur()); } catch (er) { toast('ماتحفظش: ' + er.code); }
+});
+$('adsBox').addEventListener('click', (e) => { if (e.target.closest('[data-adsre]')) { adsCfg.token = ''; adsErr = ''; renderAds(); } });
+$('adsSave').onclick = async () => {
+  const t = $('adsTok').value.trim();
+  if (t.length < 30) return toast('المفتاح ده شكله ناقص');
+  $('adsSave').disabled = true; toast('بنجرب المفتاح…');
+  try {
+    const j = await (await fetch('https://graph.facebook.com/' + ADS.v + '/' + ADS.act + '?fields=name,currency&access_token=' + encodeURIComponent(t))).json();
+    if (j.error) throw new Error(j.error.message);
+    await setDoc(adsDoc(), { token: t, acct: j.name || '', updatedAt: serverTimestamp() }, { merge: true });
+    adsCfg = Object.assign(adsCfg || {}, { token: t }); $('adsTok').value = ''; adsKey = ''; adsRows = null;
+    toast('اتربط ✓ حساب: ' + (j.name || '')); renderAds();
+  } catch (er) { toast('المفتاح مش شغال: ' + (er.message || er.code), 6000); }
+  $('adsSave').disabled = false;
+};
+
 function renderStats(list) {
   const n = list.length, by = {}; list.forEach((o) => { by[o.status] = (by[o.status] || 0) + 1; });
   const conf = list.filter((o) => CONFIRMED.includes(o.status)).length;
@@ -644,6 +729,8 @@ function renderStats(list) {
   const refLoss = list.filter((o) => o.status === 'رفض الاستلام').reduce((a, o) => a + (o.legacy ? 5 : o.shipping), 0);
   const profit = list.filter((o) => o.status === 'اتسلم').reduce((a, o) => a + (o.profit || 0), 0) - refLoss;
   const pipe = list.filter((o) => PIPE.includes(o.status)).reduce((a, o) => a + (o.profit || 0), 0);
+  const auto = adsSpendFor(site);
+  if (auto != null) { $('spend').value = auto; $('spend').readOnly = true; $('spend').title = 'بيتسحب من فيسبوك'; } else { $('spend').readOnly = false; $('spend').title = ''; }
   const spend = Number($('spend').value) || 0;
   const cards = [['كل الطلبات', fmt(n)], ['جديد / مستني الدفع', fmt((by['جديد'] || 0) + (by['مستني الدفع'] || 0))], ['نسبة التأكيد', decided ? Math.round(conf / decided * 100) + '%' : '—'],
     ['اتسلم', fmt(deliv)], ['نسبة الاستلام', (deliv + ref) ? Math.round(deliv / (deliv + ref) * 100) + '%' : '—'], ['ربح المتسلّم (بعد خسارة المرفوض)', fmt(profit) + ' ج', 'hl'], ['ربح لسه في الطريق', fmt(pipe) + ' ج']];
@@ -786,6 +873,7 @@ function render() {
   [].forEach.call($('periods').children, (b) => { b.className = b.dataset.p === period ? 'on' : ''; });
   $('spend').value = LS.get('rq_spend_' + site + '_' + period) || (site === 'main' ? LS.get('rq_spend_' + period) || '' : '');
   const list = cur(); renderStats(list); renderTabs(list); renderList(list); loadUpThumbs(); renderChart();
+  if (adsCfg === null) { adsCfg = undefined; loadAdsCfg(); } else if (adsCfg) { if (adsKey !== periodRange().since + periodRange().until) fetchAds(); renderAds(); }
 }
 
 /* ================= الصور ================= */
