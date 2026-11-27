@@ -16,9 +16,9 @@
   var caseDisc = function () { return RQ.bundleDiscount(items(), CFG.bundles).discount; };
   var frameDisc = function () { return RQ.frameDiscount(items()).discount; };
   var discount = function () { return caseDisc() + frameDisc(); };
-  // الجرابات بالتصميمات الجاهزة: دفع عند الاستلام من غير عربون.
-  // التصميم الخاص (صورة العميل أو كلام) والبراويز والأرقام اللي في القايمة السودا: بعربون زي ما هو
-  var readyCase = function (i) { return !i.custom && !(i.uploads && i.uploads.length) && /جراب/.test(i.cat || i.name || ''); };
+  // الجرابات والبراويز بالتصميمات الجاهزة: دفع عند الاستلام من غير عربون.
+  // التصميم الخاص (صورة العميل أو كلام) والأرقام اللي في القايمة السودا: بعربون زي ما هو
+  var readyCase = function (i) { return !i.custom && !(i.uploads && i.uploads.length); };
   var codMode = function () { var c = items(); return !blocked && c.length > 0 && c.every(readyCase); };
   var isPre = function () { return !codMode(); };
   var BIG = 500; // أكتر من كده (أو تصميم خاص) العربون نص المبلغ، وأقل منه الشحن بس
