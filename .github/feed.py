@@ -6,7 +6,7 @@
 # لو قاعدة البيانات مش بترد، بيسيب الملفات القديمة زي ما هي ومايبوّظش حاجة
 import json, urllib.request, csv, re, sys, os, base64, time
 P = 'rawnaq-store-8e40c'
-SITE = 'https://ragabgama.github.io/rawnaq/'
+SITE = 'https://rawnaqly.com/'
 DOCS = 'https://firestore.googleapis.com/v1/projects/%s/databases/(default)/documents/' % P
 
 def get(url):
@@ -107,3 +107,14 @@ with open('feed.csv', 'w', newline='', encoding='utf-8') as f:
     w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
     w.writeheader(); w.writerows(rows)
 print(len(products), 'products,', len(rows), 'in feed,', len(refs), 'media')
+
+# ---------- خريطة الموقع لجوجل ----------
+import datetime
+today = datetime.date.today().isoformat()
+urls = [SITE, SITE + 'cases.html', SITE + 'frames.html', SITE + 'custom.html', SITE + 'shipping.html', SITE + 'contact.html']
+urls += [SITE + 'product.html?id=' + p['id'] for p in products if p.get('active') is not False and p.get('category') != 'دروب شيبينج']
+with open('sitemap.xml', 'w', encoding='utf-8') as f:
+    f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+    for u in urls: f.write('<url><loc>%s</loc><lastmod>%s</lastmod></url>\n' % (u.replace('&', '&amp;'), today))
+    f.write('</urlset>\n')
+print('sitemap', len(urls))
